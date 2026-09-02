@@ -1,0 +1,80 @@
+{
+  "$schema": "https://raw.githubusercontent.com/marcmassaco/harness-manager/main/agentic.schema.json",
+  "version": "1.0.0",
+  "project": {
+    "name": null,
+    "description": null
+  },
+  "cli": {},
+  "subagents": [
+    {
+      "name": "harness",
+      "description": "Default orchestrator. Reads feature_list.json and routes work.",
+      "default": true,
+      "applies_when": null,
+      "role_file": ".agents/subagents/harness/SUBAGENT.md",
+      "permission": {
+        "groups": [
+          "read",
+          "write",
+          "execute"
+        ]
+      }
+    },
+    {
+      "name": "spec-author",
+      "description": "Produces specs in EARS notation. Never writes production code.",
+      "default": true,
+      "applies_when": null,
+      "role_file": ".agents/subagents/spec-author/SUBAGENT.md",
+      "permission": {
+        "groups": [
+          "read",
+          "write"
+        ]
+      }
+    },
+    {
+      "name": "implementer",
+      "description": "Executes tasks.md sequentially on the active feature.",
+      "default": false,
+      "applies_when": {
+        "file_glob": [
+          "src/**/*.ts",
+          "src/**/*.tsx"
+        ]
+      },
+      "role_file": ".agents/subagents/implementer/SUBAGENT.md",
+      "permission": {
+        "groups": [
+          "read",
+          "write",
+          "execute"
+        ]
+      }
+    },
+    {
+      "name": "reviewer",
+      "description": "Verifies R<n>↔test traceability and runs checks.",
+      "default": false,
+      "applies_when": {
+        "file_glob": [
+          "src/**/*.test.ts"
+        ]
+      },
+      "role_file": ".agents/subagents/reviewer/SUBAGENT.md",
+      "permission": {
+        "groups": [
+          "read"
+        ]
+      }
+    }
+  ],
+  "commands": {
+    "status": ".agents/commands/status.md",
+    "spec": ".agents/commands/spec.md",
+    "approve": ".agents/commands/approve.md"
+  },
+  "hooks": [],
+  "steering": []
+}
