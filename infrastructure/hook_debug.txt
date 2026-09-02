@@ -1,0 +1,8 @@
+[2026-08-23 06:01:05.919210] RAW INPUT: 
+[2026-08-23 06:01:13.473361] RAW INPUT: {}
+[2026-08-23 06:01:13.477660] transcriptPath: None
+[2026-08-23 06:01:13.487693] Path does not exist or missing!
+[2026-08-23 06:01:33.043590] RAW INPUT: {"type": "USER_INPUT", "content": "hello"}
+{"type": "PLANNER_RESPONSE", "content": "here is a response without confidence"}
+
+[2026-08-23 06:01:33.046794] ERROR: Extra data: line 2 column 1 (char 43)

@@ -1,0 +1,24 @@
+﻿{
+  "manifest_version": 3,
+  "name": "Antigravity Universal Agent",
+  "version": "1.0",
+  "description": "Antigravity side panel for autonomous omnichannel workflows.",
+  "permissions": [
+    "sidePanel",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open Antigravity"
+  }
+}

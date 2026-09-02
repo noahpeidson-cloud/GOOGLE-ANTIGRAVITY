@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hybrid Verification - Fetch Intercept</title>
+    <!-- Inject our script first -->
+    <script src="injector.js"></script>
+</head>
+<body>
+    <script>
+        // Mock the Antigravity backend API
+        const mockBackend = window.fetch;
+        window.fetch = async (url) => {
+            if (url === '/api/models') {
+                return new Response(JSON.stringify({ models: [{ id: "gpt-4", name: "GPT-4" }] }));
+            }
+            return mockBackend(url);
+        };
+
+        // Simulate Antigravity UI loading models
+        async function runTest() {
+            window.LanguageModel = true; // Mock Chrome Built-in AI existence
+            
+            const res = await window.fetch('/api/models');
+            const data = await res.json();
+            
+            // LOUD ASSERTION
+            if (data.models.length !== 3) {
+                document.body.innerHTML = `<h1 style="color:red">VIOLATION: Expected 3 models, got ${data.models.length}</h1>`;
+                throw new Error("Injection Failed");
+            }
+            if (data.models[1].id !== "chrome-builtin-gemini-nano") {
+                document.body.innerHTML = `<h1 style="color:red">VIOLATION: Gemini Nano missing</h1>`;
+                throw new Error("Injection Failed");
+            }
+            
+            document.body.innerHTML = `<h1 style="color:green">[SUCCESS] Verification Passed</h1><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+        runTest();
+    </script>
+</body>
+</html>

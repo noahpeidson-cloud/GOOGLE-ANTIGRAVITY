@@ -1,0 +1,28 @@
+{
+  "incident_id": "c143a627-2041-4e01-aa05-d739d92eb1a2",
+  "timestamp": "2026-08-29T13:09:46.926006+00:00",
+  "source_service": "media_event_bus",
+  "error_category": "UNHANDLED_EXCEPTION",
+  "error_message": "Simulated hardware disconnect",
+  "payload": {
+    "job_id": "f726ed9a-8774-44fd-9829-4348644a01f3",
+    "task_type": "ADB_PULL",
+    "payload": {
+      "simulate_error": true,
+      "error_message": "Simulated hardware disconnect"
+    }
+  },
+  "traceback_str": "Traceback (most recent call last):\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\media_event_bus.py\", line 357, in process_job\n    result = self.execute_task(task_type, payload)\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\media_event_bus.py\", line 247, in execute_task\n    raise RuntimeError(payload.get(\"error_message\") or f\"Simulated error in task {task_type}\")\nRuntimeError: Simulated hardware disconnect\n",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-29T13:09:48.926006+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-29T13:09:46.926006+00:00",
+      "event": "RECORDED",
+      "message": "Simulated hardware disconnect"
+    }
+  ]
+}

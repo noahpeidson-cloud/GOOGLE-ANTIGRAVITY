@@ -1,0 +1,1 @@
+dir /b "d:\GOOGLE ANTIGRAVITY\content_creation" 2>nul & echo --- & dir /b "d:\GOOGLE ANTIGRAVITY\sports_cards" 2>nul & echo --- & dir /b "d:\GOOGLE ANTIGRAVITY\travel_and_life" 2>nul

@@ -1,0 +1,39 @@
+{
+  "incident_id": "1d50c946-1a0a-4a89-8d4c-a2cdfa8a45a1",
+  "timestamp": "2026-08-26T01:57:31.820258+00:00",
+  "source_service": "gateway_validation",
+  "error_category": "CORRUPTED_PAYLOAD",
+  "error_message": "Schema validation error on /api/v1/sports/capture: 1 validation error:\n  {'type': 'missing', 'loc': ('body', 'player'), 'msg': 'Field required', 'input': {'bad_field': 123}}\n\n  File \"g:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 133, in capture_card\n    POST /api/v1/sports/capture",
+  "payload": {
+    "path": "/api/v1/sports/capture",
+    "payload": {
+      "bad_field": 123
+    },
+    "errors": [
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "player"
+        ],
+        "msg": "Field required",
+        "input": {
+          "bad_field": 123
+        }
+      }
+    ]
+  },
+  "traceback_str": "1 validation error:\n  {'type': 'missing', 'loc': ('body', 'player'), 'msg': 'Field required', 'input': {'bad_field': 123}}\n\n  File \"g:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 133, in capture_card\n    POST /api/v1/sports/capture",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-26T01:57:33.820258+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-26T01:57:31.820258+00:00",
+      "event": "RECORDED",
+      "message": "Schema validation error on /api/v1/sports/capture: 1 validation error:\n  {'type': 'missing', 'loc': ('body', 'player'), 'msg': 'Field required', 'input': {'bad_field': 123}}\n\n  File \"g:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 133, in capture_card\n    POST /api/v1/sports/capture"
+    }
+  ]
+}

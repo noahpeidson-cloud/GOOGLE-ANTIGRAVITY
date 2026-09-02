@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Antigravity Model Injector",
+  "version": "1.0.0",
+  "description": "Injects Gemini Nano (window.ai) and Local Proxy models into Antigravity UI.",
+  "permissions": ["scripting"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["injector.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

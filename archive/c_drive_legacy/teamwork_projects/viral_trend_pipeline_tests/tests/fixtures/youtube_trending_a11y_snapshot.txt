@@ -1,0 +1,17 @@
+uid=2_0 RootWebArea "Trending - YouTube"
+  uid=2_1 main
+    uid=2_2 tablist
+      uid=2_3 tab "Now" selected=true
+      uid=2_4 tab "Music"
+      uid=2_5 tab "Gaming"
+    uid=2_6 section "Trending Videos"
+      uid=2_7 link "Is the 2026 Topps Chrome Wembanyama worth grading? by CardCollector 500K views 10 hours ago"
+        uid=2_8 heading "Is the 2026 Topps Chrome Wembanyama worth grading?" level=3
+        uid=2_9 text "CardCollector"
+        uid=2_10 text "500K views"
+        uid=2_11 text "10 hours ago"
+      uid=2_12 link "EDM Festival Live Set 2026 - Mainstage Ultra by RaveMaster 1.2M views 1 day ago"
+        uid=2_13 heading "EDM Festival Live Set 2026 - Mainstage Ultra" level=3
+        uid=2_14 text "RaveMaster"
+        uid=2_15 text "1.2M views"
+        uid=2_16 text "1 day ago"

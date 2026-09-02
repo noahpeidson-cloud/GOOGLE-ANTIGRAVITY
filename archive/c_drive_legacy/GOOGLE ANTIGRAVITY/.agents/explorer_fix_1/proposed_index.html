@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EDM Trigger">
+  <meta name="theme-color" content="#000000">
+  <title>EDM Pipeline Master Mind Trigger</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <style>
+    :root {
+      /* OLED Dark Theme Color Palette */
+      --bg-oled-black: #000000;
+      --bg-surface-dark: #08080c;
+      --bg-surface-elevated: #121218;
+      --bg-card-glass: rgba(18, 18, 24, 0.85);
+      --border-glass: rgba(255, 255, 255, 0.08);
+
+      /* EDM Laser Neon Accents */
+      --neon-cyan: #00ffcc;
+      --neon-pink: #ff007f;
+      --neon-purple: #7928ca;
+      --neon-green: #00ff88;
+      --neon-amber: #ffaa00;
+      --neon-red: #ff0055;
+
+      /* Text Tokens */
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.70);
+      --text-muted: rgba(255, 255, 255, 0.45);
+
+      /* Sizing & Safe Areas */
+      --trigger-btn-size: clamp(220px, 62vw, 300px);
+      --safe-zone-top: env(safe-area-inset-top, 20px);
+      --safe-zone-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-oled-black);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--safe-zone-top) 16px var(--safe-zone-bottom) 16px;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Dashboard Container */
+    .dashboard-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    /* Header & Branding */
+    .dashboard-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 4px;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .neon-cyan {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+    }
+
+    .neon-pink {
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+    }
+
+    .health-badges-container {
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid transparent;
+      background: var(--bg-surface-elevated);
+      color: var(--text-muted);
+    }
+
+    .badge-ok {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--neon-green);
+      border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .badge-warn {
+      background: rgba(255, 170, 0, 0.15);
+      color: var(--neon-amber);
+      border-color: rgba(255, 170, 0, 0.3);
+    }
+
+    .badge-err {
+      background: rgba(255, 0, 85, 0.15);
+      color: var(--neon-red);
+      border-color: rgba(255, 0, 85, 0.3);
+    }
+
+    /* Trigger Section */
+    .trigger-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+      width: 100%;
+    }
+
+    .button-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .massive-trigger-btn {
+      width: var(--trigger-btn-size);
+      height: var(--trigger-btn-size);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #1a1a24 0%, #0d0d14 70%, #050508 100%);
+      border: 3px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.35), inset 0 0 25px rgba(0, 255, 204, 0.15);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      outline: none;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+      will-change: transform, box-shadow;
+      touch-action: manipulation;
+    }
+
+    .massive-trigger-btn:active:not(:disabled) {
+      transform: scale(0.94);
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 45px rgba(255, 0, 127, 0.6), inset 0 0 30px rgba(255, 0, 127, 0.3);
+    }
+
+    .massive-trigger-btn:disabled {
+      opacity: 0.85;
+      cursor: not-allowed;
+      border-color: var(--neon-purple);
+    }
+
+    .pulse-glow {
+      animation: pulse-glow-anim 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse-glow-anim {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(0, 255, 204, 0.3), inset 0 0 15px rgba(0, 255, 204, 0.1);
+      }
+      50% {
+        box-shadow: 0 0 45px rgba(0, 255, 204, 0.6), inset 0 0 30px rgba(0, 255, 204, 0.25);
+      }
+    }
+
+    .btn-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px;
+      pointer-events: none;
+    }
+
+    .btn-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    .btn-label {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: var(--text-primary);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+      line-height: 1.2;
+    }
+
+    .btn-sublabel {
+      font-size: 0.7rem;
+      color: var(--neon-cyan);
+      margin-top: 6px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-spinner {
+      position: absolute;
+      width: calc(var(--trigger-btn-size) + 16px);
+      height: calc(var(--trigger-btn-size) + 16px);
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: var(--neon-pink);
+      border-right-color: var(--neon-cyan);
+      animation: spin 1.2s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Telemetry HUD Section */
+    .telemetry-section {
+      width: 100%;
+    }
+
+    .status-card {
+      background: var(--bg-card-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 8px;
+    }
+
+    .status-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .state-pill {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 10px;
+      letter-spacing: 1px;
+    }
+
+    .state-idle {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+    }
+
+    .state-running {
+      background: rgba(0, 255, 204, 0.2);
+      color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+      animation: pulse-glow-anim 1.5s infinite;
+    }
+
+    .telemetry-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .telemetry-label {
+      color: var(--text-muted);
+    }
+
+    .telemetry-val {
+      color: var(--text-primary);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .status-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-cancel {
+      background: rgba(255, 0, 85, 0.2);
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:active {
+      transform: scale(0.95);
+      background: rgba(255, 0, 85, 0.4);
+    }
+
+    .btn-refresh {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Floating Toast System */
+    .toast-container {
+      position: fixed;
+      bottom: calc(var(--safe-zone-bottom) + 12px);
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast-card {
+      pointer-events: auto;
+      max-width: 440px;
+      width: 100%;
+      background: rgba(18, 18, 24, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toast-success {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+    }
+
+    .toast-warning {
+      border-color: var(--neon-amber);
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+    }
+
+    .toast-error {
+      border-color: var(--neon-red);
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+    }
+
+    .toast-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .toast-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .toast-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="oled-theme">
+  <div id="app" class="dashboard-container">
+    <!-- Header / Branding & System Health -->
+    <header class="dashboard-header">
+      <div class="brand-title">
+        <span class="neon-cyan">? LASER</span><span class="neon-pink">BAPTISM</span>
+      </div>
+      <div id="health-badges" class="health-badges-container">
+        <span id="badge-adb" class="badge badge-idle" title="ADB Status">ADB</span>
+        <span id="badge-ffmpeg" class="badge badge-idle" title="FFmpeg Status">FFMPEG</span>
+        <span id="badge-server" class="badge badge-ok" title="Server Status">ONLINE</span>
+      </div>
+    </header>
+
+    <!-- Main Giant Trigger Control Section -->
+    <main class="trigger-section">
+      <div class="button-wrapper">
+        <button id="trigger-btn" class="massive-trigger-btn pulse-glow" aria-label="Trigger EDM Pipeline">
+          <div class="btn-inner">
+            <div class="btn-icon">?</div>
+            <div class="btn-label" id="btn-label">TRIGGER EDM PIPELINE</div>
+            <div class="btn-sublabel">S26 Ultra Ingest + RMS Drop</div>
+          </div>
+          <div class="btn-spinner hidden" id="btn-spinner"></div>
+        </button>
+      </div>
+    </main>
+
+    <!-- Live Telemetry & Status HUD Card -->
+    <section class="telemetry-section">
+      <div id="status-card" class="status-card">
+        <div class="status-header">
+          <span class="status-title">DAEMON STATUS</span>
+          <span id="daemon-state" class="state-pill state-idle">IDLE</span>
+        </div>
+        <div class="telemetry-body">
+          <div class="telemetry-row">
+            <span class="telemetry-label">Active Job:</span>
+            <span id="active-job-id" class="telemetry-val">None</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Elapsed:</span>
+            <span id="elapsed-time" class="telemetry-val">0.0s</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Last Job:</span>
+            <span id="last-job-summary" class="telemetry-val">--</span>
+          </div>
+        </div>
+        <div class="status-actions">
+          <button id="cancel-btn" class="btn-cancel hidden" title="Cancel Active Job">ABORT JOB</button>
+          <button id="refresh-status-btn" class="btn-refresh" title="Refresh Status">?</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Floating Dynamic Visual Toast Container -->
+    <div id="toast-container" class="toast-container" role="alert" aria-live="assertive">
+      <div id="toast-card" class="toast-card hidden">
+        <span id="toast-icon" class="toast-icon">??</span>
+        <div class="toast-content">
+          <div id="toast-title" class="toast-title">Accepted</div>
+          <div id="toast-message" class="toast-message">Pipeline job started</div>
+        </div>
+        <button id="toast-close" class="toast-close-btn" aria-label="Close Toast">&times;</button>
+      </div>
+      <!-- Backward compatible aliases for test assertions -->
+      <div id="status-toast" class="hidden"></div>
+      <div id="status-display" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * EDM Master Mind PWA Remote Trigger Engine
+     * Handles async fetch dispatch, dual-branch vibration haptics, and live DOM toasts.
+     */
+    class RemoteTriggerClient {
+      constructor() {
+        this.triggerBtn = document.getElementById('trigger-btn');
+        this.btnSpinner = document.getElementById('btn-spinner');
+        this.toastCard = document.getElementById('toast-card');
+        this.toastTitle = document.getElementById('toast-title');
+        this.toastMessage = document.getElementById('toast-message');
+        this.toastIcon = document.getElementById('toast-icon');
+        this.statusToast = document.getElementById('status-toast');
+        this.statusDisplay = document.getElementById('status-display');
+        this.toastTimeout = null;
+        this.pollInterval = null;
+
+        this.initEventListeners();
+        this.fetchSystemHealth();
+        this.pollStatus();
+      }
+
+      initEventListeners() {
+        // Primary trigger tap
+        this.triggerBtn?.addEventListener('click', (e) => this.handleTrigger(e));
+
+        // Manual toast close
+        document.getElementById('toast-close')?.addEventListener('click', () => this.hideToast());
+
+        // Status refresh button
+        document.getElementById('refresh-status-btn')?.addEventListener('click', () => this.pollStatus());
+
+        // Cancel active job button
+        document.getElementById('cancel-btn')?.addEventListener('click', () => this.handleCancel());
+
+        // Network online/offline indicators
+        window.addEventListener('online', () => this.showToast('Online', 'Connected to network', 'success', '⚡'));
+        window.addEventListener('offline', () => {
+          this.vibrate([500, 200, 500]);
+          this.showToast('Offline', 'No Wi-Fi / LAN connection', 'error', '⚠️');
+        });
+      }
+
+      /**
+       * Safe Haptic Vibration Execution with Browser Feature Detection
+       * @param {number[]} pattern - Millisecond array [vibrate, pause, vibrate]
+       */
+      vibrate(pattern) {
+        try {
+          if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+            navigator.vibrate(pattern);
+          }
+        } catch (err) {
+          console.warn('[Haptics] navigator.vibrate failed or blocked:', err);
+        }
+      }
+
+      /**
+       * Dispatches POST /trigger-pipeline
+       */
+      async handleTrigger(event) {
+        if (this.triggerBtn && this.triggerBtn.disabled) return;
+
+        // Debounce lock: disable button during in-flight dispatch
+        this.setButtonLoading(true);
+
+        const payload = {
+          event: "LiveConcert",
+          artist: "AutoArtist",
+          brand: "laser_baptism",
+          tier: "pillar_a_stadium_arena",
+          from_device: true,
+          auto_drop: true,
+          drop_duration: 30.0,
+          publish_youtube: false,
+          auto_promote: false
+        };
+
+        try {
+          const response = await fetch('/trigger-pipeline', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (response.status === 202) {
+            // SUCCESS: HTTP 202 Accepted (<50ms)
+            this.vibrate([100, 100, 100]); // Dual-pulse success vibration
+            const jobId = data.job_id || 'OK';
+            this.showToast(
+              'Accepted (202)',
+              'Job started: ' + jobId,
+              'success',
+              '🚀'
+            );
+            this.startTelemetryPolling();
+          } else if (response.status === 409) {
+            // CONFLICT: HTTP 409 Conflict (Job already running)
+            this.vibrate([500, 200, 500]); // Heavy warning vibration
+            const elapsed = (data.elapsed_seconds !== undefined && data.elapsed_seconds !== null)
+              ? ' (' + Number(data.elapsed_seconds).toFixed(1) + 's elapsed)'
+              : '';
+            const currentJob = data.current_job_id || 'Job in progress';
+            this.showToast(
+              'Busy (409 Conflict)',
+              'Pipeline already running: ' + currentJob + elapsed,
+              'warning',
+              '⚠️'
+            );
+          } else {
+            // OTHER HTTP ERROR
+            this.vibrate([500, 200, 500]);
+            this.showToast(
+              'Error (' + response.status + ')',
+              data.detail || data.error || 'Server rejected request',
+              'error',
+              '❌'
+            );
+          }
+        } catch (networkError) {
+          // NETWORK / CONNECTION FAILURE
+          this.vibrate([500, 200, 500]);
+          this.showToast(
+            'Network Error',
+            'Failed to reach workstation server (' + (networkError.message || networkError) + ')',
+            'error',
+            '❌'
+          );
+        } finally {
+          this.setButtonLoading(false);
+        }
+      }
+
+      setButtonLoading(isLoading) {
+        if (!this.triggerBtn) return;
+        this.triggerBtn.disabled = isLoading;
+        if (isLoading) {
+          this.btnSpinner?.classList.remove('hidden');
+          this.triggerBtn.setAttribute('aria-busy', 'true');
+        } else {
+          this.btnSpinner?.classList.add('hidden');
+          this.triggerBtn.removeAttribute('aria-busy');
+        }
+      }
+
+      showToast(title, message, type = 'success', icon = '🚀') {
+        if (this.toastTimeout) clearTimeout(this.toastTimeout);
+
+        if (this.toastTitle) this.toastTitle.textContent = title;
+        if (this.toastMessage) this.toastMessage.textContent = message;
+        if (this.toastIcon) this.toastIcon.textContent = icon;
+
+        if (this.statusToast) {
+          this.statusToast.textContent = title + ': ' + message;
+        }
+        if (this.statusDisplay) {
+          this.statusDisplay.textContent = title + ': ' + message;
+        }
+
+        if (this.toastCard) {
+          this.toastCard.className = 'toast-card toast-' + type;
+          this.toastCard.classList.remove('hidden');
+        }
+
+        // Auto-dismiss after 4.5 seconds
+        this.toastTimeout = setTimeout(() => {
+          this.hideToast();
+        }, 4500);
+      }
+
+      hideToast() {
+        if (this.toastCard) {
+          this.toastCard.classList.add('hidden');
+        }
+      }
+
+      async pollStatus() {
+        try {
+          const res = await fetch('/status');
+          if (!res.ok) return;
+          const statusData = await res.json();
+          this.updateTelemetryDOM(statusData);
+        } catch (e) {
+          console.debug('[Telemetry] Status poll failed:', e);
+        }
+      }
+
+      updateTelemetryDOM(status) {
+        const stateEl = document.getElementById('daemon-state');
+        const jobEl = document.getElementById('active-job-id');
+        const elapsedEl = document.getElementById('elapsed-time');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const lastEl = document.getElementById('last-job-summary');
+
+        if (stateEl) {
+          const st = (status.state || 'IDLE').toUpperCase();
+          stateEl.textContent = st;
+          stateEl.className = 'state-pill state-' + st.toLowerCase();
+        }
+        if (jobEl) {
+          jobEl.textContent = status.current_job_id || 'None';
+        }
+        if (elapsedEl) {
+          const elapsed = status.active_job?.elapsed_seconds || 0.0;
+          elapsedEl.textContent = Number(elapsed).toFixed(1) + 's';
+        }
+        if (lastEl && status.last_job) {
+          const lastId = status.last_job.job_id || 'unknown';
+          const lastState = status.last_job.state || 'UNKNOWN';
+          lastEl.textContent = lastId + ' (' + lastState + ')';
+        }
+        if (cancelBtn) {
+          if (status.is_running) {
+            cancelBtn.classList.remove('hidden');
+          } else {
+            cancelBtn.classList.add('hidden');
+          }
+        }
+      }
+
+      startTelemetryPolling() {
+        if (this.pollInterval) clearInterval(this.pollInterval);
+        this.pollInterval = setInterval(async () => {
+          await this.pollStatus();
+        }, 2000);
+      }
+
+      async handleCancel() {
+        try {
+          const res = await fetch('/cancel', { method: 'POST' });
+          const data = await res.json();
+          if (res.ok) {
+            this.vibrate([100, 100, 100]);
+            this.showToast('Cancelled', data.message || 'Pipeline aborted', 'warning', '⚠️');
+            this.pollStatus();
+          } else {
+            this.showToast('Error', data.detail || 'Cancel failed', 'error', '❌');
+          }
+        } catch (err) {
+          this.showToast('Error', 'Cancel request failed: ' + (err.message || err), 'error', '❌');
+        }
+      }
+
+      async fetchSystemHealth() {
+        try {
+          const res = await fetch('/health');
+          if (!res.ok) return;
+          const h = await res.json();
+          const adbBadge = document.getElementById('badge-adb');
+          const ffBadge = document.getElementById('badge-ffmpeg');
+
+          if (adbBadge) {
+            const adbOk = h.adb_connected || h.adb_status === 'ok' || h.adb === true;
+            adbBadge.className = 'badge ' + (adbOk ? 'badge-ok' : 'badge-err');
+          }
+          if (ffBadge) {
+            const ffOk = h.ffmpeg_installed || h.ffmpeg_status === 'ok' || h.ffmpeg === true;
+            ffBadge.className = 'badge ' + (ffOk ? 'badge-ok' : 'badge-err');
+          }
+        } catch (e) {
+          console.debug('[Health] Health probe failed:', e);
+        }
+      }
+    }
+
+    // Instantiate on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      window.remoteTriggerClient = new RemoteTriggerClient();
+    });
+
+  </script>
+</body>
+</html>

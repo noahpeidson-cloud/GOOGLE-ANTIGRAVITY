@@ -1,0 +1,1 @@
+curl -s -o NUL -w "HTTP %{http_code}" http://localhost:8090/ & echo. & curl -s http://localhost:8090/api/templates | python -c "import sys,json; d=json.load(sys.stdin); print('templates endpoint OK, count:', len(d) if isinstance(d,list) else d)"

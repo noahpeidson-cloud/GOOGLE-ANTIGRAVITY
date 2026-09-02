@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Council of the Drop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --obsidian: #0b0c10;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            /* Persona Colors */
+            --c-hook: #ff3366;
+            --c-kinetic: #00f0ff;
+            --c-vibe: #bf00ff;
+            --c-retention: #00ff66;
+            --c-sound: #ffaa00;
+        }
+
+        body {
+            background-color: var(--obsidian);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 51, 102, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: #888;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.8);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #2a2a35, #1a1a25);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0 30px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .council-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .persona {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.5;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(100%);
+        }
+
+        .persona.active {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .persona-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        /* Persona specific glows */
+        .persona[data-id="Hook Architect"].active .persona-icon { box-shadow: 0 0 20px var(--c-hook); border: 1px solid var(--c-hook); }
+        .persona[data-id="Kinetic Editor"].active .persona-icon { box-shadow: 0 0 20px var(--c-kinetic); border: 1px solid var(--c-kinetic); }
+        .persona[data-id="Vibe Curator"].active .persona-icon { box-shadow: 0 0 20px var(--c-vibe); border: 1px solid var(--c-vibe); }
+        .persona[data-id="Retention Hacker"].active .persona-icon { box-shadow: 0 0 20px var(--c-retention); border: 1px solid var(--c-retention); }
+        .persona[data-id="Sound Seeder"].active .persona-icon { box-shadow: 0 0 20px var(--c-sound); border: 1px solid var(--c-sound); }
+
+        .persona-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dialogue-log {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dialogue-log::-webkit-scrollbar {
+            width: 8px;
+        }
+        .dialogue-log::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        .thought-bubble {
+            background: rgba(255,255,255,0.03);
+            border-left: 4px solid #fff;
+            padding: 15px 20px;
+            border-radius: 0 12px 12px 0;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            line-height: 1.5;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .thought-bubble.Hook\ Architect { border-left-color: var(--c-hook); }
+        .thought-bubble.Kinetic\ Editor { border-left-color: var(--c-kinetic); }
+        .thought-bubble.Vibe\ Curator { border-left-color: var(--c-vibe); }
+        .thought-bubble.Retention\ Hacker { border-left-color: var(--c-retention); }
+        .thought-bubble.Sound\ Seeder { border-left-color: var(--c-sound); }
+
+        .thought-author {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .synthetic-prompt-container {
+            margin-top: 10px;
+        }
+
+        .synthetic-prompt-container h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+        }
+
+        .synthetic-prompt-box {
+            background: rgba(0, 10, 20, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: #00f0ff;
+            line-height: 1.6;
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
+            white-space: pre-wrap;
+            display: none; /* hidden until ready */
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-left-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Council of the Drop</h1>
+            <p>AI Orchestration for Short-Form EDM</p>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="promptInput" placeholder="Describe the vibe (e.g. 'Dark techno rave, heavy lasers on the drop')">
+            <button class="action-btn" id="generateBtn">
+                <span>Generate Elite Visual</span>
+                <div class="spinner" id="spinner"></div>
+            </button>
+        </div>
+
+        <div class="council-grid">
+            <div class="persona" data-id="Hook Architect">
+                <div class="persona-icon">🪝</div>
+                <div class="persona-name">Hook Architect</div>
+            </div>
+            <div class="persona" data-id="Kinetic Editor">
+                <div class="persona-icon">⚡</div>
+                <div class="persona-name">Kinetic Editor</div>
+            </div>
+            <div class="persona" data-id="Vibe Curator">
+                <div class="persona-icon">🔮</div>
+                <div class="persona-name">Vibe Curator</div>
+            </div>
+            <div class="persona" data-id="Retention Hacker">
+                <div class="persona-icon">⏱️</div>
+                <div class="persona-name">Retention Hacker</div>
+            </div>
+            <div class="persona" data-id="Sound Seeder">
+                <div class="persona-icon">🔥</div>
+                <div class="persona-name">Sound Seeder</div>
+            </div>
+        </div>
+
+        <div class="dialogue-log" id="dialogueLog">
+            <!-- Thoughts will stream here -->
+            <div style="opacity:0.3; text-align:center; margin-top: 50px;">Awaiting conceptual input...</div>
+        </div>
+
+        <div class="synthetic-prompt-container">
+            <h3>Synthetic Prompt output</h3>
+            <div class="synthetic-prompt-box" id="syntheticPromptBox"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const input = document.getElementById('promptInput').value;
+            if (!input) return;
+
+            // Reset UI
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('dialogueLog').innerHTML = '';
+            document.getElementById('syntheticPromptBox').style.display = 'none';
+            document.querySelectorAll('.persona').forEach(el => el.classList.remove('active'));
+
+            try {
+                const res = await fetch('http://127.0.0.1:9051/api/council_think', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: input })
+                });
+
+                if (!res.ok) throw new Error("Server error");
+                
+                const data = await res.json();
+                
+                if (data.status === "success") {
+                    document.getElementById('dialogueLog').innerHTML = `<div style="color:white; white-space:pre-wrap;">${data.response}</div>`;
+                } else {
+                    document.getElementById('dialogueLog').innerHTML = `<div style="color:red;">Error: ${data.response}</div>`;
+                }
+
+            } catch (err) {
+                document.getElementById('dialogueLog').innerHTML = `<div style="color:red;">Failed to connect to backend. Is it running?</div>`;
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('spinner').style.display = 'none';
+            }
+        });
+
+        async function renderCouncil(dialogue, syntheticPrompt) {
+            const log = document.getElementById('dialogueLog');
+            
+            for (let item of dialogue) {
+                // Activate persona icon
+                document.querySelectorAll('.persona').forEach(el => el.classList.remove('active'));
+                const personaIcon = document.querySelector(`.persona[data-id="${item.persona}"]`);
+                if (personaIcon) personaIcon.classList.add('active');
+
+                // Add bubble
+                const bubble = document.createElement('div');
+                bubble.className = `thought-bubble ${item.persona}`;
+                bubble.innerHTML = `<div class="thought-author">${item.persona}</div><div>${item.thought}</div>`;
+                log.appendChild(bubble);
+                
+                // Auto scroll
+                log.scrollTop = log.scrollHeight;
+
+                // Fake delay for UI drama
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // Finally, show synthetic prompt
+            document.querySelectorAll('.persona').forEach(el => el.classList.remove('active'));
+            const promptBox = document.getElementById('syntheticPromptBox');
+            promptBox.textContent = syntheticPrompt;
+            promptBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

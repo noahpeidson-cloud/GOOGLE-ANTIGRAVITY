@@ -1,0 +1,11 @@
+specVersion: "v1"
+serviceId: "omnichannel-service"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "omnichannel_db"
+      cloudSql:
+        instanceId: "omnichannel-postgres"
+connectorDirs: ["./connector"]

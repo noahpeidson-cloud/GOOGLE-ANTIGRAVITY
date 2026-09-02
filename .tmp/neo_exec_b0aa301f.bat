@@ -1,0 +1,1 @@
+head -n 60 "d:\GOOGLE ANTIGRAVITY\sports_cards\checklist_backend.py"

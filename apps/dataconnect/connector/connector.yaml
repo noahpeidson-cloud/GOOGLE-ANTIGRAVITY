@@ -1,0 +1,6 @@
+connectorId: "omnichannel-connector"
+generate:
+  javascriptSdk:
+    outputDir: "../../omnichannel_triage_hub/frontend/src/lib/dataconnect"
+    package: "@firebase/data-connect"
+    packageJsonDir: "../../omnichannel_triage_hub/frontend"

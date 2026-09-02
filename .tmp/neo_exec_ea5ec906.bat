@@ -1,0 +1,1 @@
+python -m py_compile "d:\GOOGLE ANTIGRAVITY\prompt_library\backend.py" & echo EXIT=%errorlevel%

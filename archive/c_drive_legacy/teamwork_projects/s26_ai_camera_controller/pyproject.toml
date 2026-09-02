@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "s26-controller"
+version = "0.1.0"
+description = "Offline AI-assisted camera settings controller for Samsung Galaxy S26 Ultra EDM concert capture"
+readme = "README.md"
+authors = [{ name = "Noah Eidson" }]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.0.0",
+    "pydantic>=2.0.0",
+    "pillow>=10.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0"
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-v --strict-markers"

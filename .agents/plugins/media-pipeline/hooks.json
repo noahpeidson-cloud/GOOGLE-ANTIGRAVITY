@@ -1,0 +1,11 @@
+{
+  "hooks": [
+    {
+      "event": "post_tool_execution",
+      "tool_name": "run_command",
+      "command": "python -m proxy_generator",
+      "working_dir": "${WORKSPACE_ROOT}/content_creation",
+      "description": "Trigger the FFmpeg proxy generator in the background after any ADB ingest command completes."
+    }
+  ]
+}

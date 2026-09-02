@@ -1,0 +1,1 @@
+powershell -NoProfile -Command "Get-Content 'd:\GOOGLE ANTIGRAVITY\sports_cards\checklist_backend.py' -TotalCount 60"

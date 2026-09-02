@@ -1,0 +1,1 @@
+tasklist | findstr /i "python" & netstat -ano | findstr ":8090"

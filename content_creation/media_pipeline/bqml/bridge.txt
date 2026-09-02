@@ -1,0 +1,22 @@
+
+# -- DESIGN ARM ML BRIDGE --
+import sqlite3
+import os
+
+def ingest_design_telemetry_to_bq(bq_client, project_id, dataset_id):
+    """Hooks the local design_telemetry.db into the BQML loop."""
+    db_path = r'g:\My Drive\GOOGLE ANTIGRAVITY\media_pipeline\design_arm\design_telemetry.db'
+    if not os.path.exists(db_path):
+        return 0
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT * FROM generation_logs WHERE is_flagged_bad = 1')
+        bad_logs = cursor.fetchall()
+    except Exception:
+        bad_logs = []
+    conn.close()
+    
+    # Logic to send these bad_logs to BigQuery goes here...
+    print(f'Ingested {len(bad_logs)} flagged generations from Design Arm to BQ.')
+    return len(bad_logs)

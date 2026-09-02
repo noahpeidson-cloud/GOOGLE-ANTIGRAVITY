@@ -1,0 +1,10 @@
+﻿{
+  "shadow-watchdog": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python shadow_watchdog.py"
+      }
+    ]
+  }
+}

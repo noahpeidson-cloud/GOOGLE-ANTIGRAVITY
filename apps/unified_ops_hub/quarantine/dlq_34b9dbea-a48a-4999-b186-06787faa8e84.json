@@ -1,0 +1,42 @@
+{
+  "incident_id": "34b9dbea-a48a-4999-b186-06787faa8e84",
+  "timestamp": "2026-08-26T05:28:06.091477+00:00",
+  "source_service": "gateway_validation",
+  "error_category": "CORRUPTED_PAYLOAD",
+  "error_message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'greater_than', 'loc': ('body', 'out_point'), 'msg': 'Input should be greater than 0', 'input': -1.0, 'ctx': {'gt': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "payload": {
+    "path": "/api/v1/media/render",
+    "payload": {
+      "source_file": "C:\\Users\\noahp\\AppData\\Local\\Temp\\pytest-of-noahp\\pytest-375\\test_malformed_json_and_schema0\\valid_src.mp4",
+      "in_point": 0.0,
+      "out_point": -1.0
+    },
+    "errors": [
+      {
+        "type": "greater_than",
+        "loc": [
+          "body",
+          "out_point"
+        ],
+        "msg": "Input should be greater than 0",
+        "input": -1.0,
+        "ctx": {
+          "gt": 0.0
+        }
+      }
+    ]
+  },
+  "traceback_str": "1 validation error:\n  {'type': 'greater_than', 'loc': ('body', 'out_point'), 'msg': 'Input should be greater than 0', 'input': -1.0, 'ctx': {'gt': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-26T05:28:08.091477+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-26T05:28:06.091477+00:00",
+      "event": "RECORDED",
+      "message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'greater_than', 'loc': ('body', 'out_point'), 'msg': 'Input should be greater than 0', 'input': -1.0, 'ctx': {'gt': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render"
+    }
+  ]
+}

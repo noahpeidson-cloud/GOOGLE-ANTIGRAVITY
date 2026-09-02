@@ -1,0 +1,17 @@
+# =============================================================================
+# Firebase SQL Connect (Firebase Data Connect) GraphQL Schema
+# Service: quick-share-analytics
+# Target: Cloud SQL for PostgreSQL / PostgreSQL
+# =============================================================================
+
+type VideoTag @table(name: "video_tags", key: "id", singular: "videoTag", plural: "videoTags") {
+  id: Int64! @default(expr: "autoIncrement()")
+  filename: String! @unique
+  filepath: String!
+  domain: String! @default(value: "Unknown")
+  entity: String! @default(value: "Unknown")
+  viralFeatures: Any! @col(name: "viral_features", dataType: "jsonb") @default(value: [])
+  technical: Any! @col(name: "technical", dataType: "jsonb") @default(value: {})
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}

@@ -1,0 +1,1 @@
+type "d:\GOOGLE ANTIGRAVITY\prompt_library\requirements.txt"

@@ -1,0 +1,1 @@
+dir /b "d:\GOOGLE ANTIGRAVITY\apps\unified_ops_hub" & echo === & dir /b "d:\GOOGLE ANTIGRAVITY\apps\unified_ops_hub\gateway" & echo === & dir /b "d:\GOOGLE ANTIGRAVITY\apps\auto_qa_builder" 2>nul

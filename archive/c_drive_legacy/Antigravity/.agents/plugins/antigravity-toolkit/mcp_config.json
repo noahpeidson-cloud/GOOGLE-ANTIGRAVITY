@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "windows-kernel-optimizer": {
+      "command": "python",
+      "args": [
+        "C:/Users/noahp/.gemini/antigravity/scratch/control_center/core/windows_kernel_mcp.py"
+      ]
+    }
+  }
+}

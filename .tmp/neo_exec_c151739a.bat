@@ -1,0 +1,1 @@
+python -c "s=open(r'd:\GOOGLE ANTIGRAVITY\prompt_library\README.md',encoding='utf-8').read(); checks={'run instructions':'uvicorn' in s or 'python backend.py' in s, 'API reference table':'|' in s and 'GET' in s, 'how to add templates':'add' in s.lower()}; [print(k, v) for k,v in checks.items()]; print('lines:', len(s.splitlines()))"

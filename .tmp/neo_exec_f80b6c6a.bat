@@ -1,0 +1,1 @@
+find /app -maxdepth 4 -iname "*prompt*" 2>/dev/null | head -50

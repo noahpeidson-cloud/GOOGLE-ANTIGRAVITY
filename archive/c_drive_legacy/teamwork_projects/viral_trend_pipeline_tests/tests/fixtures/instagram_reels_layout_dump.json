@@ -1,0 +1,67 @@
+[
+  {
+    "class": "androidx.recyclerview.widget.RecyclerView",
+    "bounds": "[0,0][1080,1920]",
+    "center": "[540,960]",
+    "interactions": ["scrollable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/caption_text_view",
+    "text": "Checking the 2026 Topps Chrome rookie crop! 🔥 #TheHobby #SportsCardInvesting #WhoDoYouCollect",
+    "contentDesc": "Reel caption by @sportscardscollector",
+    "bounds": "[40,1400][1040,1550]",
+    "center": "[540,1475]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/audio_track_title",
+    "text": "Original Audio - Card Ladder ROI Anthem",
+    "contentDesc": "Audio: Original Audio - Card Ladder ROI Anthem",
+    "bounds": "[40,1560][700,1620]",
+    "center": "[370,1590]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/like_count",
+    "text": "45.2K",
+    "bounds": "[960,1100][1040,1140]",
+    "center": "[1000,1120]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/row_feed_textview_comments_count",
+    "text": "1,280",
+    "bounds": "[960,1220][1040,1260]",
+    "center": "[1000,1240]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/caption_text_view",
+    "text": "Heavy bassline energy at midnight! 🎧 #HardTechno #EDMDrop #RaveTok",
+    "contentDesc": "Reel caption by @edmfestivals",
+    "bounds": "[40,1400][1040,1550]",
+    "center": "[540,1475]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  },
+  {
+    "class": "android.widget.TextView",
+    "resourceId": "com.instagram.android:id/audio_track_title",
+    "text": "Montagem Mysterious Game - LXNGVX",
+    "contentDesc": "Audio: Montagem Mysterious Game",
+    "bounds": "[40,1560][700,1620]",
+    "center": "[370,1590]",
+    "interactions": ["clickable"],
+    "off-screen": false
+  }
+]

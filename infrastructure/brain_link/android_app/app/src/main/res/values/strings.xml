@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BrainLink</string>
+    <string name="share_receiver_title">Send to BrainLink PC</string>
+    <string name="notification_channel_name">Video Upload Service</string>
+    <string name="notification_channel_desc">Shows real-time progress for high-speed video transfers to PC</string>
+    <string name="camera_permission_required">Camera permission is required to scan the PC pairing QR code.</string>
+</resources>

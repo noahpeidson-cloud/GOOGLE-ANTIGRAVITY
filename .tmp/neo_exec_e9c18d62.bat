@@ -1,0 +1,1 @@
+dir "d:\GOOGLE ANTIGRAVITY\prompt_library\static"

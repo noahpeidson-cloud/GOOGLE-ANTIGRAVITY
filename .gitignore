@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Web Frameworks
+node_modules/
+.next/
+.firebase/
+dist/
+out/
+build/
+.turbo/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+credentials.json
+client_secret.json
+token.json
+token*.json
+*credentials*.json
+*client_secret*.json
+*.pickle
+*.auth_token
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Database Stores & Memory Dumps
+*.db
+*.sqlite
+*.sqlite3
+*.heapsnapshot
+unified_ops_hub_dlq.db
+health_telemetry.db
+
+# IDE & OS Artifacts
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Historical & Generated Agent Artifacts (Preserved in local archive, ignored in git)
+.archive/
+archive/
+.tmp/
+
+# Decoupled Projects (Independent Git Repositories)
+Antigravity_OS/
+Antigravity_Media/

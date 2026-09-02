@@ -1,0 +1,433 @@
+"""
+✨ `VideoTag_KeyOutput` returns the primary key fields of table type `VideoTag`.
+
+It has the same format as `VideoTag_Key`, but is only used as mutation return value.
+"""
+scalar VideoTag_KeyOutput
+"""
+✨ Generated data input type for table 'VideoTag'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input VideoTag_Data {
+  """
+  ✨ Generated from Field `VideoTag`.`id` of type `Int64!`
+  """
+  id: Int64
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `VideoTag`.`id` of type `Int64!`)
+  """
+  id_expr: Int64_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `id` (✨ Generated from Field `VideoTag`.`id` of type `Int64!`)
+  """
+  id_update: [Int64_Update!] @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!] @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`domain` of type `String!`
+  """
+  domain: String
+  """
+  ✨ `_expr` server value variant of `domain` (✨ Generated from Field `VideoTag`.`domain` of type `String!`)
+  """
+  domain_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`entity` of type `String!`
+  """
+  entity: String
+  """
+  ✨ `_expr` server value variant of `entity` (✨ Generated from Field `VideoTag`.`entity` of type `String!`)
+  """
+  entity_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`filename` of type `String!`
+  """
+  filename: String
+  """
+  ✨ `_expr` server value variant of `filename` (✨ Generated from Field `VideoTag`.`filename` of type `String!`)
+  """
+  filename_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`filepath` of type `String!`
+  """
+  filepath: String
+  """
+  ✨ `_expr` server value variant of `filepath` (✨ Generated from Field `VideoTag`.`filepath` of type `String!`)
+  """
+  filepath_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`technical` of type `Any!`
+  """
+  technical: Any
+  """
+  ✨ `_expr` server value variant of `technical` (✨ Generated from Field `VideoTag`.`technical` of type `Any!`)
+  """
+  technical_expr: Any_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `updatedAt` (✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_expr: Timestamp_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_time` server value variant of `updatedAt` (✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_time: Timestamp_Relative @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `updatedAt` (✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`)
+  """
+  updatedAt_update: [Timestamp_Update!] @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures` of type `Any!`
+  """
+  viralFeatures: Any
+  """
+  ✨ `_expr` server value variant of `viralFeatures` (✨ Generated from Field `VideoTag`.`viralFeatures` of type `Any!`)
+  """
+  viralFeatures_expr: Any_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated filter input type for table 'VideoTag'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input VideoTag_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [VideoTag_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: VideoTag_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [VideoTag_Filter!]
+  """
+  ✨ Generated from Field `VideoTag`.`id` of type `Int64!`
+  """
+  id: Int64_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`domain` of type `String!`
+  """
+  domain: String_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`entity` of type `String!`
+  """
+  entity: String_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`filename` of type `String!`
+  """
+  filename: String_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`filepath` of type `String!`
+  """
+  filepath: String_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`technical` of type `Any!`
+  """
+  technical: Any_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures` of type `Any!`
+  """
+  viralFeatures: Any_Filter
+}
+"""
+✨ Generated first-row input type for table 'VideoTag'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input VideoTag_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [VideoTag_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: VideoTag_Filter
+}
+"""
+✨ Generated having input type for table 'VideoTag'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input VideoTag_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [VideoTag_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: VideoTag_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [VideoTag_Having!]
+  """
+  ✨ Generated from Field `VideoTag`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`domain_count` of type `Int!`
+  """
+  domain_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`entity_count` of type `Int!`
+  """
+  entity_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`filename_count` of type `Int!`
+  """
+  filename_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`filepath_count` of type `Int!`
+  """
+  filepath_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`technical_count` of type `Int!`
+  """
+  technical_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_count` of type `Int!`
+  """
+  viralFeatures_count: Int_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`id_sum` of type `Int64`
+  """
+  id_sum: Int64_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`id_avg` of type `Float`
+  """
+  id_avg: Float_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`id_min` of type `Int64`
+  """
+  id_min: Int64_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`technical_min` of type `Any`
+  """
+  technical_min: Any_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_min` of type `Any`
+  """
+  viralFeatures_min: Any_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`id_max` of type `Int64`
+  """
+  id_max: Int64_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`technical_max` of type `Any`
+  """
+  technical_max: Any_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_max` of type `Any`
+  """
+  viralFeatures_max: Any_Filter
+}
+"""
+✨ Generated key input type for table 'VideoTag'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input VideoTag_Key {
+  """
+  ✨ Generated from Field `VideoTag`.`id` of type `Int64!`
+  """
+  id: Int64
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `VideoTag`.`id` of type `Int64!`)
+  """
+  id_expr: Int64_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated list filter input type for table 'VideoTag'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input VideoTag_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: VideoTag_Filter
+}
+"""
+✨ Generated order input type for table 'VideoTag'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input VideoTag_Order {
+  """
+  ✨ Generated from Field `VideoTag`.`id` of type `Int64!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`domain` of type `String!`
+  """
+  domain: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`entity` of type `String!`
+  """
+  entity: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`filename` of type `String!`
+  """
+  filename: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`filepath` of type `String!`
+  """
+  filepath: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`technical` of type `Any!`
+  """
+  technical: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt` of type `Timestamp!`
+  """
+  updatedAt: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures` of type `Any!`
+  """
+  viralFeatures: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`domain_count` of type `Int!`
+  """
+  domain_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`entity_count` of type `Int!`
+  """
+  entity_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`filename_count` of type `Int!`
+  """
+  filename_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`filepath_count` of type `Int!`
+  """
+  filepath_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`technical_count` of type `Int!`
+  """
+  technical_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_count` of type `Int!`
+  """
+  updatedAt_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_count` of type `Int!`
+  """
+  viralFeatures_count: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`id_sum` of type `Int64`
+  """
+  id_sum: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`id_avg` of type `Float`
+  """
+  id_avg: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`id_min` of type `Int64`
+  """
+  id_min: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`technical_min` of type `Any`
+  """
+  technical_min: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_min` of type `Timestamp`
+  """
+  updatedAt_min: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_min` of type `Any`
+  """
+  viralFeatures_min: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`id_max` of type `Int64`
+  """
+  id_max: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`technical_max` of type `Any`
+  """
+  technical_max: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`updatedAt_max` of type `Timestamp`
+  """
+  updatedAt_max: OrderDirection
+  """
+  ✨ Generated from Field `VideoTag`.`viralFeatures_max` of type `Any`
+  """
+  viralFeatures_max: OrderDirection
+}

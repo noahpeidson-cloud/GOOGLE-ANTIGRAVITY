@@ -1,0 +1,1 @@
+powershell -Command "try { $r = Invoke-WebRequest -Uri 'http://localhost:8090/api/templates' -UseBasicParsing -TimeoutSec 10; $j = $r.Content | ConvertFrom-Json; Write-Output ('TEMPLATES API HTTP ' + $r.StatusCode + ' count=' + $j.templates.Count) } catch { Write-Output ('ERROR: ' + $_.Exception.Message) }"

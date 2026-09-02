@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntiGravity Media Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f0f11;
+            --bg-panel: #1a1a1e;
+            --text-main: #e2e2e5;
+            --text-muted: #8b8b99;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --accent-blue: #3498db;
+            --border-subtle: #2d2d35;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .queue-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .queue-item:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .queue-item.active {
+            border-color: var(--accent-blue);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .queue-item .title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .queue-item .meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            background-color: black;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .controls-panel {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+
+        .time-display {
+            font-variant-numeric: tabular-nums;
+            font-family: monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        .time-display span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .scrubber-container {
+            position: relative;
+            height: 60px; /* Made even thicker for mouse */
+            margin-bottom: 20px;
+            background-color: var(--bg-base);
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            cursor: pointer;
+        }
+
+        .scrubber-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: rgba(255,255,255,0.05);
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        .trim-highlight {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            background-color: rgba(52, 152, 219, 0.3);
+            border-left: 4px solid var(--accent-blue);
+            border-right: 4px solid var(--accent-blue);
+            pointer-events: none;
+        }
+
+        .playhead {
+            position: absolute;
+            top: -5px;
+            width: 4px;
+            height: 70px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            pointer-events: none;
+            transform: translateX(-50%);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 16px 32px; /* Bigger padding for mouse */
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2a2a30;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-approve {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            flex: 1;
+        }
+
+        .btn-approve:hover {
+            background-color: var(--accent-green);
+            color: #000;
+        }
+
+        .btn-reject {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-reject:hover {
+            background-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+    <style>
+        /* ... existing styles ... */
+        .chat-container {
+            margin-top: auto;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+            height: 300px;
+        }
+        
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-msg {
+            padding: 8px;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+
+        .chat-user {
+            background-color: rgba(52, 152, 219, 0.2);
+            align-self: flex-end;
+            margin-left: 20px;
+        }
+
+        .chat-agent {
+            background-color: rgba(46, 204, 113, 0.1);
+            align-self: flex-start;
+            margin-right: 20px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        .chat-input-row button {
+            padding: 10px 15px;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Queue (<span id="queueCount">0</span>)</h2>
+        <div id="queueList" style="flex: 1; overflow-y: auto; margin-bottom: 10px;">
+            <!-- Items injected here via JS -->
+        </div>
+        
+        <div class="chat-container">
+            <h2 style="margin: 0; font-size: 1rem;">AI Editor</h2>
+            <div id="chatHistory" class="chat-history">
+                <div class="chat-msg chat-agent">Hi! Prompt me to trim, rebuild the timeline, or export.</div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="e.g. rebuild timeline..." />
+                <button id="btnSendChat">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="playerArea" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div class="video-container">
+                <video id="vidPlayer" controls controlsList="nodownload"></video>
+            </div>
+
+            <div class="controls-panel">
+                <div class="time-display">
+                    Playhead: <span id="timeCurrent">00:00.00</span> / <span id="timeTotal">00:00.00</span>
+                    &nbsp;|&nbsp; Trim: <span id="timeTrimIn" style="color:var(--accent-blue)">00:00.00</span> to <span id="timeTrimOut" style="color:var(--accent-blue)">End</span>
+                </div>
+
+                <div class="scrubber-container" id="scrubber">
+                    <div class="scrubber-track"></div>
+                    <div class="trim-highlight" id="trimHighlight" style="left: 0%; width: 100%;"></div>
+                    <div class="playhead" id="playhead" style="left: 0%;"></div>
+                </div>
+
+                <div class="button-row">
+                    <div class="btn-group">
+                        <button class="btn-secondary" id="btnSetIn" style="width: 160px;">[ Set IN ]</button>
+                        <button class="btn-secondary" id="btnSetOut" style="width: 160px;">[ Set OUT ]</button>
+                        <button class="btn-secondary" id="btnResetTrim">Reset Trim</button>
+                    </div>
+                    <div class="btn-group" style="flex:1; justify-content: flex-end;">
+                        <button class="btn-reject" id="btnReject" style="width: 140px;">Archive File</button>
+                        <button class="btn-approve" id="btnApproveA" style="max-width: 250px;">Approve as A-Roll</button>
+                        <button class="btn-approve" id="btnApproveB" style="max-width: 250px; background-color: rgba(52, 152, 219, 0.15); color: var(--accent-blue); border-color: rgba(52, 152, 219, 0.3);">Approve as B-Roll</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="emptyArea" class="empty-state">
+            All caught up! No assets require review.
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "";
+        let queue = [];
+        let currentIndex = -1;
+        let trimIn = 0;
+        let trimOut = null;
+        let isDragging = false;
+
+        const elQueueList = document.getElementById('queueList');
+        const elQueueCount = document.getElementById('queueCount');
+        const elPlayerArea = document.getElementById('playerArea');
+        const elEmptyArea = document.getElementById('emptyArea');
+        const vid = document.getElementById('vidPlayer');
+        
+        const elTimeCurrent = document.getElementById('timeCurrent');
+        const elTimeTotal = document.getElementById('timeTotal');
+        const elTimeTrimIn = document.getElementById('timeTrimIn');
+        const elTimeTrimOut = document.getElementById('timeTrimOut');
+        
+        const scrubber = document.getElementById('scrubber');
+        const playhead = document.getElementById('playhead');
+        const trimHighlight = document.getElementById('trimHighlight');
+
+        async function fetchQueue() {
+            try {
+                const res = await fetch(`${API_BASE}/api/assets/review`);
+                const data = await res.json();
+                queue = data.assets;
+                renderQueue();
+                if (queue.length > 0 && currentIndex === -1) {
+                    loadAsset(0);
+                } else if (queue.length === 0) {
+                    showEmpty();
+                }
+            } catch (err) {
+                console.error("Failed to fetch queue", err);
+            }
+        }
+
+        function renderQueue() {
+            elQueueCount.textContent = queue.length;
+            elQueueList.innerHTML = "";
+            queue.forEach((asset, idx) => {
+                const div = document.createElement('div');
+                div.className = `queue-item ${idx === currentIndex ? 'active' : ''}`;
+                div.onclick = () => loadAsset(idx);
+                
+                const title = document.createElement('div');
+                title.className = 'title';
+                title.textContent = asset.source_file_name;
+                
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+                meta.textContent = `${asset.brand || 'No Brand'} / ${asset.tier || 'No Tier'}`;
+                
+                div.appendChild(title);
+                div.appendChild(meta);
+                elQueueList.appendChild(div);
+            });
+        }
+
+        function showEmpty() {
+            elPlayerArea.style.display = 'none';
+            elEmptyArea.style.display = 'flex';
+        }
+
+        function loadAsset(index) {
+            if (index < 0 || index >= queue.length) return;
+            currentIndex = index;
+            const asset = queue[index];
+            
+            trimIn = 0;
+            trimOut = null;
+            
+            vid.src = `${API_BASE}/api/media/${asset.asset_id}`;
+            vid.load();
+            vid.play().catch(e => console.log("Autoplay prevented"));
+            
+            elPlayerArea.style.display = 'flex';
+            elEmptyArea.style.display = 'none';
+            
+            renderQueue();
+            updateTrimVisuals();
+        }
+
+        function formatTime(sec) {
+            if (isNaN(sec)) return "00:00.00";
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
+            const ms = Math.floor((sec % 1) * 100).toString().padStart(2, '0');
+            return `${m}:${s}.${ms}`;
+        }
+
+        vid.addEventListener('timeupdate', () => {
+            elTimeCurrent.textContent = formatTime(vid.currentTime);
+            const pct = (vid.currentTime / vid.duration) * 100;
+            playhead.style.left = `${pct}%`;
+        });
+
+        vid.addEventListener('loadedmetadata', () => {
+            elTimeTotal.textContent = formatTime(vid.duration);
+            trimOut = vid.duration;
+            updateTrimVisuals();
+        });
+
+        function updatePlayheadFromEvent(e) {
+            const rect = scrubber.getBoundingClientRect();
+            let pct = (e.clientX - rect.left) / rect.width;
+            pct = Math.max(0, Math.min(1, pct));
+            vid.currentTime = pct * vid.duration;
+        }
+
+        scrubber.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updatePlayheadFromEvent(e);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updatePlayheadFromEvent(e);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        document.getElementById('btnSetIn').onclick = () => {
+            trimIn = vid.currentTime;
+            if (trimOut !== null && trimIn >= trimOut) trimOut = vid.duration;
+            updateTrimVisuals();
+        };
+
+        document.getElementById('btnSetOut').onclick = () => {
+            trimOut = vid.currentTime;
+            if (trimIn >= trimOut) trimIn = 0;
+            updateTrimVisuals();
+        };
+
+        document.getElementById('btnResetTrim').onclick = () => {
+            trimIn = 0;
+            trimOut = vid.duration;
+            updateTrimVisuals();
+        };
+
+        function updateTrimVisuals() {
+            elTimeTrimIn.textContent = formatTime(trimIn);
+            elTimeTrimOut.textContent = formatTime(trimOut);
+            
+            if (vid.duration) {
+                const inPct = (trimIn / vid.duration) * 100;
+                const outPct = (trimOut / vid.duration) * 100;
+                trimHighlight.style.left = `${inPct}%`;
+                trimHighlight.style.width = `${outPct - inPct}%`;
+            }
+        }
+
+        async function handleAction(action) {
+            if (currentIndex === -1) return;
+            const asset = queue[currentIndex];
+            const assetId = asset.asset_id;
+            
+            try {
+                if (action === 'approve_a' || action === 'approve_b') {
+                    const payload = {
+                        start_time: trimIn,
+                        duration: (trimOut !== null ? (trimOut - trimIn) : null),
+                        clip_type: action === 'approve_a' ? "A-Roll" : "B-Roll"
+                    };
+                    await fetch(`${API_BASE}/api/assets/approve/${assetId}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                } else if (action === 'reject') {
+                    await fetch(`${API_BASE}/api/assets/reject/${assetId}`, {
+                        method: 'POST'
+                    });
+                }
+                
+                // Remove from queue and load next
+                queue.splice(currentIndex, 1);
+                
+                if (queue.length > 0) {
+                    if (currentIndex >= queue.length) currentIndex = queue.length - 1;
+                    loadAsset(currentIndex);
+                } else {
+                    currentIndex = -1;
+                    renderQueue();
+                    showEmpty();
+                }
+            } catch(e) {
+                console.error("Action failed", e);
+                alert("Failed to save action to backend.");
+            }
+        }
+
+        document.getElementById('btnApproveA').onclick = () => handleAction('approve_a');
+        document.getElementById('btnApproveB').onclick = () => handleAction('approve_b');
+        document.getElementById('btnReject').onclick = () => handleAction('reject');
+
+        // Chat Integration
+        const elChatHistory = document.getElementById('chatHistory');
+        const elChatInput = document.getElementById('chatInput');
+        const elBtnSendChat = document.getElementById('btnSendChat');
+
+        function appendMessage(text, role) {
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role === 'user' ? 'chat-user' : 'chat-agent'}`;
+            div.textContent = text;
+            elChatHistory.appendChild(div);
+            elChatHistory.scrollTop = elChatHistory.scrollHeight;
+        }
+
+        async function sendChat() {
+            const msg = elChatInput.value.trim();
+            if (!msg) return;
+            
+            appendMessage(msg, 'user');
+            elChatInput.value = '';
+            
+            // Show loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'chat-msg chat-agent';
+            loadingDiv.textContent = '...';
+            loadingDiv.id = 'chatLoading';
+            elChatHistory.appendChild(loadingDiv);
+            elChatHistory.scrollTop = elChatHistory.scrollHeight;
+            
+            const currentAssetId = (currentIndex >= 0 && queue[currentIndex]) ? queue[currentIndex].asset_id : null;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: msg, project_id: currentAssetId })
+                });
+                const data = await res.json();
+                
+                document.getElementById('chatLoading')?.remove();
+                
+                if (data.status === 'success') {
+                    appendMessage(data.response, 'agent');
+                } else {
+                    appendMessage("Error: " + data.response, 'agent');
+                }
+            } catch(e) {
+                document.getElementById('chatLoading')?.remove();
+                appendMessage("Failed to reach AI.", 'agent');
+            }
+        }
+
+        elBtnSendChat.onclick = sendChat;
+        elChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        // Initial fetch
+        fetchQueue();
+    </script>
+</body>
+</html>
