@@ -13,5 +13,11 @@ Use this skill when the user asks to evaluate raw cards, parse trading card chec
 2. **Launch Backend**: Execute `python d:/GOOGLE ANTIGRAVITY/.agents/skills/card-valuation-hub/scripts/backend.py` as a background daemon to serve the WebSocket.
 3. **Render UI**: Embed the UI in the chat using `<agent-embed src="file:///d:/GOOGLE ANTIGRAVITY/.agents/skills/card-valuation-hub/resources/valuation_hub.html"></agent-embed>`.
 
-## Usage
-When triggered, you will autonomously perform the steps above, passing the scraped checklist data to the backend or UI as needed, and rendering the hub.
+## Storage & Database Governance
+- All portfolio databases (`card_inventory.db`) MUST live in `sports_cards/` on `D:\GOOGLE ANTIGRAVITY`.
+- Maintains strict 21-variable schema integrity matching Card Ladder standards.
+
+## Natural Language Invocations
+- *"Evaluate this sports card checklist from Beckett"*
+- *"Launch the card valuation hub and export Card Ladder CSV"*
+- *"Parse raw card table and sync with local portfolio database"*
