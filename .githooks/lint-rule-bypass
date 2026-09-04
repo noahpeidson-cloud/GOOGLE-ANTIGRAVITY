@@ -1,0 +1,95 @@
+#!/bin/sh
+# Rule-bypass disclosure lint -- Improvement 2, 2026-09-03 session post-mortem.
+#
+# THE FAILURE THIS EXISTS TO CATCH
+# --------------------------------
+# Three controls in this repo were trusted as absolute while each had an open door:
+#
+#   R39 stated "GitHub branch protection on main enforces this server-side (required
+#       PRs, no direct pushes)". gh had never been authenticated. The protection was
+#       never configured. The rule described a control that did not exist.
+#
+#   .claude/settings.json was described -- by the agent that wrote it -- as
+#       "mechanically enforcing R40". Every deny entry is scoped Bash(...). The
+#       PowerShell tool is a separate tool and matches none of them. A peer ran a
+#       denied command through PowerShell without a prompt.
+#
+#   R22 forbade authoring files via shell interpolation, with no hook behind it, for
+#       the entire life of the rule. Five corrupted files resulted before a lint existed.
+#
+# Each was believed to be enforcement. Each was documentation. The damage is not that
+# a control has a bypass -- every control does -- it is that the bypass was undisclosed,
+# so agents budgeted risk against a guarantee that was not there.
+#
+# THE RULE
+# --------
+# A rule declaring enforcement: "strict" must state how it is enforced AND how that
+# enforcement can be circumvented:
+#
+#   - **Enforcement:** .githooks/pre-commit via core.hooksPath
+#   - **Bypass:** git commit --no-verify; any tool that does not route through git
+#
+# "Bypass: none known" is a permitted answer and a meaningful claim. Silence is not.
+#
+# Usage:  lint-rule-bypass [file ...]   # defaults to rules/*.md
+# Exit 0 clean, 1 if a strict rule omits its bypass.
+
+fail=0
+
+if [ "$#" -gt 0 ]; then
+  files=$*
+else
+  files=$(find rules -maxdepth 1 -name '*.md' -type f 2>/dev/null)
+fi
+
+PY=python
+command -v python >/dev/null 2>&1 || PY=python3
+
+for f in $files; do
+  [ -f "$f" ] || continue
+  case "$f" in *.md) ;; *) continue ;; esac
+
+  # Only files declaring strict enforcement in frontmatter are in scope.
+  grep -qE '^enforcement:[[:space:]]*"?strict"?' "$f" 2>/dev/null || continue
+
+  missing=$("$PY" - "$f" <<'PYEOF'
+import re
+import sys
+
+with open(sys.argv[1], encoding="utf-8", errors="replace") as fh:
+    text = fh.read()
+
+# Split into rule blocks on "## R<n>." headings, keeping the heading with its body.
+blocks = re.split(r'(?m)^(?=## R\d+\.)', text)
+missing = []
+for block in blocks:
+    head = re.match(r'## (R\d+)\.\s*(.*)', block)
+    if not head:
+        continue
+    if not re.search(r'(?mi)^\s*-\s*\*\*Bypass:\*\*', block):
+        missing.append("%s  %s" % (head.group(1), head.group(2).strip()[:56]))
+
+for m in missing:
+    print(m)
+PYEOF
+)
+
+  if [ -n "$missing" ]; then
+    echo "bypass-lint: $f -- strict rules with no stated bypass"
+    printf '%s\n' "$missing" | sed 's/^/    /'
+    fail=1
+  fi
+done
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "bypass-lint: add a Bypass line to each rule above."
+  echo ""
+  echo "  - **Enforcement:** <the hook, deny rule, or CI check that actually runs>"
+  echo "  - **Bypass:** <how it is circumvented, or 'none known'>"
+  echo ""
+  echo "A control whose bypass is undisclosed gets trusted as though it had none."
+  exit 1
+fi
+
+exit 0

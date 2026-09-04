@@ -59,6 +59,29 @@ if [ -n "$rule_staged" ]; then
   fi
 fi
 
+# 6. Verification claims in staged rules/.agents markdown must state a boundary.
+verify_staged=$(printf '%s\n' "$staged" | grep -E '^(rules/|\.agents/).*\.md$' || true)
+if [ -n "$verify_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-verification-claims" $verify_staged; then
+    fail=1
+  fi
+fi
+
+# 7. Strict rules must disclose their own bypass.
+if [ -n "$rule_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-rule-bypass" $(printf '%s\n' "$staged" | grep -E '^rules/[^/]+\.md$' || true); then
+    fail=1
+  fi
+fi
+
+# 8. Review-request handoffs must use resolvable, stable identifiers.
+handoff_staged=$(printf '%s\n' "$staged" | grep -E '^\.claude/review-requests/.*\.md$' || true)
+if [ -n "$handoff_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-handoff-identifiers" $handoff_staged; then
+    fail=1
+  fi
+fi
+
 if [ "$fail" -eq 1 ]; then
   echo ""
   echo "pre-commit: fix the above, or use 'git commit --no-verify' if you are certain this is intentional."

@@ -108,8 +108,10 @@ PYEOF
   # Variant A and Variant B at once; catching either alone would have missed half.
   #
   # A lone backtick on its own line is a mangled closing fence. Verified zero
-  # legitimate occurrences across rules/ and .agents/ before adding it.
-  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\berify_|\besults\.json|\bsc -b\b|\brchitect\b|\bgents/|\benchmark_harness\b|\bode_modules\b|`ash$|`ash[^a-z]|^[ \t]*`[ \t\r]*$' "$f" 2>/dev/null)
+  # legitimate occurrences across rules/ and .agents/ before adding it. Use
+  # [[:space:]] and not [ \t]: POSIX ERE does not expand \t inside a bracket
+  # expression, so [ \t] silently means "space, backslash, or the letter t".
+  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\berify_|\besults\.json|\bsc -b\b|\brchitect\b|\bgents/|\benchmark_harness\b|\bode_modules\b|`ash$|`ash[^a-z]|^[[:space:]]*`[[:space:]]*$' "$f" 2>/dev/null)
   if [ -n "$hits" ]; then
     echo "escape-lint: $f -- token looks truncated by an interpreted escape"
     printf '%s\n' "$hits" | head -5 | sed 's/^/    /'

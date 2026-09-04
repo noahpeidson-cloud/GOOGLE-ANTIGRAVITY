@@ -1,0 +1,69 @@
+#!/bin/sh
+# Handoff-identifier lint -- Improvement 4, from the 2026-09-03 session post-mortem.
+#
+# THE FAILURE THIS EXISTS TO CATCH
+# --------------------------------
+# .claude/review-requests/2026-09-03_skill-router-telemetry.md asked for a review of
+# commit a1ef458a. That object exists in no ref and no reflog entry -- the only trace
+# of the hash anywhere is the text of a commit message. Both revision ranges it named
+# (HEAD~1..HEAD and HEAD~2..HEAD~1) pointed at unrelated commits: the review request
+# file itself, and an unrelated lint patch. The actual subject was at HEAD~4..HEAD~3.
+#
+# Following either instruction literally would have produced a review of a markdown
+# file. The reviewer caught it only by checking scope before reading the diff.
+#
+# Root cause: the hash was transcribed by hand instead of generated. Relative ranges
+# were used in a document that outlives the HEAD they were written against -- every
+# new commit silently shifts what HEAD~1 means.
+#
+# THE RULE
+# --------
+# In .claude/review-requests/*.md:
+#   * A "Commit:" line must name an object that resolves in this repository.
+#   * Ranges must be absolute (sha..sha), never HEAD-relative. HEAD~n is a moving
+#     target the moment anyone commits.
+# Generate the hash at write time:  git rev-parse HEAD
+#
+# Usage:  lint-handoff-identifiers [file ...]   # defaults to .claude/review-requests
+# Exit 0 clean, 1 on an unresolvable or unstable identifier.
+
+fail=0
+
+if [ "$#" -gt 0 ]; then
+  files=$*
+else
+  files=$(find .claude/review-requests -name '*.md' -type f 2>/dev/null)
+fi
+
+for f in $files; do
+  [ -f "$f" ] || continue
+  case "$f" in *.md) ;; *) continue ;; esac
+
+  # --- Commit: <sha> must resolve ---
+  shas=$(grep -oE '^\*\*Commit:\*\*[[:space:]]*`?[0-9a-f]{7,40}`?' "$f" 2>/dev/null \
+         | grep -oE '[0-9a-f]{7,40}')
+  for sha in $shas; do
+    if ! git rev-parse --verify --quiet "${sha}^{commit}" >/dev/null 2>&1; then
+      echo "handoff-lint: $f -- Commit: $sha does not resolve in this repository"
+      echo "    generate it at write time with: git rev-parse HEAD"
+      fail=1
+    fi
+  done
+
+  # --- HEAD-relative ranges are unstable in a persisted document ---
+  rel=$(grep -nE 'HEAD~[0-9]+\.\.|\.\.HEAD([^~0-9]|$)|HEAD~[0-9]+\.\.HEAD' "$f" 2>/dev/null)
+  if [ -n "$rel" ]; then
+    echo "handoff-lint: $f -- HEAD-relative range in a persisted handoff document"
+    printf '%s\n' "$rel" | head -3 | sed 's/^/    /'
+    echo "    HEAD~n shifts with every new commit. Use an absolute sha..sha range."
+    fail=1
+  fi
+done
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "handoff-lint: an identifier another agent cannot resolve is not a handoff."
+  exit 1
+fi
+
+exit 0

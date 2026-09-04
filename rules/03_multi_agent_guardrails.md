@@ -10,11 +10,13 @@ enforcement: "strict"
 - **Context:** Every code modification, test pass assertion, or infrastructure state change.
 - **Mandate:** Agents MUST NOT claim success or pass assertions without executing real tests, inspecting real process outputs, or verifying network responses.
 - **Actionable Execution:** Execute test runners via the terminal, verify zero exit codes, and output `<confidence>X/10</confidence>`.
+- **Bypass:** none known. Nothing mechanical stops an agent from asserting verification it didn't perform. `.githooks/lint-verification-claims` catches an *unqualified* claim written into `rules/`/`.agents/` markdown, but not a false claim made only in chat, and not one that states a boundary dishonestly.
 
 ## R22. Direct Tool File Modification Guardrail
 - **Context:** Creating or modifying files across the repository.
 - **Mandate:** Agents are STRICTLY FORBIDDEN from using shell interpolation (`cat << EOF`, `echo > file`, `sed`) to author code files.
 - **Actionable Execution:** Use native editor/agent file modification tools.
+- **Bypass:** `.githooks/lint-escape-corruption` (pre-commit) catches the *symptom* — an escape that survived or ate a character in staged `.md` files — not the act itself. Shell interpolation that doesn't happen to corrupt text passes undetected, non-markdown files are unchecked, and `git commit --no-verify` skips the check entirely.
 
 ## R38. VS Code Deprecation & GitKraken Swarm Lane Architecture
 - **Context:** Multi-agent development lifecycle across GitKraken, terminal CLI agents, and Antigravity IDE.
@@ -24,11 +26,13 @@ enforcement: "strict"
   3. **Claude Code Reviewer (`.claude/agents/code-reviewer.md`):** Pre-merge audit gate inspecting diffs and git graph via GitKraken MCP tools.
   4. **Antigravity IDE Gemini (Platform Architect):** Owns application code in domain tracks, long-term context, CuratedMemoryHub (SQLite WAL), research validation funnels, daemon telemetry, and benchmark verification.
 - **Actionable Execution:** Never cross lanes. If a task requires changes in another lane, hand off via `send_message` or GitKraken PR — do not reach across.
+- **Bypass:** none known. No hook inspects which lane authored a change; lane discipline is entirely self-reported. This rule also collides with `GEMINI.md`'s own R38 (an unrelated anti-mocking mandate) — see `.githooks/rule-collisions.allow`.
 
 ## R39. Git Ownership & Branch Discipline
 - **Context:** Any agent (Claude Code, Antigravity IDE harness, or other) with git write access to this repository.
 - **Mandate:** Claude Code is the sole integrator of `main`. Other agents MUST work on their own `feat/*` (or similarly namespaced) branches and hand off via pull request — never commit or push directly to `main`.
 - **Actionable Execution:** Enforced locally via `.githooks/pre-commit` (wired through `core.hooksPath`) which blocks direct commits to `main`. When GitHub CLI (`gh`) is authenticated, server-side branch protection provides redundant enforcement. Treat direct-to-`main` writes as critical lane violations.
+- **Bypass:** `git commit --no-verify` skips the local hook entirely. GitHub branch protection is not yet active as of this writing (E1: `gh` is installed but not authenticated), so a push from any client outside this repo's own hooks — a different local clone, GitHub's web UI — is currently unconstrained server-side.
 
 ## R40. Split-Brain Workspace Isolation & Anti-Reset Mandate
 - **Context:** Concurrent operations involving multiple IDEs (Antigravity IDE, VS Code, Claude Code) or autonomous subagents.
@@ -42,11 +46,13 @@ enforcement: "strict"
      A non-git lane MUST NOT run `git add`, `git commit`, or any other git write to satisfy this rule; doing so is an R38 lane violation, not compliance with R40. Unflushed context is the wipeout risk R40 exists to prevent — an uncommitted file on disk survives a branch update in another worktree; a file that exists only in an agent's context does not.
 
      *Amended from the original single-clause form, which bound every agent to a git action only one lane can legally take — every non-git lane was structurally forced to violate either this clause or R38 on any turn that created a file. See commit acf69674 for the trigger (the proposal file was removed after merge, per R49).*
+- **Bypass:** the `git reset --hard` / `git checkout .` / `git checkout --` / `git restore` / `git clean` prohibition is a `.claude/settings.json` deny rule scoped to `Bash(...)` only — confirmed live tonight: the identical command ran unblocked through the PowerShell tool. Any tool other than Claude Code's own Bash routing is unconstrained. The worktree and durability clauses have no mechanical enforcement at all.
 
 ## R41. NOOA Curated Memory & Anti-Raw-Embedding Standard
 - **Context:** Long-term cross-session knowledge retention and retrieval.
 - **Mandate:** Agents are STRICTLY FORBIDDEN from running background vector daemons (e.g. Ollama `nomic-embed-text`) or embedding uncurated conversation transcripts into prompt context.
 - **Actionable Execution:** All cross-session durable memory MUST route through `CuratedMemoryHub` on `D:\AI_Platform\telemetry\vector_memory\vector_memory.db`. Store structured records containing: `domain_track`, `topic`, `finding_summary`, `importance_score` (1-10), and relational status (`replaces`).
+- **Bypass:** none known. Nothing stops an agent from running its own embedding process or stuffing a raw transcript into context; compliance is unverified from outside the agent's own session.
 
 ## R42. Prompt Prefix Caching Order & Large Output Disk Offloading
 - **Context:** System prompt construction, tool executions, and KV prompt cache optimization.
@@ -57,6 +63,7 @@ enforcement: "strict"
   4. Truncated Rolling History
   5. Volatile User Input
 - **Large Output Offloading:** All intermediate tool stdout > 50 lines MUST be offloaded to disk on `D:\AI_Platform\scratch\` and referenced by URI rather than passed raw into prompt context.
+- **Bypass:** none known. This governs how a session's own prompt is assembled internally; nothing outside that session can observe or check it.
 
 ## R43. Inter-Session Peer Agent Messaging & State Synchronization
 - **Context:** Concurrent coordination between multiple top-level sessions or subagents.
@@ -66,6 +73,7 @@ enforcement: "strict"
   2. Canonical filesystem boundaries (`D:\GOOGLE ANTIGRAVITY`, `D:\AI_Platform`).
   3. Active daemon ports and interfaces (e.g. FastAPI on 8000, Vite on 5173).
   4. Reproducible test and benchmark commands (`pytest`, `benchmark_harness`).
+- **Bypass:** none known. Nothing stops an agent from pasting peer content directly into user-facing chat text instead of routing through `send_message`, or from omitting a required field from the handoff contract.
 
 ## R44. Anti-Destructive Live Directory Deletion Guardrail (Agent Suicide Prevention)
 - **Context:** Cleaning disk caches or migrating active application data directories on `C:\`.
@@ -74,6 +82,7 @@ enforcement: "strict"
   1. Deleting active brain directories tears open file descriptors and causes catastrophic session crashes.
   2. Storage migration MUST use native environment variable redirection (`$env:ANTIGRAVITY_APP_DATA`, `--extensions-dir`) prior to process launch.
   3. Cleanups of C: drive directories must be executed only when processes are completely terminated.
+- **Bypass:** none known. No check confirms a target directory is unreferenced by a running process before a delete runs.
 
 ## R45. Monolithic Canonical Workspace & Anti-In-Tree Split Mandate
 - **Context:** Restructuring repository architecture or separating domain concerns.
@@ -82,6 +91,7 @@ enforcement: "strict"
   1. Maintain `D:\GOOGLE ANTIGRAVITY` as the sole canonical repository root.
   2. Domain isolation MUST use established top-level track directories (`/apps`, `/content_creation`, `/sports_cards`, `/travel_and_life`).
   3. Experimental branches must use external git worktrees (`git worktree add ../.worktrees/<name>`), never internal sub-repos.
+- **Bypass:** none known. Nothing prevents a nested `.git` or an in-tree sub-repo from being created; this exact pattern (`archive/c_drive_legacy/GOOGLE ANTIGRAVITY/`, a full nested duplicate, plus an orphaned submodule gitlink) was found and untracked by hand tonight, not caught by any check.
 
 ## R46. "Measure, Do Not Recall" Ground Truth Guardrail
 - **Context:** Cross-agent handoffs, status assessments, branch assertions, and defect reports.
@@ -89,6 +99,7 @@ enforcement: "strict"
 - **Actionable Execution:** 
   1. Always re-measure the physical disk state via tools (`git status`, `find_by_name`, `view_file`) before making architectural assertions or edits.
   2. Every bug or defect report must state the concrete trigger and reproducible state (`input/state -> wrong output/crash`). Speculative or purely stylistic critiques are prohibited.
+- **Bypass:** none known. `rules/06_code_review_standard.md` S4/S5 restate this for reviews specifically, but nothing mechanical stops an agent from recalling instead of re-measuring; this rule was itself violated tonight (a "5.8 GB, therefore not rewritten" conclusion measured disk, not reachable objects).
 
 
 ## R47. The Triad Cognitive Pipeline (Model Orchestration)
@@ -98,6 +109,7 @@ enforcement: "strict"
   2. **The Scientist (Gemini Pro):** Deep logical reasoning, feasibility testing, and deterministic Red Phase Pytest gates.
   3. **The Architect (Claude Opus):** Terminal-triggered execution (claude -p) for top-tier software engineering, idiomatic repository integration, and SKILL.md authorship.
 - **Actionable Execution:** Use define_subagent and run_command (for claude) to orchestrate these handoffs. Never rely on Flash to write production code, and never waste Opus compute on raw data parsing.
+- **Bypass:** none known. No check confirms which model actually executed a given stage.
 
 
 ## R48. Claude Code CLI Boundary Traversal
@@ -108,6 +120,7 @@ enforcement: "strict"
   - *Alternative:* pipe the file in and let the sandbox stay closed — `cat "D:\AI_Platform\scratch\claims\file.md" | claude -p "Implement this blueprint."` — which needs no `--add-dir` because no read crosses the boundary. This is the safer default, not merely equivalent: `--add-dir` widens the sandbox for the whole session, while piping grants nothing.
   - Verify before relying on either form: `claude --help` is the source of truth for flags on this machine.
   - *Amended: the original examples used `-m`, which does not exist as a Claude Code CLI flag. See commit acf69674 for the trigger (the proposal file was removed after merge, per R49).*
+- **Bypass:** none known. Nothing inspects the argv of a `claude` subprocess spawned by another agent to confirm it used the correct flags.
 
 ## R49. Rule Amendment & Number Ownership Protocol
 - **Context:** Correcting, narrowing, or superseding a rule that is already numbered and in force — as opposed to contributing a new one, which `rules/proposed/README.md` already covers.
@@ -117,3 +130,11 @@ enforcement: "strict"
   2. A new rule uses frontmatter `type: new` and `proposal: R<number>`, where the number is free per this file.
   3. The git-owning session merges the amendment into the canonical numbered file, preserving the number. Superseded text is replaced, not deleted silently — the amendment file in `rules/proposed/` (or its git history once merged) is the record.
   4. Never renumber a rule to resolve a collision in someone else's file. Record the collision in `.githooks/rule-collisions.allow` and open an amendment against the file you own.
+- **Bypass:** `.githooks/lint-rule-collisions` (pre-commit) blocks a `type: new` proposal claiming a taken number and a `type: amendment` targeting a rule that doesn't exist — but not a direct edit to a canonical `rules/*.md` file that bypasses `rules/proposed/` entirely. `git commit --no-verify` also skips it. That direct-edit path is the exact failure this rule exists to close, and it is not mechanically prevented.
+
+## R50. Control Bypass Disclosure
+- **Context:** Any rule, hook, deny-rule, or CI check that this workspace treats as enforcement rather than documentation.
+- **Mandate:** A rule declaring `enforcement: "strict"` MUST state both the mechanism that enforces it and the means by which that mechanism can be circumvented. Agents MUST NOT describe a control as "enforced" or "mechanical" without naming its bypass. `Bypass: none known` is a permitted answer; omission is not.
+- **Rationale (measured, 2026-09-03):** Three controls were trusted as absolute while each had an open door, and in every case an agent budgeted risk against a guarantee that did not exist: R39 asserted GitHub branch protection that was never configured (`gh` unauthenticated); `.claude/settings.json` was described as "mechanically enforcing R40" while every deny entry is scoped to the Bash tool only, and a peer ran a denied command through PowerShell with no prompt; R22 forbade shell-interpolated authoring with no hook behind it for the rule's entire life, and five corrupted files resulted before one existed.
+- **Actionable Execution:** Each rule in a `enforcement: "strict"` file carries a `- **Bypass:**` line stating how its control (if any) is circumvented. `.githooks/lint-rule-bypass`, called from `.githooks/pre-commit` on staged `rules/*.md`, fails the commit if a strict rule's block lacks one.
+- **Bypass:** `git commit --no-verify` skips it, as it skips every hook here. It only inspects `rules/*.md` — a control documented anywhere else in the repo is out of scope. The lint verifies that a bypass is *stated*, not that the statement is *true*; a wrong disclosure passes.
