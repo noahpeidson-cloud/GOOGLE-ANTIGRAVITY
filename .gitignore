@@ -70,3 +70,9 @@ Antigravity_Media/
 /Anaconda/
 /GOOGLE ANTIGRAVITY/
 /GOOGLE-ANTIGRAVITY/
+
+# Media pipeline working tiers (per content_creation's own 4-folder convention) --
+# raw/in-progress footage belongs on disk, not in git history. See tonight's
+# 5.7GB blob incident for why.
+content_creation/01_RAW/
+content_creation/02_IN_PROGRESS/

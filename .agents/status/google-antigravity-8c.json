@@ -3,6 +3,6 @@
   "host": null,
   "lane": "config-and-measurement",
   "state": "idle",
-  "last_action": "4 post-mortem controls written+tested; wiring handed to git lane",
-  "updated": "2026-09-03T18:38:45-07:00"
+  "last_action": "read-only MCP bridge built, tested, registered with Antigravity Hub",
+  "updated": "2026-09-03T20:20:51-07:00"
 }
