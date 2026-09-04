@@ -93,3 +93,11 @@ enforcement: "strict"
   3. **The Architect (Claude Opus):** Terminal-triggered execution (claude -p) for top-tier software engineering, idiomatic repository integration, and SKILL.md authorship.
 - **Actionable Execution:** Use define_subagent and run_command (for claude) to orchestrate these handoffs. Never rely on Flash to write production code, and never waste Opus compute on raw data parsing.
 
+
+## R48. Claude Code CLI Boundary Traversal
+- **Context:** Delegating implementation tasks to Claude Code via the terminal that require reading external contexts (e.g., blueprints, dossiers, or scratch files located in D:\AI_Platform).
+- **Mandate:** Agents MUST NOT assume Claude Code can autonomously break out of its D:\GOOGLE ANTIGRAVITY sandbox to read external files. By default, Claude Code will hard-block reads to sibling or parent directories.
+- **Actionable Execution:** When triggering Claude Code to process an external file, the invoking agent MUST grant explicit boundary access using the --add-dir flag.
+  - *Example:* claude --add-dir "D:\AI_Platform\scratch\claims" -m "Implement the blueprint at D:\AI_Platform\scratch\claims\file.md"
+  - *Alternative:* Pass the external file contents directly via standard input pipeline (cat "D:\...\file.md" | claude -m "Implement this...").
+
