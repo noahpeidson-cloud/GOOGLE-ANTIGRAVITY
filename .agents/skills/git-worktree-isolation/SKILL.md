@@ -16,27 +16,26 @@ A Git worktree allows multiple branches of the same repository to be checked out
 
 1. **Create the Worktree**
    From the main repo root, run:
-   `ash
+   ```bash
    git worktree add ../.worktrees/feat-<name> -b feat/<name>
-   `
+   ```
 
 2. **Dispatch the Agent**
    Change into the isolated worktree before triggering the coding agent:
-   `ash
+   ```bash
    cd ../.worktrees/feat-<name>
    claude -p "Implement the feature..."
-   `
+   ```
 
 3. **Stage, Commit, and Teardown**
    Once the agent finishes, commit the isolated changes:
-   `ash
+   ```bash
    git add .
    git commit -m "feat: complete agent sub-task"
    git push origin feat/<name>
    cd ../../GOOGLE\ ANTIGRAVITY
    git worktree remove ../.worktrees/feat-<name>
-   `
+   ```
 
 ## Why This Matters (Empirically Verified)
-Our deterministic Pytest (	ests/test_git_worktree_isolation.py) successfully proved that modifying files inside a worktree does not dirty the index of the primary worktree. This structurally guarantees that index.lock collisions are impossible, and git reset --hard in one tree will not nuke the other tree's state.
-
+Our deterministic Pytest (tests/test_git_worktree_isolation.py) successfully proved that modifying files inside a worktree does not dirty the index of the primary worktree. This structurally guarantees that index.lock collisions are impossible, and git reset --hard in one tree will not nuke the other tree's state.

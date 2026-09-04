@@ -46,6 +46,7 @@ Before consulting the routing table, perform a lightweight context evaluation (~
 | *"Validate research"*, *"test AI concept"*, *"evaluate paper"*, *"notebook review"*, *"feasibility gate"* | `curated-memory`, `workflow-skill-creator` | `research-validation-triad` | `/infrastructure` | — |
 | *"GitKraken audit"*, *"review PR"*, *"diff audit"*, *"branch review"*, *"swarm review"* | `gitkraken-swarm-review` | `code-reviewer` | Workspace root | — |
 | *"Benchmark"*, *"effectiveness score"*, *"ecosystem health"*, *"run harness"*, *"skill telemetry"* | `curated-memory` | `research-validation-triad` | `/infrastructure` | R2 — benchmark harness is sole writer for telemetry; executor must not self-certify |
+| *"Isolate agent"*, *"worktree setup"*, *"prevent index lock"*, *"split brain"*, *"concurrent coding"* | `git-worktree-isolation` | `architect` | `/infrastructure` | R40 — never switch branches on the primary root; R39 — only the git-owning lane commits |
 
 ---
 
@@ -97,4 +98,3 @@ When prompting in Antigravity or Copilot, you can speak naturally:
 >
 > - **DAG Pipeline Contracts** (`consumes`/`produces` frontmatter keys): Custom frontmatter is not surfaced at routing time per the Antigravity progressive disclosure model. Prose pipeline chains above are the correct solution.
 > - **Context-Hydrated Dynamic Skills**: Introduces a prompt injection attack surface via raw SQLite value injection into system prompts. No viable safe implementation path exists.
-| *"Isolate agent"*, *"worktree setup"*, *"prevent index lock"*, *"split brain"*, *"concurrent coding"* | git-worktree-isolation | rchitect | /infrastructure |

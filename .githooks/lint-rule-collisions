@@ -97,6 +97,12 @@ def read_lines(path):
         return fh.read().split('\n')
 
 
+def show(path):
+    """glob returns OS-native separators on Windows; git and the sibling lints
+    both print forward slashes. Match them so paths stay copy-pasteable."""
+    return path.replace(os.sep, '/')
+
+
 allowed = set()
 if os.path.exists(ALLOW_FILE):
     for raw in read_lines(ALLOW_FILE):
@@ -122,7 +128,7 @@ for key in sorted(found):
         continue
     problems.append('%s is claimed by two different rules:' % key)
     for token, title, path, num in sightings:
-        problems.append('    %s:%d  %s. %s' % (path, num, token, title))
+        problems.append('    %s:%d  %s. %s' % (show(path), num, token, title))
     problems.append('    Renumber one, or record the conflict in %s.' % ALLOW_FILE)
 
 # ---- Pass 2: proposals must declare a number, and the number must be real ----
@@ -143,14 +149,14 @@ for path in sorted(glob.glob(PROPOSED_GLOB)):
 
     kind = meta.get('type', '').lower()
     if kind not in ('new', 'amendment'):
-        problems.append('%s: frontmatter needs "type: new" or "type: amendment".' % path)
+        problems.append('%s: frontmatter needs "type: new" or "type: amendment".' % show(path))
         problems.append('    See rules/proposed/README.md for the required block.')
         continue
 
     field = 'proposal' if kind == 'new' else 'amends'
     token = meta.get(field, '')
     if not token:
-        problems.append('%s: "type: %s" requires a "%s:" number.' % (path, kind, field))
+        problems.append('%s: "type: %s" requires a "%s:" number.' % (show(path), kind, field))
         continue
 
     key = canon(token)
@@ -158,23 +164,24 @@ for path in sorted(glob.glob(PROPOSED_GLOB)):
     filename_num = re.match(r'^(R[-A-Za-z0-9]*\d)[_.]', os.path.basename(path))
     if filename_num and canon(filename_num.group(1)) != key:
         problems.append('%s: filename says %s but frontmatter says %s: %s.'
-                        % (path, filename_num.group(1), field, token))
+                        % (show(path), filename_num.group(1), field, token))
 
     if kind == 'new':
         if key in found:
             taken = found[key][0]
             problems.append('%s proposes %s, but %s is already in force:'
-                            % (path, token, token))
-            problems.append('    %s:%d  %s. %s' % (taken[2], taken[3], taken[0], taken[1]))
+                            % (show(path), token, token))
+            problems.append('    %s:%d  %s. %s'
+                            % (show(taken[2]), taken[3], taken[0], taken[1]))
             problems.append('    Pick the next free number, or switch to "type: amendment".')
         if key in claimed_by:
             problems.append('%s and %s both propose %s. One must renumber.'
-                            % (claimed_by[key], path, token))
+                            % (show(claimed_by[key]), show(path), token))
         claimed_by[key] = path
     else:
         if key not in found:
             problems.append('%s amends %s, but no rule %s exists in rules/.'
-                            % (path, token, token))
+                            % (show(path), token, token))
             problems.append('    An amendment must target a rule that is in force.')
 
 for line in problems:

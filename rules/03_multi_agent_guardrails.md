@@ -41,7 +41,7 @@ enforcement: "strict"
 
      A non-git lane MUST NOT run `git add`, `git commit`, or any other git write to satisfy this rule; doing so is an R38 lane violation, not compliance with R40. Unflushed context is the wipeout risk R40 exists to prevent — an uncommitted file on disk survives a branch update in another worktree; a file that exists only in an agent's context does not.
 
-     *Amended from the original single-clause form, which bound every agent to a git action only one lane can legally take — every non-git lane was structurally forced to violate either this clause or R38 on any turn that created a file. See `rules/proposed/R40_durability_amendment.md` for the trigger.*
+     *Amended from the original single-clause form, which bound every agent to a git action only one lane can legally take — every non-git lane was structurally forced to violate either this clause or R38 on any turn that created a file. See commit acf69674 for the trigger (the proposal file was removed after merge, per R49).*
 
 ## R41. NOOA Curated Memory & Anti-Raw-Embedding Standard
 - **Context:** Long-term cross-session knowledge retention and retrieval.
@@ -107,7 +107,7 @@ enforcement: "strict"
   - *Example:* `claude --add-dir "D:\AI_Platform\scratch\claims" -p "Implement the blueprint at D:\AI_Platform\scratch\claims\file.md"`
   - *Alternative:* pipe the file in and let the sandbox stay closed — `cat "D:\AI_Platform\scratch\claims\file.md" | claude -p "Implement this blueprint."` — which needs no `--add-dir` because no read crosses the boundary. This is the safer default, not merely equivalent: `--add-dir` widens the sandbox for the whole session, while piping grants nothing.
   - Verify before relying on either form: `claude --help` is the source of truth for flags on this machine.
-  - *Amended: the original examples used `-m`, which does not exist as a Claude Code CLI flag. See `rules/proposed/R48_flag_correction.md` for the trigger.*
+  - *Amended: the original examples used `-m`, which does not exist as a Claude Code CLI flag. See commit acf69674 for the trigger (the proposal file was removed after merge, per R49).*
 
 ## R49. Rule Amendment & Number Ownership Protocol
 - **Context:** Correcting, narrowing, or superseding a rule that is already numbered and in force — as opposed to contributing a new one, which `rules/proposed/README.md` already covers.
