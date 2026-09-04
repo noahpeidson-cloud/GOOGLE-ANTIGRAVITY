@@ -32,7 +32,15 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     # any known remote-tracking branch, so we don't rescan old history.
     commits=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || git rev-list "$local_sha")
   else
-    commits=$(git rev-list "$remote_sha..$local_sha")
+    # Fail closed: if remote_sha doesn't resolve locally (unfetched remote
+    # tip, or the remote was force-pushed), rev-list errors and $commits
+    # would silently be empty -- the loop never runs, fail stays 0, and an
+    # unscanned push goes through. Refuse instead of guessing.
+    if ! commits=$(git rev-list "$remote_sha..$local_sha" 2>/dev/null); then
+      echo "pre-push: cannot resolve $remote_sha..$local_sha -- refusing to push unscanned history."
+      echo "  Fetch first so the remote tip is known locally, then retry."
+      exit 1
+    fi
   fi
 
   for c in $commits; do
