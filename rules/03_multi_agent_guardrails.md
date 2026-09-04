@@ -47,3 +47,12 @@ enforcement: "strict"
   4. Truncated Rolling History
   5. Volatile User Input
 - **Large Output Offloading:** All intermediate tool stdout > 50 lines MUST be offloaded to disk on `D:\AI_Platform\scratch\` and referenced by URI rather than passed raw into prompt context.
+
+## R43. Inter-Session Peer Agent Messaging & State Synchronization
+- **Context:** Concurrent coordination between multiple top-level sessions or subagents.
+- **Mandate:** Agents MUST communicate with peer agents exclusively via the `send_message` tool using the peer's conversation ID. Never output peer agent responses into the user-facing chat text.
+- **Handoff Contract:** Synchronization messages MUST transmit:
+  1. Active git branch name and latest commit SHA.
+  2. Canonical filesystem boundaries (`D:\GOOGLE ANTIGRAVITY`, `D:\AI_Platform`).
+  3. Active daemon ports and interfaces (e.g. FastAPI on 8000, Vite on 5173).
+  4. Reproducible test and benchmark commands (`pytest`, `benchmark_harness`).
