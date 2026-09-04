@@ -1,0 +1,49 @@
+#!/bin/sh
+# Repo hygiene guard -- see rules/03_multi_agent_guardrails.md R39.
+# Blocks the three classes of mistake that hit this repo in one session:
+# secrets, node_modules, and files that match .gitignore but got force-added.
+# Applies to any agent/tool that runs `git commit` (core.hooksPath is versioned).
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+fail=0
+
+# 1. node_modules should never be staged.
+node_modules_hits=$(printf '%s\n' "$staged" | grep -E 'node_modules/' || true)
+if [ -n "$node_modules_hits" ]; then
+  echo "pre-commit: blocked -- staged files under node_modules/:"
+  printf '%s\n' "$node_modules_hits" | sed 's/^/  /'
+  fail=1
+fi
+
+# 2. Filenames matching known secret patterns.
+secret_hits=$(printf '%s\n' "$staged" | grep -E '(^|/)\.env(\..*)?$|credentials.*\.json$|client_secret.*\.json$|token.*\.json$|\.pem$|\.key$|\.pfx$|\.p12$|\.pickle$|\.auth_token$' | grep -v '\.env\.example$' || true)
+if [ -n "$secret_hits" ]; then
+  echo "pre-commit: blocked -- staged files match a secret pattern from .gitignore:"
+  printf '%s\n' "$secret_hits" | sed 's/^/  /'
+  fail=1
+fi
+
+# 3. Anything staged that also matches .gitignore (the "tracked-but-ignored" bug).
+ignored_hits=""
+for f in $staged; do
+  if git check-ignore -q -- "$f" 2>/dev/null; then
+    ignored_hits="$ignored_hits$f\n"
+  fi
+done
+if [ -n "$ignored_hits" ]; then
+  echo "pre-commit: blocked -- staged files match .gitignore (force-added?):"
+  printf "$ignored_hits" | sed 's/^/  /'
+  fail=1
+fi
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "pre-commit: fix the above, or use 'git commit --no-verify' if you are certain this is intentional."
+  exit 1
+fi
+
+exit 0

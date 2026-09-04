@@ -20,3 +20,8 @@ enforcement: "strict"
 - **Context:** Concurrent operations between VS Code and Antigravity IDE.
 - **Mandate:** Agents must prevent file-lock contention and ensure atomic reads on shared SQLite databases and JSON manifests (`command_bridge.json`, `feature_list.json`).
 - **Actionable Execution:** Always close file handles and check lock statuses before starting long-running background tasks.
+
+## R39. Git Ownership & Branch Discipline
+- **Context:** Any agent (Claude Code, Antigravity IDE harness, or other) with git write access to this repository.
+- **Mandate:** Claude Code is the sole integrator of `main`. Other agents MUST work on their own `feat/*` (or similarly namespaced) branches and hand off via pull request — never commit or push directly to `main`.
+- **Actionable Execution:** GitHub branch protection on `main` enforces this server-side (required PRs, no direct pushes). This rule is documentation of that policy, not the enforcement mechanism — do not rely on an agent reading and following this text alone. If branch protection is ever absent, treat direct-to-`main` writes as the R38 file-lock-contention failure mode and stop.

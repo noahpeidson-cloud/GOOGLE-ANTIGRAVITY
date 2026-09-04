@@ -6,6 +6,11 @@
     "description": null
   },
   "cli": {},
+  "git_policy": {
+    "note": "See rules/03_multi_agent_guardrails.md R39. Claude Code is the sole integrator of `main`; other agents/subagents work on feat/* branches and hand off via pull request. Enforced by GitHub branch protection on `main`, not by this field -- this note is a best-effort signal only, unverified whether the harness reads it.",
+    "main_branch": "main",
+    "direct_push_to_main": "forbidden"
+  },
   "subagents": [
     {
       "name": "harness",
