@@ -1,0 +1,52 @@
+#!/bin/sh
+# Pre-push guard -- see rules/03 R39 and .githooks/pre-commit.
+# pre-commit only inspects what's being committed *now*; it can't catch a
+# secret that was committed before the hook existed. This scans every
+# commit actually leaving the machine on this push, not just the working
+# tree, so an old secret still in history gets caught before origin does.
+
+z40="0000000000000000000000000000000000000000"
+fail=0
+
+check_commit() {
+  c="$1"
+  files=$(git diff-tree --no-commit-id --name-only -r "$c")
+  [ -z "$files" ] && return 0
+
+  secret_hits=$(printf '%s\n' "$files" | grep -E '(^|/)\.env(\..*)?$|credentials.*\.json$|client_secret.*\.json$|token.*\.json$|\.pem$|\.key$|\.pfx$|\.p12$|\.pickle$|\.auth_token$' | grep -v '\.env\.example$' || true)
+  nm_hits=$(printf '%s\n' "$files" | grep -E 'node_modules/' || true)
+
+  if [ -n "$secret_hits" ] || [ -n "$nm_hits" ]; then
+    echo "pre-push: blocked -- commit $c introduces:"
+    [ -n "$secret_hits" ] && printf '%s\n' "$secret_hits" | sed 's/^/  [secret]       /'
+    [ -n "$nm_hits" ] && printf '%s\n' "$nm_hits" | sed 's/^/  [node_modules] /'
+    fail=1
+  fi
+}
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$z40" ] && continue  # deleting a remote ref, nothing to scan
+
+  if [ "$remote_sha" = "$z40" ]; then
+    # New ref on the remote -- scan everything not already reachable from
+    # any known remote-tracking branch, so we don't rescan old history.
+    commits=$(git rev-list "$local_sha" --not --remotes 2>/dev/null || git rev-list "$local_sha")
+  else
+    commits=$(git rev-list "$remote_sha..$local_sha")
+  fi
+
+  for c in $commits; do
+    check_commit "$c"
+  done
+done
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "pre-push: the commit history being pushed contains a secret-pattern or node_modules"
+  echo "file, even if a later commit removed it -- untracking doesn't erase it from history."
+  echo "This needs a history rewrite (git filter-repo) before it's safe to push, not another commit."
+  echo "Use 'git push --no-verify' only if you're certain this is a false positive."
+  exit 1
+fi
+
+exit 0
