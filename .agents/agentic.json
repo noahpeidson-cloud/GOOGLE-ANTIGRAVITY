@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/marcmassaco/harness-manager/main/agentic.schema.json",
   "version": "1.0.0",
   "project": {
     "name": null,
