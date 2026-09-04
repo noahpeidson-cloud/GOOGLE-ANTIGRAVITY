@@ -65,3 +65,8 @@ archive/
 # Decoupled Projects (Independent Git Repositories)
 Antigravity_OS/
 Antigravity_Media/
+
+# Misplaced / accidental local directories (not project source)
+/Anaconda/
+/GOOGLE ANTIGRAVITY/
+/GOOGLE-ANTIGRAVITY/
