@@ -16,15 +16,19 @@ enforcement: "strict"
 - **Mandate:** Agents are STRICTLY FORBIDDEN from using shell interpolation (`cat << EOF`, `echo > file`, `sed`) to author code files.
 - **Actionable Execution:** Use native editor/agent file modification tools.
 
-## R38. Dual-IDE State Synchronization Guardrail
-- **Context:** Concurrent operations between VS Code and Antigravity IDE.
-- **Mandate:** Agents must prevent file-lock contention and ensure atomic reads on shared SQLite databases and JSON manifests (`command_bridge.json`, `feature_list.json`).
-- **Actionable Execution:** Always close file handles and check lock statuses before starting long-running background tasks.
+## R38. VS Code Deprecation & GitKraken Swarm Lane Architecture
+- **Context:** Multi-agent development lifecycle across GitKraken, terminal CLI agents, and Antigravity IDE.
+- **Mandate:** VS Code is completely deprecated and removed from active workflows. Agents MUST adhere to single-writer domain lane boundaries:
+  1. **Claude Code (Git / GitKraken):** Owns all git mutations (index, commits, branches, merges, worktrees). Must NOT touch `.claude/` or application source directly.
+  2. **Claude Code (Terminal CLI SWE):** Fast autonomous feature scaffolding on `feat/*` branches. Leaves verifiable commit metadata (`Co-Authored-By: Claude Sonnet 5`, `Claude-Session` URLs).
+  3. **Claude Code Reviewer (`.claude/agents/code-reviewer.md`):** Pre-merge audit gate inspecting diffs and git graph via GitKraken MCP tools.
+  4. **Antigravity IDE Gemini (Platform Architect):** Owns application code in domain tracks, long-term context, CuratedMemoryHub (SQLite WAL), research validation funnels, daemon telemetry, and benchmark verification.
+- **Actionable Execution:** Never cross lanes. If a task requires changes in another lane, hand off via `send_message` or GitKraken PR — do not reach across.
 
 ## R39. Git Ownership & Branch Discipline
 - **Context:** Any agent (Claude Code, Antigravity IDE harness, or other) with git write access to this repository.
 - **Mandate:** Claude Code is the sole integrator of `main`. Other agents MUST work on their own `feat/*` (or similarly namespaced) branches and hand off via pull request — never commit or push directly to `main`.
-- **Actionable Execution:** GitHub branch protection on `main` enforces this server-side (required PRs, no direct pushes). This rule is documentation of that policy, not the enforcement mechanism — do not rely on an agent reading and following this text alone. If branch protection is ever absent, treat direct-to-`main` writes as the R38 file-lock-contention failure mode and stop.
+- **Actionable Execution:** Enforced locally via `.githooks/pre-commit` (wired through `core.hooksPath`) which blocks direct commits to `main`. When GitHub CLI (`gh`) is authenticated, server-side branch protection provides redundant enforcement. Treat direct-to-`main` writes as critical lane violations.
 
 ## R40. Split-Brain Workspace Isolation & Anti-Reset Mandate
 - **Context:** Concurrent operations involving multiple IDEs (Antigravity IDE, VS Code, Claude Code) or autonomous subagents.
@@ -56,3 +60,27 @@ enforcement: "strict"
   2. Canonical filesystem boundaries (`D:\GOOGLE ANTIGRAVITY`, `D:\AI_Platform`).
   3. Active daemon ports and interfaces (e.g. FastAPI on 8000, Vite on 5173).
   4. Reproducible test and benchmark commands (`pytest`, `benchmark_harness`).
+
+## R44. Anti-Destructive Live Directory Deletion Guardrail (Agent Suicide Prevention)
+- **Context:** Cleaning disk caches or migrating active application data directories on `C:\`.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from deleting, replacing with NTFS junctions (`mklink /J`), or wiping runtime directories (`C:\Users\<user>\.gemini\antigravity`, active IDE profiles, or running session logs) while tools, agents, or IDE processes are executing.
+- **Actionable Execution:** 
+  1. Deleting active brain directories tears open file descriptors and causes catastrophic session crashes.
+  2. Storage migration MUST use native environment variable redirection (`$env:ANTIGRAVITY_APP_DATA`, `--extensions-dir`) prior to process launch.
+  3. Cleanups of C: drive directories must be executed only when processes are completely terminated.
+
+## R45. Monolithic Canonical Workspace & Anti-In-Tree Split Mandate
+- **Context:** Restructuring repository architecture or separating domain concerns.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from creating nested `.git` repositories, in-tree project splits (e.g. `Antigravity_OS`, `Antigravity_Media`), or internal directory junctions inside the canonical root (`D:\GOOGLE ANTIGRAVITY`).
+- **Actionable Execution:** 
+  1. Maintain `D:\GOOGLE ANTIGRAVITY` as the sole canonical repository root.
+  2. Domain isolation MUST use established top-level track directories (`/apps`, `/content_creation`, `/sports_cards`, `/travel_and_life`).
+  3. Experimental branches must use external git worktrees (`git worktree add ../.worktrees/<name>`), never internal sub-repos.
+
+## R46. "Measure, Do Not Recall" Ground Truth Guardrail
+- **Context:** Cross-agent handoffs, status assessments, branch assertions, and defect reports.
+- **Mandate:** Agents MUST NOT accept another agent's chat transcripts or self-reported status as physical ground truth.
+- **Actionable Execution:** 
+  1. Always re-measure the physical disk state via tools (`git status`, `find_by_name`, `view_file`) before making architectural assertions or edits.
+  2. Every bug or defect report must state the concrete trigger and reproducible state (`input/state -> wrong output/crash`). Speculative or purely stylistic critiques are prohibited.
+
