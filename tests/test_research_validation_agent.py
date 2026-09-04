@@ -89,3 +89,66 @@ def test_distill_to_skill(temp_agent):
 
     # Cleanup generated test skill
     shutil.rmtree(skill_path.parent, ignore_errors=True)
+
+def test_empirical_gate_audit_hash(temp_agent):
+    agent = temp_agent
+    passing_code = "print('Audit verified')\n"
+    res = agent.run_empirical_gate(
+        concept_name="audit_hash_test",
+        hypothesis="Audit hash must be deterministic SHA-256 string",
+        domain_track="platform",
+        test_script_content=passing_code
+    )
+    assert res["passed"] is True
+    assert "audit_hash" in res
+    assert len(res["audit_hash"]) == 64  # Valid SHA-256 hexdigest length
+
+    # Verify metadata in memory hub includes audit_hash
+    records = agent.memory_hub.query(topic="audit_hash_test")
+    assert len(records) == 1
+    import json
+    meta = json.loads(records[0].metadata_json)
+    assert meta.get("audit_hash") == res["audit_hash"]
+
+def test_session_checkpoint_and_restore(temp_agent):
+    agent = temp_agent
+    session_name = "deepmind_research_session_001"
+    state_payload = {
+        "active_category": "harness_architecture",
+        "verified_concepts": ["dual_loop_control", "kiro_crew_persistence"],
+        "pending_hypotheses": ["speculative_caching"],
+        "step_index": 42
+    }
+
+    ckpt = agent.checkpoint_research_session(
+        session_name=session_name,
+        domain_track="platform",
+        state_payload=state_payload,
+        token_budget_used=12500
+    )
+    assert "checkpoint_id" in ckpt
+    assert "checkpoint_hash" in ckpt
+    assert len(ckpt["checkpoint_hash"]) == 64
+
+    # Restore session
+    restored = agent.restore_research_session(session_name)
+    assert restored is not None
+    assert restored["session_name"] == session_name
+    assert restored["domain_track"] == "platform"
+    assert restored["token_budget_used"] == 12500
+    assert restored["state"]["active_category"] == "harness_architecture"
+    assert restored["state"]["step_index"] == 42
+    assert restored["checkpoint_hash"] == ckpt["checkpoint_hash"]
+
+def test_checkpoint_list(temp_agent):
+    agent = temp_agent
+    agent.checkpoint_research_session("session_a", "platform", {"v": 1})
+    agent.checkpoint_research_session("session_b", "sports_cards", {"v": 2})
+
+    all_ckpts = agent.memory_hub.list_checkpoints()
+    assert len(all_ckpts) == 2
+
+    filtered_ckpts = agent.memory_hub.list_checkpoints(session_name="session_a")
+    assert len(filtered_ckpts) == 1
+    assert filtered_ckpts[0]["session_name"] == "session_a"
+

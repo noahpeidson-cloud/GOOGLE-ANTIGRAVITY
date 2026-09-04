@@ -10,6 +10,7 @@ import sqlite3
 import uuid
 import json
 import os
+import hashlib
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -68,6 +69,21 @@ class CuratedMemoryHub:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_topic ON curated_memory(topic);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_importance ON curated_memory(importance_score);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_mem_status ON curated_memory(status);")
+
+            # Kiro Crew & Amazon Quick inspired durable checkpointing table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS session_checkpoints (
+                    checkpoint_id TEXT PRIMARY KEY,
+                    session_name TEXT NOT NULL,
+                    timestamp TEXT NOT NULL,
+                    domain_track TEXT NOT NULL,
+                    state_json TEXT NOT NULL,
+                    checkpoint_hash TEXT NOT NULL,
+                    token_budget_used INTEGER DEFAULT 0
+                );
+            """)
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_ckpt_session ON session_checkpoints(session_name);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_ckpt_track ON session_checkpoints(domain_track);")
             conn.commit()
 
     def record(
@@ -162,3 +178,74 @@ class CuratedMemoryHub:
             lines.append(f"- **[{rec.topic}]** (Importance: {rec.importance_score}/10): {rec.finding_summary}")
             lines.append(f"  *Source: {rec.evidence_source} | Timestamp: {rec.timestamp}*")
         return "\n".join(lines)
+
+    def save_checkpoint(
+        self,
+        session_name: str,
+        domain_track: str,
+        state_data: Dict[str, Any],
+        token_budget_used: int = 0
+    ) -> Dict[str, Any]:
+        """
+        Kiro Crew-style persistent session checkpointing.
+        Saves structured agent state and computes a SHA-256 tamper-evident integrity hash.
+        """
+        ckpt_id = str(uuid.uuid4())
+        timestamp = datetime.now(timezone.utc).isoformat()
+        state_json = json.dumps(state_data, sort_keys=True)
+        
+        # SHA-256 integrity hash across session, track, state, and timestamp
+        hasher = hashlib.sha256()
+        hasher.update(f"{session_name}:{domain_track}:{timestamp}:{state_json}".encode("utf-8"))
+        ckpt_hash = hasher.hexdigest()
+
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO session_checkpoints (
+                    checkpoint_id, session_name, timestamp, domain_track,
+                    state_json, checkpoint_hash, token_budget_used
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (ckpt_id, session_name, timestamp, domain_track, state_json, ckpt_hash, token_budget_used))
+            conn.commit()
+
+        return {
+            "checkpoint_id": ckpt_id,
+            "session_name": session_name,
+            "timestamp": timestamp,
+            "domain_track": domain_track,
+            "checkpoint_hash": ckpt_hash,
+            "token_budget_used": token_budget_used
+        }
+
+    def get_latest_checkpoint(self, session_name: str) -> Optional[Dict[str, Any]]:
+        """Retrieve the most recent checkpoint for a given research/coding session."""
+        with self._get_connection() as conn:
+            row = conn.execute("""
+                SELECT * FROM session_checkpoints 
+                WHERE session_name = ? 
+                ORDER BY timestamp DESC LIMIT 1
+            """, (session_name,)).fetchone()
+            if row:
+                d = dict(row)
+                d["state"] = json.loads(d["state_json"])
+                return d
+        return None
+
+    def list_checkpoints(self, session_name: Optional[str] = None) -> List[Dict[str, Any]]:
+        """List all persistent session checkpoints."""
+        with self._get_connection() as conn:
+            if session_name:
+                rows = conn.execute("""
+                    SELECT checkpoint_id, session_name, timestamp, domain_track, checkpoint_hash, token_budget_used
+                    FROM session_checkpoints
+                    WHERE session_name = ?
+                    ORDER BY timestamp DESC
+                """, (session_name,)).fetchall()
+            else:
+                rows = conn.execute("""
+                    SELECT checkpoint_id, session_name, timestamp, domain_track, checkpoint_hash, token_budget_used
+                    FROM session_checkpoints
+                    ORDER BY timestamp DESC
+                """).fetchall()
+            return [dict(r) for r in rows]
+

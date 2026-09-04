@@ -11,6 +11,7 @@ import os
 import sys
 import json
 import time
+import hashlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -156,6 +157,13 @@ class ResearchValidationAgent:
         if not passed:
             score = max(score, 1.0)
 
+        eval_timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+        # Kiro Crew signed audit log hash (tamper-evident empirical trail)
+        hasher = hashlib.sha256()
+        hasher.update(f"{concept_name}:{hypothesis}:{test_script_content}:{passed}:{elapsed_ms}:{eval_timestamp}".encode("utf-8"))
+        audit_hash = hasher.hexdigest()
+
         result = {
             "concept_name": concept_name,
             "hypothesis": hypothesis,
@@ -165,11 +173,12 @@ class ResearchValidationAgent:
             "elapsed_ms": round(elapsed_ms, 2),
             "stdout": stdout[:500],
             "stderr": stderr[:500],
+            "audit_hash": audit_hash,
             "status": "VALIDATED" if passed else "REJECTED",
-            "evaluated_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            "evaluated_at": eval_timestamp
         }
 
-        # Update CuratedMemoryHub with empirical finding
+        # Update CuratedMemoryHub with empirical finding and cryptographic audit hash
         if passed:
             self.memory_hub.record(
                 topic=concept_name,
@@ -177,7 +186,7 @@ class ResearchValidationAgent:
                 domain_track=domain_track,
                 importance_score=9,
                 evidence_source="research_validation_agent",
-                metadata={"test_status": "passed", "elapsed_ms": round(elapsed_ms, 2)}
+                metadata={"test_status": "passed", "elapsed_ms": round(elapsed_ms, 2), "audit_hash": audit_hash}
             )
         else:
             self.memory_hub.record(
@@ -186,10 +195,34 @@ class ResearchValidationAgent:
                 domain_track=domain_track,
                 importance_score=8,
                 evidence_source="research_validation_agent",
-                metadata={"test_status": "failed", "error": stderr[:200]}
+                metadata={"test_status": "failed", "error": stderr[:200], "audit_hash": audit_hash}
             )
 
         return result
+
+    def checkpoint_research_session(
+        self,
+        session_name: str,
+        domain_track: str,
+        state_payload: Dict[str, Any],
+        token_budget_used: int = 0
+    ) -> Dict[str, Any]:
+        """
+        Kiro Crew-style session persistence checkpoint.
+        Saves research state with cryptographic integrity hash to CuratedMemoryHub.
+        """
+        return self.memory_hub.save_checkpoint(
+            session_name=session_name,
+            domain_track=domain_track,
+            state_data=state_payload,
+            token_budget_used=token_budget_used
+        )
+
+    def restore_research_session(self, session_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Restore research state from the most recent persistent checkpoint.
+        """
+        return self.memory_hub.get_latest_checkpoint(session_name)
 
     def distill_to_skill(
         self,
