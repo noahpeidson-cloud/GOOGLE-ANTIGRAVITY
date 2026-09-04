@@ -1,0 +1,1 @@
+mkdir "d:\GOOGLE ANTIGRAVITY\prompt_library\static" 2>nul & dir "d:\GOOGLE ANTIGRAVITY\prompt_library"

@@ -1,0 +1,1 @@
+python -c "s=open(r'd:\GOOGLE ANTIGRAVITY\prompt_library\static\index.html',encoding='utf-8').read(); import re; print('color-scheme:', 'color-scheme' in s); print('background-color occurrences:', len(re.findall(r'background(?:-color)?\s*:', s))); print('hex colors:', re.findall(r'#[0-9a-fA-F]{3,6}', s)[:20]); print('body style snippet:', re.findall(r'body\s*\{[^}]*\}', s)[:1])"

@@ -1,0 +1,15 @@
+{
+  "tools": {
+    "sandbox": "windows-native",
+    "sandboxNetworkAccess": false
+  },
+  "enableTerminalSandbox": true,
+  "mcpServers": {
+    "azure-video-pipeline": {
+      "httpUrl": "https://api.internal.corp/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AZURE_ENTRA_TOKEN}"
+      }
+    }
+  }
+}

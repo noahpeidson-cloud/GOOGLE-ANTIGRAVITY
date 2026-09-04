@@ -1,0 +1,12 @@
+mutation CreateVideoTag($filename: String!, $filepath: String!, $domain: String!, $entity: String!, $viralFeatures: Any!, $technical: Any!) @auth(level: PUBLIC) {
+  videoTag_insert(data: {
+    filename: $filename,
+    filepath: $filepath,
+    domain: $domain,
+    entity: $entity,
+    viralFeatures: $viralFeatures,
+    technical: $technical,
+    createdAt_expr: "request.time",
+    updatedAt_expr: "request.time"
+  })
+}

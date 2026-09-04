@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Zero Friction Capture",
+  "version": "1.0.0",
+  "description": "Clips structured data from the web using the in-browser Prompt API and saves it to a local inbox.",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_title": "Open Capture Panel"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  }
+}

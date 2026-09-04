@@ -1,0 +1,1 @@
+findstr /s /i /m "FastAPI" "d:\GOOGLE ANTIGRAVITY\apps\*.py" 2>nul & echo === & where python

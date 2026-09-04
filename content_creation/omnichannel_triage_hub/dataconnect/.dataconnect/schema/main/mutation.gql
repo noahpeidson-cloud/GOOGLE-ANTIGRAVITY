@@ -1,0 +1,124 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `VideoTag` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  videoTag_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: VideoTag_Data!
+  ): VideoTag_KeyOutput! @fdc_generated(from: "VideoTag", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `VideoTag` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  videoTag_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [VideoTag_Data!]!
+  ): [VideoTag_KeyOutput!]! @fdc_generated(from: "VideoTag", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `VideoTag` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `VideoTag`.
+  """
+  videoTag_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: VideoTag_Data!
+  ): VideoTag_KeyOutput! @fdc_generated(from: "VideoTag", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `VideoTag` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `VideoTag`.
+  """
+  videoTag_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [VideoTag_Data!]!
+  ): [VideoTag_KeyOutput!]! @fdc_generated(from: "VideoTag", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `VideoTag` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `VideoTag` or `null` if not found.
+  """
+  videoTag_update(
+    """
+    The unique ID of the object.
+    """
+    id: Int64
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int64_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: VideoTag_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: VideoTag_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: VideoTag_Data!
+  ): VideoTag_KeyOutput @fdc_generated(from: "VideoTag", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `VideoTag` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  videoTag_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: VideoTag_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: VideoTag_Data!
+  ): Int! @fdc_generated(from: "VideoTag", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `VideoTag` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  videoTag_delete(
+    """
+    The unique ID of the object.
+    """
+    id: Int64
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int64_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: VideoTag_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: VideoTag_FirstRow
+  ): VideoTag_KeyOutput @fdc_generated(from: "VideoTag", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `VideoTag` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  videoTag_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: VideoTag_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag", purpose: DELETE_MULTIPLE)
+}

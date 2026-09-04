@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Antigravity Universal Agent (Headless)",
+  "version": "1.0.0",
+  "description": "Pure headless Manifest V3 background service worker for secure omnichannel message passing.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "externally_connectable": {
+    "matches": [
+      "*://localhost/*",
+      "*://127.0.0.1/*"
+    ],
+    "ids": ["*"]
+  }
+}

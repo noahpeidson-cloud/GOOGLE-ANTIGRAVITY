@@ -1,0 +1,8 @@
+opencv-python
+numpy
+pandas
+pyspark
+python-dotenv
+google-genai
+pillow
+moviepy

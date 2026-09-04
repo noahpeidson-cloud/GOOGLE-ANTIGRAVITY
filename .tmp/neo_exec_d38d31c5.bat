@@ -1,0 +1,1 @@
+cd /d "d:\GOOGLE ANTIGRAVITY\prompt_library" && python verify_e2e.py

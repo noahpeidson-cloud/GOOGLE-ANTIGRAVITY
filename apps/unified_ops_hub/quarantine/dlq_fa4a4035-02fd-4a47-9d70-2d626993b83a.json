@@ -1,0 +1,43 @@
+{
+  "incident_id": "fa4a4035-02fd-4a47-9d70-2d626993b83a",
+  "timestamp": "2026-08-26T05:36:49.570586+00:00",
+  "source_service": "gateway_validation",
+  "error_category": "CORRUPTED_PAYLOAD",
+  "error_message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'greater_than_equal', 'loc': ('body', 'in_point'), 'msg': 'Input should be greater than or equal to 0', 'input': -1.0, 'ctx': {'ge': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "payload": {
+    "path": "/api/v1/media/render",
+    "payload": {
+      "source_file": "C:\\Users\\noahp\\AppData\\Local\\Temp\\pytest-of-noahp\\pytest-388\\test_api_rejection_negative_in0\\api_dummy.mp4",
+      "in_point": -1.0,
+      "out_point": 1.0,
+      "crop_ratio": "9:16"
+    },
+    "errors": [
+      {
+        "type": "greater_than_equal",
+        "loc": [
+          "body",
+          "in_point"
+        ],
+        "msg": "Input should be greater than or equal to 0",
+        "input": -1.0,
+        "ctx": {
+          "ge": 0.0
+        }
+      }
+    ]
+  },
+  "traceback_str": "1 validation error:\n  {'type': 'greater_than_equal', 'loc': ('body', 'in_point'), 'msg': 'Input should be greater than or equal to 0', 'input': -1.0, 'ctx': {'ge': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-26T05:36:51.570586+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-26T05:36:49.570586+00:00",
+      "event": "RECORDED",
+      "message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'greater_than_equal', 'loc': ('body', 'in_point'), 'msg': 'Input should be greater than or equal to 0', 'input': -1.0, 'ctx': {'ge': 0.0}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render"
+    }
+  ]
+}

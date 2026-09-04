@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Web Frameworks
+node_modules/
+.next/
+.firebase/
+dist/
+out/
+build/
+.turbo/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+credentials.json
+client_secret.json
+token.json
+token*.json
+*credentials*.json
+*client_secret*.json
+*.pickle
+*.auth_token
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Database Stores & Memory Dumps
+*.db
+*.sqlite
+*.sqlite3
+*.heapsnapshot
+unified_ops_hub_dlq.db
+health_telemetry.db
+
+# IDE & OS Artifacts
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Historical & Generated Agent Artifacts (Preserved in local archive, ignored in git)
+.archive/
+archive/
+.tmp/
+
+# Decoupled Projects (Independent Git Repositories)
+Antigravity_OS/
+Antigravity_Media/
+
+# Misplaced / accidental local directories (not project source)
+/Anaconda/
+/GOOGLE ANTIGRAVITY/
+/GOOGLE-ANTIGRAVITY/
+
+# Media pipeline working tiers (per content_creation's own 4-folder convention) --
+# raw/in-progress footage belongs on disk, not in git history. See tonight's
+# 5.7GB blob incident for why.
+content_creation/01_RAW/
+content_creation/02_IN_PROGRESS/

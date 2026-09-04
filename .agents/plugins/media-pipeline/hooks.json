@@ -1,0 +1,16 @@
+{
+  "media-pipeline-ingestor": {
+    "PostToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m proxy_generator",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

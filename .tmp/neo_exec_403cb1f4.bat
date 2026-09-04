@@ -1,0 +1,1 @@
+findstr /n /i "PASS\|FAIL\|check\|count" "d:\GOOGLE ANTIGRAVITY\prompt_library\verify_e2e.py" | findstr /i "PASS FAIL"

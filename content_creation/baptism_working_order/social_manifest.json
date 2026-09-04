@@ -1,0 +1,16 @@
+{
+  "campaign": "Music Baptism",
+  "platforms": {
+    "youtube": {
+      "thumbnail_path": "staged_assets/youtube_thumbnail_FINAL.jpg",
+      "video_target_id": "<ID_OF_MUSIC_BAPTISM_VIDEO>",
+      "tags": ["EDM", "Music Baptism", "Live Performance"]
+    },
+    "facebook_page": {
+      "cover_path": "staged_assets/facebook_cover_FINAL.jpg",
+      "feed_path": "staged_assets/facebook_feed_FINAL.jpg",
+      "post_copy": "A new wave of sound. Experience the Music Baptism live. Drop a comment if you are ready for the drop. #MusicBaptism #LiveEDM",
+      "publish_time": "IMMEDIATE"
+    }
+  }
+}

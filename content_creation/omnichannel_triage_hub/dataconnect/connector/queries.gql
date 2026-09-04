@@ -1,0 +1,27 @@
+query ListVideoTags @auth(level: PUBLIC) {
+  videoTags {
+    id
+    filename
+    filepath
+    domain
+    entity
+    viralFeatures
+    technical
+    createdAt
+    updatedAt
+  }
+}
+
+query GetVideoTag($id: Int64!) @auth(level: PUBLIC) {
+  videoTag(id: $id) {
+    id
+    filename
+    filepath
+    domain
+    entity
+    viralFeatures
+    technical
+    createdAt
+    updatedAt
+  }
+}

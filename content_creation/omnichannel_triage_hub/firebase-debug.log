@@ -1,0 +1,257 @@
+[debug] [2026-08-27T14:49:26.266Z] ----------------------------------------------------------------------
+[debug] [2026-08-27T14:49:26.268Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\noahp\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --only dataconnect,auth --project demo-triage
+[debug] [2026-08-27T14:49:26.268Z] CLI Version:   15.28.1
+[debug] [2026-08-27T14:49:26.268Z] Platform:      win32
+[debug] [2026-08-27T14:49:26.268Z] Node Version:  v26.7.0
+[debug] [2026-08-27T14:49:26.268Z] Detected Agent: antigravity
+[debug] [2026-08-27T14:49:26.268Z] Time:          Thu Aug 27 2026 07:49:26 GMT-0700 (Mountain Standard Time)
+[debug] [2026-08-27T14:49:26.268Z] ----------------------------------------------------------------------
+[debug] 
+[info] i  emulators: Starting emulators: auth, dataconnect {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, dataconnect"}}
+[info] i  emulators: Detected demo project ID "demo-triage", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail. {"metadata":{"emulator":{"name":"hub"},"message":"Detected demo project ID \"demo-triage\", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail."}}
+[debug] [2026-08-27T14:49:40.345Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-08-27T14:49:40.345Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-08-27T14:49:40.345Z] [dataconnect.postgres] postgres server for dataconnect only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2026-08-27T14:49:40.345Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"dataconnect":[{"address":"127.0.0.1","family":"IPv4","port":9399},{"address":"::1","family":"IPv6","port":9399}],"dataconnect.postgres":[{"address":"127.0.0.1","family":"IPv4","port":5432}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2026-08-27T14:49:40.348Z] Write emulator hub locator at C:\Users\noahp\AppData\Local\Temp\hub-demo-triage.json
+[info] i  dataconnect: downloading dataconnect-emulator-3.4.18.exe... {"metadata":{"emulator":{"name":"dataconnect"},"message":"downloading dataconnect-emulator-3.4.18.exe..."}}
+[debug] [2026-08-27T14:49:44.009Z] >>> [apiv2][query] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.18 
+[debug] [2026-08-27T14:49:44.298Z] <<< [apiv2][status] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.18 200
+[debug] [2026-08-27T14:49:44.298Z] <<< [apiv2][body] GET https://storage.googleapis.com/firemat-preview-drop/emulator/dataconnect-emulator-windows-amd64-v3.4.18 [stream]
+[debug] [2026-08-27T14:49:49.614Z] defaultcredentials: writing to file C:\Users\noahp\AppData\Roaming\firebase\noah_p.eidson_gmail.com_application_default_credentials.json
+[debug] [2026-08-27T14:49:54.847Z] W0827 07:49:54.844661    8244 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 0141] connector "omnichannel-connector" has errors: connector\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data
+
+sources: connector\queries.gql [376B] connector\mutations.gql [421B] 
+I0827 07:49:54.845190    8244 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 0141] UpdateResources(): done
+Main schema: sources: schema\schema.gql [633B] 
+Connector "omnichannel-connector": sources: connector\mutations.gql [421B] connector\queries.gql [376B] 
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"W0827 07:49:54.844661    8244 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 0141] connector \"omnichannel-connector\" has errors: connector\\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data\n\nsources: connector\\queries.gql [376B] connector\\mutations.gql [421B] \nI0827 07:49:54.845190    8244 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 0141] UpdateResources(): done\nMain schema: sources: schema\\schema.gql [633B] \nConnector \"omnichannel-connector\": sources: connector\\mutations.gql [421B] connector\\queries.gql [376B] \n"}}
+[debug] [2026-08-27T14:49:54.848Z] defaultcredentials: writing to file C:\Users\noahp\AppData\Roaming\firebase\noah_p.eidson_gmail.com_application_default_credentials.json
+[debug] [2026-08-27T14:49:54.850Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"dataconnect"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2026-08-27T14:49:54.850Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"dataconnect"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2026-08-27T14:49:54.850Z] Starting SQL Connect Emulator with command {"binary":"C:\\Users\\noahp\\.cache\\firebase\\emulators\\dataconnect-emulator-3.4.18.exe","args":["--logtostderr","-v=2","dev","--listen=127.0.0.1:9399,[::1]:9399","--config_dir=G:\\My Drive\\GOOGLE ANTIGRAVITY\\omnichannel_triage_hub\\dataconnect","--enable_output_schema_extensions=true","--enable_output_generated_sdk=true"],"optionalArgs":["listen","config_dir","enable_output_schema_extensions","enable_output_generated_sdk"],"joinArgs":true,"shell":false,"port":9399} {"metadata":{"emulator":{"name":"dataconnect"},"message":"Starting SQL Connect Emulator with command {\"binary\":\"C:\\\\Users\\\\noahp\\\\.cache\\\\firebase\\\\emulators\\\\dataconnect-emulator-3.4.18.exe\",\"args\":[\"--logtostderr\",\"-v=2\",\"dev\",\"--listen=127.0.0.1:9399,[::1]:9399\",\"--config_dir=G:\\\\My Drive\\\\GOOGLE ANTIGRAVITY\\\\omnichannel_triage_hub\\\\dataconnect\",\"--enable_output_schema_extensions=true\",\"--enable_output_generated_sdk=true\"],\"optionalArgs\":[\"listen\",\"config_dir\",\"enable_output_schema_extensions\",\"enable_output_generated_sdk\"],\"joinArgs\":true,\"shell\":false,\"port\":9399}"}}
+[info] i  dataconnect: SQL Connect Emulator logging to dataconnect-debug.log {"metadata":{"emulator":{"name":"dataconnect"},"message":"SQL Connect Emulator logging to \u001b[1mdataconnect-debug.log\u001b[22m"}}
+[info] i  dataconnect: Started up Postgres server, listening on {"address":"127.0.0.1","family":"IPv4","port":5432} {"metadata":{"emulator":{"name":"dataconnect"},"message":"Started up Postgres server, listening on {\"address\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":5432}"}}
+[debug] [2026-08-27T14:49:55.647Z] [SQL Connect] Connecting to postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable}...
+[debug] [2026-08-27T14:49:55.647Z] >>> [apiv2][query] POST http://127.0.0.1:9399/emulator/configure [none]
+[debug] [2026-08-27T14:49:55.647Z] >>> [apiv2][body] POST http://127.0.0.1:9399/emulator/configure {"connectionString":"postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable","database":"omnichannel_db","serviceId":"omnichannel-service"}
+[debug] [2026-08-27T14:49:55.649Z] I0827 07:49:55.642384   44628 load.go:31] Reloading schema and connectors...
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:55.642384   44628 load.go:31] Reloading schema and connectors...\n"}}
+[debug] [2026-08-27T14:49:55.650Z] *** [apiv2] error from fetch(http://127.0.0.1:9399/emulator/configure, {"headers":{},"method":"POST","body":"{\"connectionString\":\"postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable\",\"database\":\"omnichannel_db\",\"serviceId\":\"omnichannel-service\"}"}): Error: connect ECONNREFUSED 127.0.0.1:9399
+[debug] [2026-08-27T14:49:55.650Z] [SQL Connect] Retrying connectToPostgress call (1 of 3 attempts): SQL Connect emulator: FirebaseError: Failed to make request to http://127.0.0.1:9399/emulator/configure
+[debug] [2026-08-27T14:49:55.650Z] W0827 07:49:55.650695   44628 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 7270] connector "omnichannel-connector" has errors: connector\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data
+
+sources: connector\mutations.gql [421B] connector\queries.gql [376B] 
+I0827 07:49:55.650695   44628 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 7270] UpdateResources(): done
+Main schema: sources: schema\schema.gql [633B] 
+Connector "omnichannel-connector": sources: connector\mutations.gql [421B] connector\queries.gql [376B] 
+E0827 07:49:55.651217   44628 load.go:73] Could not load sources: 
+Errors: connector\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"W0827 07:49:55.650695   44628 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 7270] connector \"omnichannel-connector\" has errors: connector\\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data\n\nsources: connector\\mutations.gql [421B] connector\\queries.gql [376B] \nI0827 07:49:55.650695   44628 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 7270] UpdateResources(): done\nMain schema: sources: schema\\schema.gql [633B] \nConnector \"omnichannel-connector\": sources: connector\\mutations.gql [421B] connector\\queries.gql [376B] \nE0827 07:49:55.651217   44628 load.go:73] Could not load sources: \nErrors: connector\\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data\n"}}
+[debug] [2026-08-27T14:49:55.720Z] I0827 07:49:55.721259   44628 collector.go:107] schema extensions wrote into "G:\\My Drive\\GOOGLE ANTIGRAVITY\\omnichannel_triage_hub\\dataconnect\\.dataconnect\\schema"
+Generated sources: main\query.gql [1408B] main\mutation.gql [3691B] prelude.gql [84995B] main\input.gql [13078B] main\relation.gql [5971B] 
+I0827 07:49:55.721259   44628 load.go:74] Finished reloading
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:55.721259   44628 collector.go:107] schema extensions wrote into \"G:\\\\My Drive\\\\GOOGLE ANTIGRAVITY\\\\omnichannel_triage_hub\\\\dataconnect\\\\.dataconnect\\\\schema\"\nGenerated sources: main\\query.gql [1408B] main\\mutation.gql [3691B] prelude.gql [84995B] main\\input.gql [13078B] main\\relation.gql [5971B] \nI0827 07:49:55.721259   44628 load.go:74] Finished reloading\n"}}
+[debug] [2026-08-27T14:49:55.721Z] I0827 07:49:55.722293   44628 dev.go:103] Listening on address (HTTP + gRPC): 127.0.0.1:9399
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:55.722293   44628 dev.go:103] Listening on address (HTTP + gRPC): 127.0.0.1:9399\n"}}
+[debug] [2026-08-27T14:49:55.721Z] I0827 07:49:55.722293   44628 dev.go:103] Listening on address (HTTP + gRPC): [::1]:9399
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:55.722293   44628 dev.go:103] Listening on address (HTTP + gRPC): [::1]:9399\n"}}
+[debug] [2026-08-27T14:49:57.654Z] [SQL Connect] Connecting to postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable}...
+[debug] [2026-08-27T14:49:57.654Z] >>> [apiv2][query] POST http://127.0.0.1:9399/emulator/configure [none]
+[debug] [2026-08-27T14:49:57.654Z] >>> [apiv2][body] POST http://127.0.0.1:9399/emulator/configure {"connectionString":"postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable","database":"omnichannel_db","serviceId":"omnichannel-service"}
+[debug] [2026-08-27T14:49:58.531Z] I0827 07:49:58.532256   44628 migrate.go:24] Running migration SQL:
+Step 1: CREATE TABLE "public"."video_tags" ("id" bigint NOT NULL, "created_at" timestamptz NOT NULL, "domain" text NOT NULL, "entity" text NOT NULL, "filename" text NOT NULL, "filepath" text NOT NULL, "technical" jsonb NOT NULL, "updated_at" timestamptz NOT NULL, "viral_features" jsonb NOT NULL, PRIMARY KEY ("id"))
+Step 2: CREATE UNIQUE INDEX "video_tags_filename_uidx" ON "public"."video_tags" ("filename")
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:58.532256   44628 migrate.go:24] Running migration SQL:\nStep 1: CREATE TABLE \"public\".\"video_tags\" (\"id\" bigint NOT NULL, \"created_at\" timestamptz NOT NULL, \"domain\" text NOT NULL, \"entity\" text NOT NULL, \"filename\" text NOT NULL, \"filepath\" text NOT NULL, \"technical\" jsonb NOT NULL, \"updated_at\" timestamptz NOT NULL, \"viral_features\" jsonb NOT NULL, PRIMARY KEY (\"id\"))\nStep 2: CREATE UNIQUE INDEX \"video_tags_filename_uidx\" ON \"public\".\"video_tags\" (\"filename\")\n"}}
+[debug] [2026-08-27T14:49:58.568Z] W0827 07:49:58.569374   44628 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] connector "omnichannel-connector" has errors: connector\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data
+
+sources: connector\mutations.gql [421B] connector\queries.gql [376B] 
+I0827 07:49:58.569374   44628 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] UpdateResources(): done
+Main schema: sources: schema\schema.gql [633B] 
+Connector "omnichannel-connector": sources: connector\mutations.gql [421B] connector\queries.gql [376B] 
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"W0827 07:49:58.569374   44628 control.go:74] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] connector \"omnichannel-connector\" has errors: connector\\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data\n\nsources: connector\\mutations.gql [421B] connector\\queries.gql [376B] \nI0827 07:49:58.569374   44628 control.go:100] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] UpdateResources(): done\nMain schema: sources: schema\\schema.gql [633B] \nConnector \"omnichannel-connector\": sources: connector\\mutations.gql [421B] connector\\queries.gql [376B] \n"}}
+[debug] [2026-08-27T14:49:58.569Z] I0827 07:49:58.569374   44628 service.go:200] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] while configuring to server.Settings{ConnectionString:"dbname='omnichannel_db' host='127.0.0.1' port='5432' sslmode='disable' dbname='omnichannel_db'", MaxOpenConnection:0, UseDummy:false, EnableGoogleMLIntegration:false, SchemaSettings:esql.Settings{SchemaValidationMode:"", SchemaName:""}}, failed to reload last live sources: 
+Errors: connector\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data
+I0827 07:49:58.569374   44628 configure_emulator.go:21] ConfigureEmulator successed
+Request: service_id:  "omnichannel-service"
+connection_string:  "postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable"
+database:  "omnichannel_db"
+
+Response: 
+ {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0827 07:49:58.569374   44628 service.go:200] [projects/emulator/locations/emulator/services/omnichannel-service 44e3] while configuring to server.Settings{ConnectionString:\"dbname='omnichannel_db' host='127.0.0.1' port='5432' sslmode='disable' dbname='omnichannel_db'\", MaxOpenConnection:0, UseDummy:false, EnableGoogleMLIntegration:false, SchemaSettings:esql.Settings{SchemaValidationMode:\"\", SchemaName:\"\"}}, failed to reload last live sources: \nErrors: connector\\mutations.gql:2:3: videoTag_insert (data: VideoTag_Data): column id is required but is missing in data\nI0827 07:49:58.569374   44628 configure_emulator.go:21] ConfigureEmulator successed\nRequest: service_id:  \"omnichannel-service\"\nconnection_string:  \"postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable\"\ndatabase:  \"omnichannel_db\"\n\nResponse: \n"}}
+[debug] [2026-08-27T14:49:58.572Z] <<< [apiv2][status] POST http://127.0.0.1:9399/emulator/configure 200
+[debug] [2026-08-27T14:49:58.572Z] <<< [apiv2][body] POST http://127.0.0.1:9399/emulator/configure {}
+[debug] [2026-08-27T14:49:58.572Z] [SQL Connect] Successfully connected to postgres://127.0.0.1:5432/omnichannel_db?sslmode=disable}
+[info] i  ui: downloading ui-v1.15.0.zip... {"metadata":{"emulator":{"name":"ui"},"message":"downloading ui-v1.15.0.zip..."}}
+[debug] [2026-08-27T14:49:58.585Z] >>> [apiv2][query] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.15.0.zip 
+[debug] [2026-08-27T14:49:58.752Z] <<< [apiv2][status] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.15.0.zip 200
+[debug] [2026-08-27T14:49:58.752Z] <<< [apiv2][body] GET https://storage.googleapis.com/firebase-preview-drop/emulator/ui-v1.15.0.zip [stream]
+[debug] [2026-08-27T14:49:59.503Z] Data is 3538469
+[debug] [2026-08-27T14:49:59.503Z] [unzip] Entry: client/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.504Z] [unzip] Processing entry: client\
+[debug] [2026-08-27T14:49:59.504Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\
+[debug] [2026-08-27T14:49:59.504Z] [unzip] Entry: client/favicon-16x16.png (compressed_size=293 bytes, uncompressed_size=293 bytes)
+[debug] [2026-08-27T14:49:59.504Z] [unzip] Processing entry: client\favicon-16x16.png
+[debug] [2026-08-27T14:49:59.504Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.505Z] [unzip] Writing file: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\favicon-16x16.png
+[debug] [2026-08-27T14:49:59.505Z] [unzip] Entry: client/safari-pinned-tab.svg (compressed_size=1433 bytes, uncompressed_size=2611 bytes)
+[debug] [2026-08-27T14:49:59.505Z] [unzip] Processing entry: client\safari-pinned-tab.svg
+[debug] [2026-08-27T14:49:59.505Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.506Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\safari-pinned-tab.svg
+[debug] [2026-08-27T14:49:59.507Z] [unzip] Entry: client/favicon.ico (compressed_size=2933 bytes, uncompressed_size=13294 bytes)
+[debug] [2026-08-27T14:49:59.507Z] [unzip] Processing entry: client\favicon.ico
+[debug] [2026-08-27T14:49:59.507Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.508Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\favicon.ico
+[debug] [2026-08-27T14:49:59.509Z] [unzip] Entry: client/index.html (compressed_size=1364 bytes, uncompressed_size=3071 bytes)
+[debug] [2026-08-27T14:49:59.509Z] [unzip] Processing entry: client\index.html
+[debug] [2026-08-27T14:49:59.509Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.509Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\index.html
+[debug] [2026-08-27T14:49:59.510Z] [unzip] Entry: client/android-chrome-192x192.png (compressed_size=2684 bytes, uncompressed_size=2684 bytes)
+[debug] [2026-08-27T14:49:59.510Z] [unzip] Processing entry: client\android-chrome-192x192.png
+[debug] [2026-08-27T14:49:59.510Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.510Z] [unzip] Writing file: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\android-chrome-192x192.png
+[debug] [2026-08-27T14:49:59.511Z] [unzip] Entry: client/apple-touch-icon.png (compressed_size=2123 bytes, uncompressed_size=2152 bytes)
+[debug] [2026-08-27T14:49:59.511Z] [unzip] Processing entry: client\apple-touch-icon.png
+[debug] [2026-08-27T14:49:59.511Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.511Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\apple-touch-icon.png
+[debug] [2026-08-27T14:49:59.512Z] [unzip] Entry: client/android-chrome-512x512.png (compressed_size=5369 bytes, uncompressed_size=5411 bytes)
+[debug] [2026-08-27T14:49:59.512Z] [unzip] Processing entry: client\android-chrome-512x512.png
+[debug] [2026-08-27T14:49:59.512Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.513Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\android-chrome-512x512.png
+[debug] [2026-08-27T14:49:59.513Z] [unzip] Entry: client/manifest.json (compressed_size=245 bytes, uncompressed_size=551 bytes)
+[debug] [2026-08-27T14:49:59.513Z] [unzip] Processing entry: client\manifest.json
+[debug] [2026-08-27T14:49:59.514Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.514Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\manifest.json
+[debug] [2026-08-27T14:49:59.514Z] [unzip] Entry: client/robots.txt (compressed_size=26 bytes, uncompressed_size=26 bytes)
+[debug] [2026-08-27T14:49:59.514Z] [unzip] Processing entry: client\robots.txt
+[debug] [2026-08-27T14:49:59.514Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.515Z] [unzip] Writing file: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\robots.txt
+[debug] [2026-08-27T14:49:59.515Z] [unzip] Entry: client/mstile-150x150.png (compressed_size=2034 bytes, uncompressed_size=2034 bytes)
+[debug] [2026-08-27T14:49:59.515Z] [unzip] Processing entry: client\mstile-150x150.png
+[debug] [2026-08-27T14:49:59.515Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.516Z] [unzip] Writing file: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\mstile-150x150.png
+[debug] [2026-08-27T14:49:59.516Z] [unzip] Entry: client/assets/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.516Z] [unzip] Processing entry: client\assets\
+[debug] [2026-08-27T14:49:59.516Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\
+[debug] [2026-08-27T14:49:59.517Z] [unzip] Entry: client/assets/index-BX-A56oj.js (compressed_size=582089 bytes, uncompressed_size=2092775 bytes)
+[debug] [2026-08-27T14:49:59.517Z] [unzip] Processing entry: client\assets\index-BX-A56oj.js
+[debug] [2026-08-27T14:49:59.517Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets
+[debug] [2026-08-27T14:49:59.517Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\index-BX-A56oj.js
+[debug] [2026-08-27T14:49:59.529Z] [unzip] Entry: client/assets/index-CjB9C900.css (compressed_size=35979 bytes, uncompressed_size=298654 bytes)
+[debug] [2026-08-27T14:49:59.529Z] [unzip] Processing entry: client\assets\index-CjB9C900.css
+[debug] [2026-08-27T14:49:59.529Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets
+[debug] [2026-08-27T14:49:59.530Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\index-CjB9C900.css
+[debug] [2026-08-27T14:49:59.531Z] [unzip] Entry: client/assets/index-BX-A56oj.js.map (compressed_size=2362482 bytes, uncompressed_size=10036679 bytes)
+[debug] [2026-08-27T14:49:59.531Z] [unzip] Processing entry: client\assets\index-BX-A56oj.js.map
+[debug] [2026-08-27T14:49:59.532Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets
+[debug] [2026-08-27T14:49:59.532Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\index-BX-A56oj.js.map
+[debug] [2026-08-27T14:49:59.563Z] [unzip] Entry: client/assets/extensions/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.563Z] [unzip] Processing entry: client\assets\extensions\
+[debug] [2026-08-27T14:49:59.563Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\extensions\
+[debug] [2026-08-27T14:49:59.563Z] [unzip] Entry: client/assets/extensions/default-extension.png (compressed_size=1646 bytes, uncompressed_size=1657 bytes)
+[debug] [2026-08-27T14:49:59.563Z] [unzip] Processing entry: client\assets\extensions\default-extension.png
+[debug] [2026-08-27T14:49:59.563Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\extensions
+[debug] [2026-08-27T14:49:59.563Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\extensions\default-extension.png
+[debug] [2026-08-27T14:49:59.564Z] [unzip] Entry: client/assets/img/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.564Z] [unzip] Processing entry: client\assets\img\
+[debug] [2026-08-27T14:49:59.564Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\img\
+[debug] [2026-08-27T14:49:59.565Z] [unzip] Entry: client/assets/img/database.png (compressed_size=29449 bytes, uncompressed_size=29988 bytes)
+[debug] [2026-08-27T14:49:59.565Z] [unzip] Processing entry: client\assets\img\database.png
+[debug] [2026-08-27T14:49:59.565Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\img
+[debug] [2026-08-27T14:49:59.565Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\img\database.png
+[debug] [2026-08-27T14:49:59.569Z] [unzip] Entry: client/assets/provider-icons/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.569Z] [unzip] Processing entry: client\assets\provider-icons\
+[debug] [2026-08-27T14:49:59.569Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\
+[debug] [2026-08-27T14:49:59.570Z] [unzip] Entry: client/assets/provider-icons/auth_service_saml.svg (compressed_size=575 bytes, uncompressed_size=1226 bytes)
+[debug] [2026-08-27T14:49:59.570Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_saml.svg
+[debug] [2026-08-27T14:49:59.570Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.570Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_saml.svg
+[debug] [2026-08-27T14:49:59.571Z] [unzip] Entry: client/assets/provider-icons/auth_service_phone.svg (compressed_size=261 bytes, uncompressed_size=414 bytes)
+[debug] [2026-08-27T14:49:59.571Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_phone.svg
+[debug] [2026-08-27T14:49:59.571Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.571Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_phone.svg
+[debug] [2026-08-27T14:49:59.572Z] [unzip] Entry: client/assets/provider-icons/auth_service_facebook.svg (compressed_size=289 bytes, uncompressed_size=457 bytes)
+[debug] [2026-08-27T14:49:59.572Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_facebook.svg
+[debug] [2026-08-27T14:49:59.572Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.572Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_facebook.svg
+[debug] [2026-08-27T14:49:59.573Z] [unzip] Entry: client/assets/provider-icons/auth_service_game_center.svg (compressed_size=991 bytes, uncompressed_size=3921 bytes)
+[debug] [2026-08-27T14:49:59.573Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_game_center.svg
+[debug] [2026-08-27T14:49:59.573Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.574Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_game_center.svg
+[debug] [2026-08-27T14:49:59.574Z] [unzip] Entry: client/assets/provider-icons/auth_service_apple.svg (compressed_size=230 bytes, uncompressed_size=334 bytes)
+[debug] [2026-08-27T14:49:59.574Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_apple.svg
+[debug] [2026-08-27T14:49:59.575Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.575Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_apple.svg
+[debug] [2026-08-27T14:49:59.575Z] [unzip] Entry: client/assets/provider-icons/auth_service_github.svg (compressed_size=466 bytes, uncompressed_size=838 bytes)
+[debug] [2026-08-27T14:49:59.575Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_github.svg
+[debug] [2026-08-27T14:49:59.575Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.576Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_github.svg
+[debug] [2026-08-27T14:49:59.576Z] [unzip] Entry: client/assets/provider-icons/auth_service_mslive.svg (compressed_size=203 bytes, uncompressed_size=378 bytes)
+[debug] [2026-08-27T14:49:59.576Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_mslive.svg
+[debug] [2026-08-27T14:49:59.576Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.577Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_mslive.svg
+[debug] [2026-08-27T14:49:59.577Z] [unzip] Entry: client/assets/provider-icons/auth_service_yahoo.svg (compressed_size=577 bytes, uncompressed_size=1182 bytes)
+[debug] [2026-08-27T14:49:59.577Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_yahoo.svg
+[debug] [2026-08-27T14:49:59.577Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.577Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_yahoo.svg
+[debug] [2026-08-27T14:49:59.578Z] [unzip] Entry: client/assets/provider-icons/auth_service_twitter.svg (compressed_size=444 bytes, uncompressed_size=751 bytes)
+[debug] [2026-08-27T14:49:59.578Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_twitter.svg
+[debug] [2026-08-27T14:49:59.578Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.578Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_twitter.svg
+[debug] [2026-08-27T14:49:59.579Z] [unzip] Entry: client/assets/provider-icons/auth_service_play_games.svg (compressed_size=565 bytes, uncompressed_size=1173 bytes)
+[debug] [2026-08-27T14:49:59.579Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_play_games.svg
+[debug] [2026-08-27T14:49:59.579Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.579Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_play_games.svg
+[debug] [2026-08-27T14:49:59.580Z] [unzip] Entry: client/assets/provider-icons/auth_service_email.svg (compressed_size=228 bytes, uncompressed_size=326 bytes)
+[debug] [2026-08-27T14:49:59.580Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_email.svg
+[debug] [2026-08-27T14:49:59.580Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.580Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_email.svg
+[debug] [2026-08-27T14:49:59.581Z] [unzip] Entry: client/assets/provider-icons/auth_service_google.svg (compressed_size=409 bytes, uncompressed_size=720 bytes)
+[debug] [2026-08-27T14:49:59.581Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_google.svg
+[debug] [2026-08-27T14:49:59.581Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.581Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_google.svg
+[debug] [2026-08-27T14:49:59.582Z] [unzip] Entry: client/assets/provider-icons/auth_service_oidc.svg (compressed_size=414 bytes, uncompressed_size=858 bytes)
+[debug] [2026-08-27T14:49:59.582Z] [unzip] Processing entry: client\assets\provider-icons\auth_service_oidc.svg
+[debug] [2026-08-27T14:49:59.582Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons
+[debug] [2026-08-27T14:49:59.582Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\assets\provider-icons\auth_service_oidc.svg
+[debug] [2026-08-27T14:49:59.582Z] [unzip] Entry: client/browserconfig.xml (compressed_size=491 bytes, uncompressed_size=822 bytes)
+[debug] [2026-08-27T14:49:59.583Z] [unzip] Processing entry: client\browserconfig.xml
+[debug] [2026-08-27T14:49:59.583Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.583Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\browserconfig.xml
+[debug] [2026-08-27T14:49:59.583Z] [unzip] Entry: client/favicon-32x32.png (compressed_size=475 bytes, uncompressed_size=475 bytes)
+[debug] [2026-08-27T14:49:59.583Z] [unzip] Processing entry: client\favicon-32x32.png
+[debug] [2026-08-27T14:49:59.583Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client
+[debug] [2026-08-27T14:49:59.584Z] [unzip] Writing file: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\client\favicon-32x32.png
+[debug] [2026-08-27T14:49:59.584Z] [unzip] Entry: server/ (compressed_size=0 bytes, uncompressed_size=0 bytes)
+[debug] [2026-08-27T14:49:59.584Z] [unzip] Processing entry: server\
+[debug] [2026-08-27T14:49:59.584Z] [unzip] mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\server\
+[debug] [2026-08-27T14:49:59.584Z] [unzip] Entry: server/server.mjs.map (compressed_size=217845 bytes, uncompressed_size=944978 bytes)
+[debug] [2026-08-27T14:49:59.584Z] [unzip] Processing entry: server\server.mjs.map
+[debug] [2026-08-27T14:49:59.584Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\server
+[debug] [2026-08-27T14:49:59.585Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\server\server.mjs.map
+[debug] [2026-08-27T14:49:59.587Z] [unzip] Entry: server/server.mjs (compressed_size=276407 bytes, uncompressed_size=933701 bytes)
+[debug] [2026-08-27T14:49:59.588Z] [unzip] Processing entry: server\server.mjs
+[debug] [2026-08-27T14:49:59.588Z] [unzip] else mkdir: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\server
+[debug] [2026-08-27T14:49:59.588Z] [unzip] deflating: C:\Users\noahp\.cache\firebase\emulators\ui-v1.15.0\server\server.mjs
+[debug] [2026-08-27T14:49:59.593Z] >>> [apiv2][query] GET http://127.0.0.1:9399/emulator/info [none]
+[debug] [2026-08-27T14:49:59.603Z] <<< [apiv2][status] GET http://127.0.0.1:9399/emulator/info 200
+[debug] [2026-08-27T14:49:59.603Z] <<< [apiv2][body] GET http://127.0.0.1:9399/emulator/info {"version":"","services":[{"serviceId":"omnichannel-service","connectionString":"dbname='omnichannel_db' host='127.0.0.1' port='5432' sslmode='disable' dbname='omnichannel_db'"}]}
+[debug] [2026-08-27T14:49:59.607Z] Could not find VSCode notification endpoint: TypeError: fetch failed. If you are not running the Firebase SQL Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI        │
+├────────────────┼────────────────┼────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth │
+├────────────────┼────────────────┼────────────────────────────┤
+│ SQL Connect    │ 127.0.0.1:9399 │ n/a                        │
+└────────────────┴────────────────┴────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 

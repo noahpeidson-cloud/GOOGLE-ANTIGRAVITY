@@ -1,0 +1,24 @@
+{
+  "incident_id": "c04f0871-a644-403b-8c8a-fee62b07b727",
+  "timestamp": "2026-08-26T04:04:12.654610+00:00",
+  "source_service": "mobile_scraper",
+  "error_category": "TIMEOUT",
+  "error_message": "Device failure during scrape: ADB device emulator-5554 is OFFLINE",
+  "payload": {
+    "session_id": "session_03d30492",
+    "platform": "tiktok"
+  },
+  "traceback_str": null,
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-26T04:04:14.654610+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-26T04:04:12.654610+00:00",
+      "event": "RECORDED",
+      "message": "Device failure during scrape: ADB device emulator-5554 is OFFLINE"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+dir "d:\GOOGLE ANTIGRAVITY" & echo --- & python --version & echo --- & pip show fastapi uvicorn 2>nul | findstr /i "Name Version"

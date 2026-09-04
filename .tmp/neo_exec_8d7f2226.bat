@@ -1,0 +1,1 @@
+powershell -NoProfile -Command "python --version; pip list 2>$null | Select-String -Pattern 'fastapi|uvicorn|flask|streamlit|gradio' ; Write-Host '---'; Get-Content 'd:\GOOGLE ANTIGRAVITY\requirements.txt' -TotalCount 40"

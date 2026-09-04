@@ -1,0 +1,1 @@
+ls -la "/app/d:\GOOGLE ANTIGRAVITY\prompt_library" 2>/dev/null || ls -la "/app/d:/GOOGLE ANTIGRAVITY/prompt_library" 2>/dev/null || find /app -maxdepth 3 -type d -name "prompt_library" 2>/dev/null

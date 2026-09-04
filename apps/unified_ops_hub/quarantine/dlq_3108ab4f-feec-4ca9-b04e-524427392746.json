@@ -1,0 +1,40 @@
+{
+  "incident_id": "3108ab4f-feec-4ca9-b04e-524427392746",
+  "timestamp": "2026-08-26T05:41:05.107304+00:00",
+  "source_service": "gateway_validation",
+  "error_category": "CORRUPTED_PAYLOAD",
+  "error_message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'json_invalid', 'loc': ('body', 1), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting property name enclosed in double quotes'}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "payload": {
+    "path": "/api/v1/media/render",
+    "payload": {
+      "raw_body_error": "Could not parse JSON"
+    },
+    "errors": [
+      {
+        "type": "json_invalid",
+        "loc": [
+          "body",
+          1
+        ],
+        "msg": "JSON decode error",
+        "input": {},
+        "ctx": {
+          "error": "Expecting property name enclosed in double quotes"
+        }
+      }
+    ]
+  },
+  "traceback_str": "1 validation error:\n  {'type': 'json_invalid', 'loc': ('body', 1), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting property name enclosed in double quotes'}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-26T05:41:07.107304+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-26T05:41:05.107304+00:00",
+      "event": "RECORDED",
+      "message": "Schema validation error on /api/v1/media/render: 1 validation error:\n  {'type': 'json_invalid', 'loc': ('body', 1), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting property name enclosed in double quotes'}}\n\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\unified_ops_hub\\gateway\\app.py\", line 256, in render_media_endpoint\n    POST /api/v1/media/render"
+    }
+  ]
+}

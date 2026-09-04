@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\apps",
+    "\\apps\\unified_ops_hub",
+    "\\apps\\unified_ops_hub\\dashboard",
+    "\\apps\\unified_ops_hub\\dashboard\\.next",
+    "\\apps\\unified_ops_hub\\dashboard\\.next\\dev",
+    "\\apps\\unified_ops_hub\\dashboard\\.next\\dev\\build"
+  ],
+  "SelectedNode": "\\apps\\unified_ops_hub\\dashboard\\.next\\dev\\build\\package.json",
+  "PreviewInSolutionExplorer": false
+}

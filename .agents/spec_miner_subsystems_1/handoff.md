@@ -1,0 +1,27 @@
+# Handoff Report: Stateless Worker Subsystems & Test Suite Mining
+
+## 1. Observation
+- **Authoritative Request**: In `C:\Users\noahp\OneDrive\Desktop\Antigravity\.agents\ORIGINAL_REQUEST.md` (lines 80–84, 89–98), requirement R2 states: "Convert the fragmented, overlapping agents (Social Deployer, Mobile Zero-Touch, Deep Research) into isolated, stateless worker nodes that only execute when called by the Supervisor. Worker nodes MUST use `bind_tools()` to execute actions. Worker nodes MUST return control to the Supervisor using the LangGraph `Command` object (`Command(update={state}, goto='supervisor')`) to ensure atomic state updates and transitions. Do not use legacy conditional edges for handoffs. You must write a deterministic test suite (`test_orchestrator.py`) using `pytest` that programmatically verifies the Supervisor logic. It must mock the worker nodes and assert that the routing state machine correctly delegates intents... `pytest test_orchestrator.py` passes with 100% success, proving the DAG routing works without infinite loops."
+- **Social Deployer Reference**: In `g:\My Drive\GOOGLE ANTIGRAVITY\.agents\skills\social-deployment-agent\SKILL.md` (lines 9–26) and `g:\My Drive\GOOGLE ANTIGRAVITY\deployment_agent.py` (lines 42–80), social deployment consists of ADB Intent broadcasting (`android.intent.action.SEND` to `com.facebook.katana`), YouTube Data API uploads, manifest validation, and SQLite telemetry logging (`booth_telemetry.db`).
+- **Mobile Automation Reference**: In `g:\My Drive\GOOGLE ANTIGRAVITY\.agents\skills\autonomous-mobile-agent-blueprint\SKILL.md` (lines 28–51) and `g:\My Drive\GOOGLE ANTIGRAVITY\.agents\skills\zero-touch-automation-registry\SKILL.md` (lines 40–120), mobile automation mandates a 4-tier hierarchy: Tier 1 Dalvik/Binary execution, Tier 2 Android Intents (`am start`/`am broadcast`), Tier 3 `uiautomator` DOM parsing/bounds math, and Tier 4 Keystroke injection (`monkey`, `input text` with `%s` space escaping). It also requires Samsung Auto Blocker deactivation and permission granting.
+- **Deep Research / Validation Reference**: In `g:\My Drive\GOOGLE ANTIGRAVITY\.agents\skills\data-driven-validation\SKILL.md` (lines 9–37) and `g:\My Drive\GOOGLE ANTIGRAVITY\.agents\skills\data-driven-validation\scripts\validate_design.py` (lines 15–77), validation uses the Gemini Interactions API (`deep-research-max-preview-04-2026`), evaluates against workspace context `GEMINI.md`, and outputs structured reports with validation/enhancement/rejection verdicts.
+- **Target Project Directory**: `C:\Users\noahp\teamwork_projects\antigravity_control_plane` was checked via `find_by_name` and confirmed to be a newly initialized directory.
+
+## 2. Logic Chain
+1. *From Observation 1 & 2*: The Social Deployer worker subsystem must provide 4 discrete, stateless tools (`deploy_to_facebook_via_adb`, `deploy_to_youtube_api`, `validate_social_manifest`, `log_social_telemetry`) bound via `llm.bind_tools()`.
+2. *From Observation 1 & 3*: The Mobile worker subsystem must encapsulate the 4-tier automation hierarchy into callable tools (`verify_device_connected`, `execute_adb_shell`, `send_android_intent`, `uiautomator_tap_element`, `inject_termux_command`, `disable_samsung_autoblocker`, `grant_app_permission`).
+3. *From Observation 1 & 4*: The Research worker subsystem must expose tools (`execute_deep_research`, `query_workspace_rules`, `save_research_report`, `evaluate_design_proposal`) to conduct deep validation against workspace rules with R27 fallback cascades.
+4. *From Observation 1*: In modern LangGraph, workers must avoid maintaining class instance state; all inputs and outputs flow through `State`. When worker execution completes, returning `Command(update={...}, goto='supervisor')` guarantees atomic state transitions and strictly returns control to the Supervisor, eliminating conditional edge wiring.
+5. *From Observation 1*: To verify the system without network or hardware flakiness, `test_orchestrator.py` must mock all external layers (ADB subshells, Google API client, Gemini interactions, PostgreSQL checkpointer pool) and test routing classification, worker invocation, handoff execution, and loop termination within recursion limits.
+
+## 3. Caveats
+- No real hardware Android device or live YouTube API credentials should be invoked during automated testing; all unit and integration tests must run against mock fixtures.
+- PostgreSQL checkpointer pool tests in `test_orchestrator.py` can utilize in-memory mocks (`MemorySaver` or mocked `psycopg_pool.ConnectionPool`) to allow running unit tests without requiring a running local Postgres instance.
+
+## 4. Conclusion
+The subsystem architectures, tool signatures, error paths, handoff mechanics, and deterministic test suite design are completely specified and documented in `analysis.md`. The design fulfills requirement R2 and provides a robust foundation for `PROJECT.md` synthesis and Milestone M2/M4 implementation.
+
+## 5. Verification Method
+1. Inspect `C:\Users\noahp\OneDrive\Desktop\Antigravity\.agents\spec_miner_subsystems_1\analysis.md` to verify all tool signatures, input/output schemas, error cases, and test designs.
+2. Verify that all 18 discovered features and 12 edge cases are documented in the specification tables.
+3. Verify test design includes pytest test cases for Supervisor routing, Worker tool execution, `Command` handoff returns, and recursion limit loop protection.

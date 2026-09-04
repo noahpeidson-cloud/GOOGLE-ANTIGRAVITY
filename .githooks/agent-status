@@ -1,0 +1,75 @@
+#!/bin/sh
+# Agent status heartbeat writer -- Improvement 3, 2026-09-03 session post-mortem.
+# See .agents/status/README.md for why mtime inference was abandoned.
+#
+# Usage:
+#   .githooks/agent-status <agent> <lane> <state> "<last action>"
+#
+#   agent   stable identity (for Claude Code, the name ListAgents reports)
+#   lane    git | application-source | config-and-measurement       (R38)
+#   state   working | idle | blocked | stopped
+#
+# Writes .agents/status/<agent>.json. You write only your own file.
+#
+# Python does the JSON encoding deliberately: hand-built JSON in shell is where an
+# interpreted backslash escape lands (R22), and this repo has had five such defects.
+
+set -e
+
+if [ "$#" -lt 4 ]; then
+  echo "usage: agent-status <agent> <lane> <state> \"<last action>\"" >&2
+  exit 2
+fi
+
+agent=$1
+lane=$2
+state=$3
+action=$4
+
+case "$lane" in
+  git|application-source|config-and-measurement) ;;
+  *) echo "agent-status: lane must be git, application-source or config-and-measurement (R38)" >&2
+     exit 2 ;;
+esac
+
+case "$state" in
+  working|idle|blocked|stopped) ;;
+  *) echo "agent-status: state must be working, idle, blocked or stopped" >&2
+     exit 2 ;;
+esac
+
+PY=python
+command -v python >/dev/null 2>&1 || PY=python3
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+mkdir -p "$repo_root/.agents/status"
+
+"$PY" - "$repo_root/.agents/status/$agent.json" "$agent" "$lane" "$state" "$action" <<'PYEOF'
+import json
+import sys
+from datetime import datetime
+
+path, agent, lane, state, action = sys.argv[1:6]
+
+record = {
+    "agent": agent,
+    "host": None,
+    "lane": lane,
+    "state": state,
+    "last_action": action,
+    "updated": datetime.now().astimezone().isoformat(timespec="seconds"),
+}
+
+# Preserve a host label a previous write established, so callers need not repeat it.
+try:
+    with open(path, "r", encoding="utf-8") as fh:
+        record["host"] = json.load(fh).get("host")
+except (OSError, ValueError):
+    pass
+
+with open(path, "w", encoding="utf-8") as fh:
+    json.dump(record, fh, indent=2)
+    fh.write("\n")
+
+print("%s -> %s (%s)" % (agent, state, record["updated"]))
+PYEOF

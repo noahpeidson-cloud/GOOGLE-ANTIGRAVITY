@@ -1,0 +1,16 @@
+# =============================================================================
+# Firebase Data Connect GraphQL Schema: VideoTag
+# Target: PostgreSQL / Cloud SQL for PostgreSQL
+# =============================================================================
+
+type VideoTag @table(name: "video_tags", key: "id", singular: "videoTag", plural: "videoTags") {
+  id: Int64!
+  filename: String! @unique
+  filepath: String!
+  domain: String!
+  entity: String!
+  viralFeatures: Any! @col(name: "viral_features", dataType: "jsonb")
+  technical: Any! @col(name: "technical", dataType: "jsonb")
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}

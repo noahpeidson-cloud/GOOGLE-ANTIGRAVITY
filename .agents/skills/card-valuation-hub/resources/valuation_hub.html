@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script>
+    let socket;
+    let selectedCards = [];
+    
+    function connect() {
+        let port = 9000;
+        
+        function tryConnect() {
+            if (port > 9010) {
+                document.getElementById('status').innerText = "Failed to connect to backend.";
+                return;
+            }
+            
+            document.getElementById('status').innerText = `Connecting to port ${port}...`;
+            socket = new WebSocket(`ws://localhost:${port}`);
+            
+            socket.onopen = () => {
+                document.getElementById('status').innerText = "Connected to ETL Backend!";
+                document.getElementById('status').classList.remove('text-[var(--muted-foreground)]');
+                document.getElementById('status').classList.add('text-green-500');
+            };
+            
+            socket.onerror = () => {
+                port++;
+                tryConnect();
+            };
+            
+            socket.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                if (msg.type === 'checklist') {
+                    renderChecklist(msg.data);
+                } else if (msg.type === 'export_success') {
+                    document.getElementById('export-msg').innerText = `Success! Saved to CSV`;
+                } else if (msg.type === 'error') {
+                    alert("Error: " + msg.message);
+                }
+            };
+        }
+        tryConnect();
+    }
+    
+    function loadChecklist() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        socket.send(JSON.stringify({ action: "get_checklist" }));
+    }
+    
+    function renderChecklist(data) {
+        selectedCards = data;
+        const container = document.getElementById('checklist-container');
+        container.innerHTML = '';
+        data.forEach((card, idx) => {
+            container.innerHTML += `
+                <div class="flex items-center justify-between p-3 border-b border-[var(--border)] gap-4">
+                    <div class="flex-grow">
+                        <span class="font-medium text-[var(--foreground)]">${card.player}</span>
+                        <div class="text-sm text-[var(--muted-foreground)]">${card.year} ${card.set_name} #${card.number}</div>
+                    </div>
+                    
+                    <a href="${card.ebay_link}" target="_blank" class="text-sm bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] px-3 py-1 rounded hover:bg-gray-100 hover:text-black transition-colors whitespace-nowrap">
+                        🔍 eBay Comps
+                    </a>
+                    
+                    <div class="flex items-center gap-1">
+                        <span class="text-[var(--muted-foreground)] font-medium">$</span>
+                        <input type="number" id="val-${idx}" placeholder="0.00" step="0.01" min="0" class="w-24 bg-[var(--background)] border border-[var(--border)] rounded px-2 py-1 text-[var(--foreground)] text-right">
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('checklist-section').classList.remove('hidden');
+    }
+    
+    function exportCsv() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        
+        // Harvest the manually entered values
+        selectedCards.forEach((card, idx) => {
+            const inputVal = document.getElementById(`val-${idx}`).value;
+            card.estimated_value = inputVal ? parseFloat(inputVal) : 0.0;
+        });
+        
+        socket.send(JSON.stringify({ action: "export_csv", cards: selectedCards }));
+    }
+
+    window.onload = connect;
+  </script>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-5">
+  <div class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-xl p-5 shadow-sm max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-[var(--foreground)] text-lg font-semibold">Card Ladder Hub (Manual Mode)</h2>
+        <span id="status" class="text-sm text-[var(--muted-foreground)]">Initializing...</span>
+    </div>
+    
+    <!-- Bookmarklet Section -->
+    <div class="bg-[var(--background)] p-4 rounded-lg border border-[var(--border)] mb-4">
+        <h3 class="text-[var(--foreground)] font-medium mb-2">1. Install Extraction Bookmarklet</h3>
+        <p class="text-sm text-[var(--muted-foreground)] mb-3">Drag this blue button to your Chrome Bookmarks Bar. When browsing Card Ladder, click it to instantly append the card to your CSV.</p>
+        <a href="javascript:(function(){let ws = new WebSocket('ws://localhost:9000');ws.onopen = function(){ws.send(JSON.stringify({action: 'bookmarklet_extract', url: window.location.href, title: document.title, html: document.body.innerText}));alert('Card sent to Antigravity CSV!');ws.close();};ws.onerror = function(){alert('Failed to connect to Antigravity Hub on port 9000');};})();" 
+           class="inline-block bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded font-medium cursor-grab hover:bg-blue-600 transition-colors" title="Drag me to your bookmarks bar">
+           📥 Send to CSV
+        </a>
+    </div>
+
+    <div class="flex gap-2 mb-4">
+        <select class="bg-[var(--background)] border border-[var(--border)] rounded px-3 py-2 flex-grow text-[var(--foreground)]">
+            <option>2019 Topps Chrome Baseball</option>
+            <option>2023 Panini Prizm Football</option>
+        </select>
+        <button onclick="loadChecklist()" class="bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded font-medium hover:opacity-90">
+            Pull Checklist
+        </button>
+    </div>
+    
+    <div id="checklist-section" class="hidden">
+        <div class="bg-[var(--background)] border border-[var(--border)] rounded-lg max-h-80 overflow-y-auto mb-4" id="checklist-container">
+            <!-- Cards go here -->
+        </div>
+        
+        <div class="flex justify-end items-center">
+            <div class="flex items-center gap-3">
+                <span id="export-msg" class="text-sm text-green-500 font-medium"></span>
+                <button id="export-btn" onclick="exportCsv()" class="bg-[var(--accent)] text-[var(--accent-foreground)] px-4 py-2 rounded font-medium hover:opacity-90">
+                    Export to Card Ladder CSV
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

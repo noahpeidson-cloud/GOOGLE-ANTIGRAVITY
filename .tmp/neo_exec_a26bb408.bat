@@ -1,0 +1,1 @@
+dir /b "d:\GOOGLE ANTIGRAVITY\prompt_library" & echo --- & dir /b "d:\GOOGLE ANTIGRAVITY\prompt_library\static" & echo --- & powershell -Command "try { $r = Invoke-WebRequest -Uri 'http://localhost:8090/' -UseBasicParsing -TimeoutSec 10; Write-Output ('UI HTTP ' + $r.StatusCode + ' len=' + $r.Content.Length) } catch { Write-Output ('ERROR: ' + $_.Exception.Message) }"

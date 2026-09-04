@@ -1,0 +1,153 @@
+extend type VideoTag {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "VideoTag", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `VideoTag` table.
+  """
+  _count: Int! @fdc_generated(from: "VideoTag.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `domain` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  domain_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.domain", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `entity` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  entity_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.entity", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `filename` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  filename_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.filename", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `filepath` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  filepath_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.filepath", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `technical` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  technical_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.technical", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `VideoTag` table where the `viralFeatures` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  viralFeatures_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "VideoTag.viralFeatures", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `id` field in the `VideoTag` table.
+  """
+  id_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int64 @fdc_generated(from: "VideoTag.id", purpose: QUERY_SUM)
+  """
+  ✨ Average the `id` field in the `VideoTag` table.
+  """
+  id_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "VideoTag.id", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `createdAt` field in the `VideoTag` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "VideoTag.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `id` field in the `VideoTag` table.
+  """
+  id_min: Int64 @fdc_generated(from: "VideoTag.id", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `technical` field in the `VideoTag` table.
+  """
+  technical_min: Any @fdc_generated(from: "VideoTag.technical", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `updatedAt` field in the `VideoTag` table.
+  """
+  updatedAt_min: Timestamp @fdc_generated(from: "VideoTag.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `viralFeatures` field in the `VideoTag` table.
+  """
+  viralFeatures_min: Any @fdc_generated(from: "VideoTag.viralFeatures", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `VideoTag` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "VideoTag.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `id` field in the `VideoTag` table.
+  """
+  id_max: Int64 @fdc_generated(from: "VideoTag.id", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `technical` field in the `VideoTag` table.
+  """
+  technical_max: Any @fdc_generated(from: "VideoTag.technical", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `updatedAt` field in the `VideoTag` table.
+  """
+  updatedAt_max: Timestamp @fdc_generated(from: "VideoTag.updatedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `viralFeatures` field in the `VideoTag` table.
+  """
+  viralFeatures_max: Any @fdc_generated(from: "VideoTag.viralFeatures", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "VideoTag.id", purpose: ENTITY_ID)
+}

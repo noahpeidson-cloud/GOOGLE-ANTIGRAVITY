@@ -1,0 +1,8 @@
+{
+  "agent": "git-ownership-workspace-safety",
+  "host": null,
+  "lane": "git",
+  "state": "working",
+  "last_action": "wired verification-claims/rule-bypass/handoff-identifiers lints, added Bypass lines to 20 rules, merged R50",
+  "updated": "2026-09-03T18:48:49-07:00"
+}

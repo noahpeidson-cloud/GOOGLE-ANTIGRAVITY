@@ -1,0 +1,1 @@
+powershell -Command "$f='d:\GOOGLE ANTIGRAVITY\prompt_library\verify_e2e.py'; if(!(Test-Path -LiteralPath $f)){'__NOFILE__'}else{$c=Get-Content -LiteralPath $f; '__READMETA__ '+$c.Count+' '+((Get-Item -LiteralPath $f).Length); $c | Select-Object -Skip 139 -First 50}"

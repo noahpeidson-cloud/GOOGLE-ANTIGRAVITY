@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ML Editing Booth</title>
+    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; margin: 0; padding: 20px; }
+        .canvas-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; background: #000; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); aspect-ratio: 16/9; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .controls { max-width: 800px; margin: 20px auto; display: flex; flex-direction: column; gap: 15px; }
+        .panel { background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+        input[type="text"] { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px 12px; border-radius: 4px; font-family: monospace; }
+        .timeline { width: 100%; height: 40px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; position: relative; cursor: pointer; }
+        .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444; pointer-events: none; }
+        .tag { display: inline-block; padding: 4px 10px; background: #334155; border-radius: 999px; font-size: 12px; cursor: pointer; user-select: none; }
+        .tag.active { background: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1 class="text-2xl font-bold mb-4 text-center">WebCodecs ML Editing Booth</h1>
+    
+    <div class="canvas-container">
+        <canvas id="videoCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="panel">
+            <h3 class="text-sm font-semibold text-slate-400 mb-2 uppercase">Playback & Scrubbing</h3>
+            <div class="flex items-center gap-4 mb-3">
+                <button id="playBtn" class="btn">Play</button>
+                <button id="pauseBtn" class="btn">Pause</button>
+                <div class="flex-grow font-mono text-sm text-center" id="timeDisplay">00:00:00.000</div>
+                <button id="loadBtn" class="btn">Load Proxy</button>
+            </div>
+            <div class="timeline" id="timeline">
+                <div class="playhead" id="playhead"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="panel">
+                <h3 class="text-sm font-semibold text-slate-400 mb-2 uppercase">Trim Points</h3>
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2">
+                        <button class="btn text-xs px-2" id="setInBtn">Set In [</button>
+                        <input type="text" id="inPoint" class="w-full" placeholder="In Point (s)">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="btn text-xs px-2" id="setOutBtn">Set Out ]</button>
+                        <input type="text" id="outPoint" class="w-full" placeholder="Out Point (s)">
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3 class="text-sm font-semibold text-slate-400 mb-2 uppercase">ML Training Labels</h3>
+                <div class="flex flex-wrap gap-2 mb-3" id="tags">
+                    <div class="tag">Fast Cuts</div>
+                    <div class="tag">Slow Zoom</div>
+                    <div class="tag">Heavy Drop</div>
+                    <div class="tag">Needs Color Grade</div>
+                </div>
+                <button id="saveBtn" class="btn w-full bg-green-600 hover:bg-green-700">Save EDL to SQLite</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <button id="reviewBtn" class="btn w-full bg-purple-600 hover:bg-purple-700">Trigger Agent Review (Watchdog Sync)</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('videoCanvas');
+        const ctx = canvas.getContext('2d');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const playhead = document.getElementById('playhead');
+        const timeline = document.getElementById('timeline');
+        
+        let video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        // Using a sample from the Quick Share directory (served via python server)
+        const currentFile = "20260717_182645~2.mp4";
+        video.src = `http://localhost:8999/${currentFile}`;
+        
+        let isPlaying = false;
+        let duration = 0;
+
+        video.addEventListener('loadedmetadata', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            duration = video.duration;
+            drawFrame();
+        });
+
+        // Frame rendering loop (simulating WebCodecs manual draw for now, standard video is fallback if WebCodecs is complex for a quick prototype)
+        function drawFrame() {
+            if (video.readyState >= 2) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                timeDisplay.innerText = new Date(video.currentTime * 1000).toISOString().substr(11, 12);
+                if (duration > 0) {
+                    playhead.style.left = `${(video.currentTime / duration) * 100}%`;
+                }
+            }
+            if (isPlaying) {
+                requestAnimationFrame(drawFrame);
+            }
+        }
+
+        document.getElementById('playBtn').onclick = () => { video.play(); isPlaying = true; drawFrame(); };
+        document.getElementById('pauseBtn').onclick = () => { video.pause(); isPlaying = false; };
+        document.getElementById('loadBtn').onclick = () => { video.load(); };
+        
+        document.getElementById('setInBtn').onclick = () => document.getElementById('inPoint').value = video.currentTime.toFixed(3);
+        document.getElementById('setOutBtn').onclick = () => document.getElementById('outPoint').value = video.currentTime.toFixed(3);
+
+        timeline.addEventListener('click', (e) => {
+            const rect = timeline.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            video.currentTime = pos * duration;
+            if (!isPlaying) drawFrame();
+        });
+
+        const activeTags = new Set();
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.onclick = () => {
+                if (activeTags.has(tag.innerText)) {
+                    activeTags.delete(tag.innerText);
+                    tag.classList.remove('active');
+                } else {
+                    activeTags.add(tag.innerText);
+                    tag.classList.add('active');
+                }
+            };
+        });
+
+        document.getElementById('saveBtn').onclick = async () => {
+            const payload = {
+                filename: currentFile,
+                in_point: parseFloat(document.getElementById('inPoint').value) || 0,
+                out_point: parseFloat(document.getElementById('outPoint').value) || 0,
+                tags: Array.from(activeTags),
+                notes: "",
+                ai_proposed_in: 0,
+                ai_proposed_out: 0
+            };
+            
+            try {
+                const res = await fetch('http://localhost:8999/api/save_edit', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) alert('Saved successfully!');
+            } catch (e) { alert('Error saving to server'); }
+        };
+
+        document.getElementById('reviewBtn').onclick = async () => {
+            try {
+                const res = await fetch('http://localhost:8999/api/request_review', {
+                    method: 'POST',
+                    body: JSON.stringify({ filename: currentFile })
+                });
+                if(res.ok) alert('Agent Review Requested! The Watchdog has pinged the Antigravity session.');
+            } catch (e) { alert('Error contacting server'); }
+        };
+
+        video.addEventListener('seeked', () => drawFrame());
+    </script>
+</body>
+</html>

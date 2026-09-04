@@ -1,0 +1,28 @@
+{
+  "incident_id": "3378f4d1-2c38-416d-941c-9b332f183903",
+  "timestamp": "2026-08-29T13:05:04.112669+00:00",
+  "source_service": "media_event_bus",
+  "error_category": "UNHANDLED_EXCEPTION",
+  "error_message": "Synthetic pipeline crash",
+  "payload": {
+    "job_id": "ca83f88f-2070-4df6-996b-6173541aedc6",
+    "task_type": "BAD_TASK",
+    "payload": {
+      "simulate_error": true,
+      "error_message": "Synthetic pipeline crash"
+    }
+  },
+  "traceback_str": "Traceback (most recent call last):\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\media_event_bus.py\", line 357, in process_job\n    result = self.execute_task(task_type, payload)\n  File \"G:\\My Drive\\GOOGLE ANTIGRAVITY\\media_event_bus.py\", line 247, in execute_task\n    raise RuntimeError(payload.get(\"error_message\") or f\"Simulated error in task {task_type}\")\nRuntimeError: Synthetic pipeline crash\n",
+  "retry_count": 0,
+  "max_retries": 3,
+  "next_retry_at": "2026-08-29T13:05:06.112669+00:00",
+  "status": "QUARANTINED",
+  "resolved_at": null,
+  "history": [
+    {
+      "timestamp": "2026-08-29T13:05:04.112669+00:00",
+      "event": "RECORDED",
+      "message": "Synthetic pipeline crash"
+    }
+  ]
+}
