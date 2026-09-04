@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/schema/main/schema.json",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "d:\\GOOGLE ANTIGRAVITY"
+      ]
+    },
+    "sqlite-inventory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-sqlite-npx",
+        "d:\\GOOGLE ANTIGRAVITY\\sports_cards\\card_inventory.db"
+      ]
+    },
+    "sqlite-manifest": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-sqlite-npx",
+        "d:\\GOOGLE ANTIGRAVITY\\content_creation\\media_pipeline\\ingestion\\manifest.db"
+      ]
+    }
+  }
+}
