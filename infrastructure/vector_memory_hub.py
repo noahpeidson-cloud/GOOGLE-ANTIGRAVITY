@@ -21,7 +21,16 @@ def get_embedding(text: str) -> List[float]:
     try:
         with urllib.request.urlopen(req, timeout=5) as response:
             result = json.loads(response.read().decode("utf-8"))
-            return result.get("embedding", [])
+            if "embedding" not in result:
+                raise RuntimeError(
+                    f"CRITICAL (R1 Violation Prevention): Ollama at {OLLAMA_API_URL} responded "
+                    f"200 OK but the body has no 'embedding' key (schema mismatch, wrong service "
+                    f"on that port, or a server-side error reported as 200). Mock embeddings are "
+                    f"strictly forbidden -- falling back to an empty vector here would silently "
+                    f"write a degenerate row that ingestion's dedup check then skips forever.\n"
+                    f"Response keys: {list(result.keys())}"
+                )
+            return result["embedding"]
     except urllib.error.URLError as e:
         raise RuntimeError(
             f"CRITICAL (R1 Violation Prevention): Failed to connect to local Ollama at {OLLAMA_API_URL}. "
