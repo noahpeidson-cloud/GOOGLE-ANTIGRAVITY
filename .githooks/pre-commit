@@ -6,6 +6,22 @@
 
 set -e
 
+# 0. R39: no direct commits to main. Fires first so a blocked-branch commit
+#    fails fast, before any lint work runs. Server-side branch protection is
+#    the real enforcement (once gh is authenticated); this is the local half,
+#    and like every other check here it's bypassable with --no-verify -- the
+#    git-owning session doing a deliberate integration merge into main uses
+#    that consciously, rather than this hook having no branch check at all.
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || true)
+if [ "$current_branch" = "main" ]; then
+  echo "pre-commit: blocked -- direct commit to main."
+  echo "  R39: Claude Code is the sole integrator of main, via merge/PR, not a"
+  echo "  direct commit on a session's own branch state. Work on a feat/*"
+  echo "  branch and hand off, or if this is a deliberate integration commit"
+  echo "  by the git-owning session, use 'git commit --no-verify'."
+  exit 1
+fi
+
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
 [ -z "$staged" ] && exit 0
 
@@ -38,6 +54,59 @@ if [ -n "$ignored_hits" ]; then
   echo "pre-commit: blocked -- staged files match .gitignore (force-added?):"
   printf "$ignored_hits" | sed 's/^/  /'
   fail=1
+fi
+
+# 4. Staged markdown checked for escape-corruption (interpreted backslash
+#    escapes from R22 violations -- see .githooks/lint-escape-corruption).
+md_staged=$(printf '%s\n' "$staged" | grep '\.md$' || true)
+if [ -n "$md_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-escape-corruption" $md_staged; then
+    fail=1
+  fi
+fi
+
+# 5. Rule-number collisions. Inherently cross-file, so this scans the whole repo
+#    rather than the staged set -- but only when the commit touches a file that
+#    can carry a rule, so unrelated commits are never blocked on it.
+rule_staged=$(printf '%s\n' "$staged" | grep -E '^(rules/|GEMINI\.md$|CLAUDE\.md$)' || true)
+if [ -n "$rule_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-rule-collisions"; then
+    fail=1
+  fi
+fi
+
+# 6. Verification claims in staged rules/.agents markdown must state a boundary.
+verify_staged=$(printf '%s\n' "$staged" | grep -E '^(rules/|\.agents/).*\.md$' || true)
+if [ -n "$verify_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-verification-claims" $verify_staged; then
+    fail=1
+  fi
+fi
+
+# 7. Strict rules must disclose their own bypass.
+if [ -n "$rule_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-rule-bypass" $(printf '%s\n' "$staged" | grep -E '^rules/[^/]+\.md$' || true); then
+    fail=1
+  fi
+fi
+
+# 8. Review-request handoffs must use resolvable, stable identifiers.
+handoff_staged=$(printf '%s\n' "$staged" | grep -E '^\.claude/review-requests/.*\.md$' || true)
+if [ -n "$handoff_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-handoff-identifiers" $handoff_staged; then
+    fail=1
+  fi
+fi
+
+# 9. Staged python files checked by ruff.
+py_staged=$(printf '%s\n' "$staged" | grep '\.py$' || true)
+if [ -n "$py_staged" ]; then
+  echo "pre-commit: linting python files with ruff..."
+  if ! ruff check $py_staged > /dev/null; then
+    ruff check $py_staged
+    echo "pre-commit: blocked -- ruff check failed."
+    fail=1
+  fi
 fi
 
 if [ "$fail" -eq 1 ]; then
