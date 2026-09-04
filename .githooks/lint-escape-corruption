@@ -3,20 +3,30 @@
 #
 # R22 forbids authoring files via shell interpolation. When that rule is broken,
 # backslash escapes in the content get interpreted and silently damage the text.
-# Observed in this workspace three times across two files, in TWO variants:
+# Observed repeatedly in this workspace, in TWO variants:
 #
 #   Variant A -- the escape survives as a literal control byte:
 #       "Pytest in \tests/"      -> "Pytest in <TAB>ests/"
 #       "Execute \run_command"   -> "Execute <CR>un_command"
-#     Detectable by a byte scan.
 #
-#   Variant B -- the escape is consumed entirely, eating the next character:
-#       "Use \run_command"       -> "Use un_command"        (rules/03, R47)
-#     NOT detectable by any byte scan. The file is clean UTF-8 containing
-#     plausible-looking wrong text. Only a known-token check finds it.
+#   Variant B -- the escape is consumed entirely, eating the next character,
+#     leaving clean UTF-8 that merely says the wrong thing. Only a known-token
+#     dictionary finds this one.
 #
-# Both checks run. Usage:
-#   lint-escape-corruption [file ...]     # defaults to rules/ and .agents/ *.md
+# WHY THE BYTE SCAN IS PYTHON AND NOT grep
+# ----------------------------------------
+# Git Bash grep opens files in text mode. On a CRLF file it strips every CR
+# before matching, including a mid-line one. Measured on this machine:
+#
+#   file                          python 0x0d count    grep -cP '\x0d'
+#   LF endings, mid-line CR                 1                  1
+#   CRLF endings, mid-line CR               4                  0   <-- silent miss
+#
+# So a grep-based CR check reports clean on exactly the Windows files most
+# likely to be damaged. Read the bytes instead. A CR is only legitimate as
+# part of a CRLF pair; a CR not followed by LF is corruption.
+#
+# Usage:  lint-escape-corruption [file ...]   # defaults to rules/ and .agents/ *.md
 # Exit 0 clean, 1 if anything is flagged.
 
 fail=0
@@ -27,33 +37,57 @@ else
   files=$(find rules .agents -name '*.md' -type f 2>/dev/null)
 fi
 
+PY=python
+command -v python >/dev/null 2>&1 || PY=python3
+
 for f in $files; do
   [ -f "$f" ] || continue
   case "$f" in *.md) ;; *) continue ;; esac
 
-  # ---- Variant A: literal control bytes that have no business in prose ----
-  # A lone CR (not part of CRLF), or a TAB that is not leading indentation.
-  # NOTE: do not test for CR via "$(printf '\r')" -- command substitution strips
-  # trailing CR, yielding an empty pattern that matches every line. Use grep -P.
-  if grep -qP '\x0d' "$f" 2>/dev/null; then
-    echo "escape-lint: $f -- contains a carriage return inside a line"
-    grep -nP '\x0d' "$f" 2>/dev/null | head -5 | sed 's/^/    /'
-    fail=1
-  fi
-  # A TAB anywhere after non-whitespace content on the line -- leading indentation is fine.
-  if grep -qP '\S.*\x09' "$f" 2>/dev/null; then
-    echo "escape-lint: $f -- contains a TAB mid-line (not indentation)"
-    grep -nP '\S.*\x09' "$f" 2>/dev/null | head -5 | sed 's/^/    /'
+  # ---- Variant A: byte-level scan, line-ending agnostic ----
+  out=$("$PY" - "$f" <<'PYEOF'
+import sys
+
+path = sys.argv[1]
+with open(path, 'rb') as fh:
+    data = fh.read()
+
+problems = []
+
+# A CR is legitimate only as part of CRLF. Anything else is a stray control byte.
+for i, b in enumerate(data):
+    if b == 0x0d and data[i + 1:i + 2] != b'\n':
+        line = data.count(b'\n', 0, i) + 1
+        problems.append((line, 'stray CR (0x0d) not part of a CRLF pair'))
+
+# A TAB is legitimate as leading indentation. A TAB after visible content on the
+# same line is how "\tword" degrades.
+for raw in enumerate(data.split(b'\n'), start=1):
+    num, ln = raw
+    ln = ln.rstrip(b'\r')
+    if b'\t' in ln:
+        before = ln.split(b'\t', 1)[0]
+        if before.strip():
+            problems.append((num, 'TAB (0x09) after visible content, not indentation'))
+
+for num, msg in problems[:5]:
+    print("%d: %s" % (num, msg))
+sys.exit(1 if problems else 0)
+PYEOF
+)
+  if [ -n "$out" ]; then
+    echo "escape-lint: $f -- stray control byte from an interpreted escape"
+    printf '%s\n' "$out" | sed 's/^/    /'
     fail=1
   fi
 
   # ---- Variant B: known tokens with a leading character eaten by an escape ----
-  # Each entry is  damaged<TAB>intended. Extend as new instances are found.
-  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\bhe_architect\b|\berify_|\besults\.json' "$f" 2>/dev/null)
+  # Extend this list as new instances are found. Each is <damaged> -> <intended>.
+  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\berify_|\besults\.json|\bsc -b\b' "$f" 2>/dev/null)
   if [ -n "$hits" ]; then
     echo "escape-lint: $f -- token looks truncated by an interpreted escape"
     printf '%s\n' "$hits" | head -5 | sed 's/^/    /'
-    echo "    (un_command->run_command  ests/->tests/  ame:->name:  erify_->verify_)"
+    echo "    (un_command->run_command  ests/->tests/  ame:->name:  sc -b->tsc -b)"
     fail=1
   fi
 done
