@@ -26,7 +26,7 @@ This routing engine maps natural language user queries and workflow intents to t
 | *"Stress test"*, *"adversarial edge cases"*, *"fuzz test"*, *"break this code"*, *"write loud test suite"* | `challenger-qa` (agent), `subagent-driven-development` | `challenger-qa` | All tracks |
 | *"Antigravity bridge"*, *"dual IDE sync"*, *"localhost:11435"*, *"localhost:3033"*, *"ConnectRPC status"* | `antigravity-bridge-support` | `bridge-support` | `/infrastructure` |
 | *"Ask me questions first"*, *"grill me"*, *"clarify requirements before building"*, *"plan feature"* | `grill-me` | `architect` | Workspace root |
-| *"Validate research"*, *"test AI concept"*, *"evaluate paper"*, *"notebook review"*, *"feasibility gate"* | `curated-memory`, `workflow-skill-creator` | `research-validator` | `/infrastructure` |
+| *"Validate research"*, *"test AI concept"*, *"evaluate paper"*, *"notebook review"*, *"feasibility gate"* | `curated-memory`, `workflow-skill-creator` | `research-validation-triad` | `/infrastructure` |
 
 ---
 

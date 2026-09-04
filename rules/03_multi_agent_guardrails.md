@@ -84,3 +84,12 @@ enforcement: "strict"
   1. Always re-measure the physical disk state via tools (`git status`, `find_by_name`, `view_file`) before making architectural assertions or edits.
   2. Every bug or defect report must state the concrete trigger and reproducible state (`input/state -> wrong output/crash`). Speculative or purely stylistic critiques are prohibited.
 
+
+## R47. The Triad Cognitive Pipeline (Model Orchestration)
+- **Context:** Designing multi-stage autonomous workflows or research validation loops.
+- **Mandate:** Agents MUST NOT route complex multi-stage tasks to a single monolithic model. Workflows MUST be decomposed to leverage specific model cognitive strengths:
+  1. **The Harvester (Gemini Flash):** High-speed, large-context extraction and fluff-filtering (Disk offloading only).
+  2. **The Scientist (Gemini Pro):** Deep logical reasoning, feasibility testing, and deterministic Red Phase Pytest gates.
+  3. **The Architect (Claude Opus):** Terminal-triggered execution (claude -p) for top-tier software engineering, idiomatic repository integration, and SKILL.md authorship.
+- **Actionable Execution:** Use define_subagent and un_command (for claude) to orchestrate these handoffs. Never rely on Flash to write production code, and never waste Opus compute on raw data parsing.
+
