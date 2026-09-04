@@ -1,0 +1,69 @@
+#!/bin/sh
+# Escape-corruption lint -- the enforcement R22 has always lacked.
+#
+# R22 forbids authoring files via shell interpolation. When that rule is broken,
+# backslash escapes in the content get interpreted and silently damage the text.
+# Observed in this workspace three times across two files, in TWO variants:
+#
+#   Variant A -- the escape survives as a literal control byte:
+#       "Pytest in \tests/"      -> "Pytest in <TAB>ests/"
+#       "Execute \run_command"   -> "Execute <CR>un_command"
+#     Detectable by a byte scan.
+#
+#   Variant B -- the escape is consumed entirely, eating the next character:
+#       "Use \run_command"       -> "Use un_command"        (rules/03, R47)
+#     NOT detectable by any byte scan. The file is clean UTF-8 containing
+#     plausible-looking wrong text. Only a known-token check finds it.
+#
+# Both checks run. Usage:
+#   lint-escape-corruption [file ...]     # defaults to rules/ and .agents/ *.md
+# Exit 0 clean, 1 if anything is flagged.
+
+fail=0
+
+if [ "$#" -gt 0 ]; then
+  files=$*
+else
+  files=$(find rules .agents -name '*.md' -type f 2>/dev/null)
+fi
+
+for f in $files; do
+  [ -f "$f" ] || continue
+  case "$f" in *.md) ;; *) continue ;; esac
+
+  # ---- Variant A: literal control bytes that have no business in prose ----
+  # A lone CR (not part of CRLF), or a TAB that is not leading indentation.
+  # NOTE: do not test for CR via "$(printf '\r')" -- command substitution strips
+  # trailing CR, yielding an empty pattern that matches every line. Use grep -P.
+  if grep -qP '\x0d' "$f" 2>/dev/null; then
+    echo "escape-lint: $f -- contains a carriage return inside a line"
+    grep -nP '\x0d' "$f" 2>/dev/null | head -5 | sed 's/^/    /'
+    fail=1
+  fi
+  # A TAB anywhere after non-whitespace content on the line -- leading indentation is fine.
+  if grep -qP '\S.*\x09' "$f" 2>/dev/null; then
+    echo "escape-lint: $f -- contains a TAB mid-line (not indentation)"
+    grep -nP '\S.*\x09' "$f" 2>/dev/null | head -5 | sed 's/^/    /'
+    fail=1
+  fi
+
+  # ---- Variant B: known tokens with a leading character eaten by an escape ----
+  # Each entry is  damaged<TAB>intended. Extend as new instances are found.
+  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\bhe_architect\b|\berify_|\besults\.json' "$f" 2>/dev/null)
+  if [ -n "$hits" ]; then
+    echo "escape-lint: $f -- token looks truncated by an interpreted escape"
+    printf '%s\n' "$hits" | head -5 | sed 's/^/    /'
+    echo "    (un_command->run_command  ests/->tests/  ame:->name:  erify_->verify_)"
+    fail=1
+  fi
+done
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "escape-lint: authored text was damaged by an interpreted backslash escape."
+  echo "Per R22, do not author files with shell interpolation (cat <<EOF, echo >, sed)."
+  echo "Rewrite the file with a native editor/agent file tool and commit again."
+  exit 1
+fi
+
+exit 0

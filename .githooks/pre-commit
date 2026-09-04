@@ -40,6 +40,15 @@ if [ -n "$ignored_hits" ]; then
   fail=1
 fi
 
+# 4. Staged markdown checked for escape-corruption (interpreted backslash
+#    escapes from R22 violations -- see .githooks/lint-escape-corruption).
+md_staged=$(printf '%s\n' "$staged" | grep '\.md$' || true)
+if [ -n "$md_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-escape-corruption" $md_staged; then
+    fail=1
+  fi
+fi
+
 if [ "$fail" -eq 1 ]; then
   echo ""
   echo "pre-commit: fix the above, or use 'git commit --no-verify' if you are certain this is intentional."

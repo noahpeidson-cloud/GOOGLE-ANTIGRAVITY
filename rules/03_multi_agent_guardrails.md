@@ -91,5 +91,5 @@ enforcement: "strict"
   1. **The Harvester (Gemini Flash):** High-speed, large-context extraction and fluff-filtering (Disk offloading only).
   2. **The Scientist (Gemini Pro):** Deep logical reasoning, feasibility testing, and deterministic Red Phase Pytest gates.
   3. **The Architect (Claude Opus):** Terminal-triggered execution (claude -p) for top-tier software engineering, idiomatic repository integration, and SKILL.md authorship.
-- **Actionable Execution:** Use define_subagent and un_command (for claude) to orchestrate these handoffs. Never rely on Flash to write production code, and never waste Opus compute on raw data parsing.
+- **Actionable Execution:** Use define_subagent and run_command (for claude) to orchestrate these handoffs. Never rely on Flash to write production code, and never waste Opus compute on raw data parsing.
 
