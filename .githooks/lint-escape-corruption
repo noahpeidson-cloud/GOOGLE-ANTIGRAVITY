@@ -54,11 +54,23 @@ with open(path, 'rb') as fh:
 
 problems = []
 
-# A CR is legitimate only as part of CRLF. Anything else is a stray control byte.
+# Any C0 control byte is corruption unless it is legitimate structure.
+# Legitimate: LF (0x0a); CR (0x0d) ONLY as part of a CRLF pair; TAB (0x09) only as
+# leading indentation, checked separately below.
+# Everything else is an interpreted escape that survived into the file:
+#   \b -> 0x08   \f -> 0x0c   \v -> 0x0b   \a -> 0x07   \e -> 0x1b
+# Observed live: "```bash" -> "`" + 0x08 + "ash", which silently kills a code fence.
+_NAMES = {0x07: r'\a BEL', 0x08: r'\b BACKSPACE', 0x0b: r'\v VTAB',
+          0x0c: r'\f FORMFEED', 0x1b: r'\e ESC'}
 for i, b in enumerate(data):
-    if b == 0x0d and data[i + 1:i + 2] != b'\n':
+    if b == 0x0d:
+        if data[i + 1:i + 2] != b'\n':
+            line = data.count(b'\n', 0, i) + 1
+            problems.append((line, 'stray CR (0x0d) not part of a CRLF pair'))
+    elif b < 0x20 and b not in (0x09, 0x0a):
         line = data.count(b'\n', 0, i) + 1
-        problems.append((line, 'stray CR (0x0d) not part of a CRLF pair'))
+        name = _NAMES.get(b, 'control byte 0x%02x' % b)
+        problems.append((line, 'stray %s (0x%02x) from an interpreted escape' % (name, b)))
 
 # A TAB is legitimate as leading indentation. A TAB after visible content on the
 # same line is how "\tword" degrades.
@@ -83,11 +95,26 @@ PYEOF
 
   # ---- Variant B: known tokens with a leading character eaten by an escape ----
   # Extend this list as new instances are found. Each is <damaged> -> <intended>.
-  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\berify_|\besults\.json|\bsc -b\b' "$f" 2>/dev/null)
+  #
+  # PowerShell is the usual source, not printf. In a double-quoted PS string the
+  # backtick is the escape character, and it recognizes: `0 `a `b `e `f `n `r `t `v.
+  # So "```bash" collapses to one literal backtick, then `b -> BACKSPACE, giving
+  # "`" + 0x08 + "ash"; strip the control byte anywhere downstream and "`ash" is
+  # left. The matching "```" fence collapses to a lone "`". Fenced code blocks stop
+  # rendering and the byte scan sees nothing. Only the token finds these.
+  #
+  # Note "rchitect" -- observed 2026-09-03 in skill-router/SKILL.md as
+  # "| " + 0x07 + "rchitect |", i.e. `a ate the 'a' AND left a BEL. Damage can be
+  # Variant A and Variant B at once; catching either alone would have missed half.
+  #
+  # A lone backtick on its own line is a mangled closing fence. Verified zero
+  # legitimate occurrences across rules/ and .agents/ before adding it.
+  hits=$(grep -nE '\bun_command\b|\bests/|^ame:|\berify_|\besults\.json|\bsc -b\b|\brchitect\b|\bgents/|\benchmark_harness\b|\bode_modules\b|`ash$|`ash[^a-z]|^[ \t]*`[ \t\r]*$' "$f" 2>/dev/null)
   if [ -n "$hits" ]; then
     echo "escape-lint: $f -- token looks truncated by an interpreted escape"
     printf '%s\n' "$hits" | head -5 | sed 's/^/    /'
     echo "    (un_command->run_command  ests/->tests/  ame:->name:  sc -b->tsc -b)"
+    echo "    (rchitect->architect  gents/->agents/  \`ash->\`\`\`bash  lone \` -> \`\`\`)"
     fail=1
   fi
 done

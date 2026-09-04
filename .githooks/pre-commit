@@ -49,6 +49,16 @@ if [ -n "$md_staged" ]; then
   fi
 fi
 
+# 5. Rule-number collisions. Inherently cross-file, so this scans the whole repo
+#    rather than the staged set -- but only when the commit touches a file that
+#    can carry a rule, so unrelated commits are never blocked on it.
+rule_staged=$(printf '%s\n' "$staged" | grep -E '^(rules/|GEMINI\.md$|CLAUDE\.md$)' || true)
+if [ -n "$rule_staged" ]; then
+  if ! sh "$(dirname "$0")/lint-rule-collisions"; then
+    fail=1
+  fi
+fi
+
 if [ "$fail" -eq 1 ]; then
   echo ""
   echo "pre-commit: fix the above, or use 'git commit --no-verify' if you are certain this is intentional."

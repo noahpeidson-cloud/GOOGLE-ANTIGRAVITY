@@ -33,9 +33,15 @@ enforcement: "strict"
 ## R40. Split-Brain Workspace Isolation & Anti-Reset Mandate
 - **Context:** Concurrent operations involving multiple IDEs (Antigravity IDE, VS Code, Claude Code) or autonomous subagents.
 - **Mandate:** Agents are STRICTLY FORBIDDEN from executing `git reset --hard`, `git checkout .`, or switching branches directly on the primary workspace root (`D:\GOOGLE ANTIGRAVITY`).
-- **Actionable Execution:** 
+- **Actionable Execution:**
   1. Any experimental branch switching or subagent workspace isolation MUST use dedicated git worktrees (`git worktree add ../.worktrees/<branch-name>`).
-  2. Before ending a turn or delegating to another agent, all new code files and rules MUST be staged and committed to git to prevent silent wipeouts during external branch updates.
+  2. **Durability before handoff.** No agent may end a turn or delegate with unflushed work. How that obligation is discharged depends on the lane:
+     - **The git-owning lane** stages and commits new code files and rules before ending a turn.
+     - **Every other lane** writes all content to disk with a native file tool (never held in context alone), then issues an explicit handoff to the git-owning lane naming the exact paths it created or modified.
+
+     A non-git lane MUST NOT run `git add`, `git commit`, or any other git write to satisfy this rule; doing so is an R38 lane violation, not compliance with R40. Unflushed context is the wipeout risk R40 exists to prevent — an uncommitted file on disk survives a branch update in another worktree; a file that exists only in an agent's context does not.
+
+     *Amended from the original single-clause form, which bound every agent to a git action only one lane can legally take — every non-git lane was structurally forced to violate either this clause or R38 on any turn that created a file. See `rules/proposed/R40_durability_amendment.md` for the trigger.*
 
 ## R41. NOOA Curated Memory & Anti-Raw-Embedding Standard
 - **Context:** Long-term cross-session knowledge retention and retrieval.
@@ -97,7 +103,17 @@ enforcement: "strict"
 ## R48. Claude Code CLI Boundary Traversal
 - **Context:** Delegating implementation tasks to Claude Code via the terminal that require reading external contexts (e.g., blueprints, dossiers, or scratch files located in D:\AI_Platform).
 - **Mandate:** Agents MUST NOT assume Claude Code can autonomously break out of its D:\GOOGLE ANTIGRAVITY sandbox to read external files. By default, Claude Code will hard-block reads to sibling or parent directories.
-- **Actionable Execution:** When triggering Claude Code to process an external file, the invoking agent MUST grant explicit boundary access using the --add-dir flag.
-  - *Example:* claude --add-dir "D:\AI_Platform\scratch\claims" -m "Implement the blueprint at D:\AI_Platform\scratch\claims\file.md"
-  - *Alternative:* Pass the external file contents directly via standard input pipeline (cat "D:\...\file.md" | claude -m "Implement this...").
+- **Actionable Execution:** When triggering Claude Code to process an external file, the invoking agent MUST grant explicit boundary access using the `--add-dir` flag, and MUST pass the prompt with `-p` / `--print` (there is no `-m` option; `--model` selects a model, not a prompt).
+  - *Example:* `claude --add-dir "D:\AI_Platform\scratch\claims" -p "Implement the blueprint at D:\AI_Platform\scratch\claims\file.md"`
+  - *Alternative:* pipe the file in and let the sandbox stay closed — `cat "D:\AI_Platform\scratch\claims\file.md" | claude -p "Implement this blueprint."` — which needs no `--add-dir` because no read crosses the boundary. This is the safer default, not merely equivalent: `--add-dir` widens the sandbox for the whole session, while piping grants nothing.
+  - Verify before relying on either form: `claude --help` is the source of truth for flags on this machine.
+  - *Amended: the original examples used `-m`, which does not exist as a Claude Code CLI flag. See `rules/proposed/R48_flag_correction.md` for the trigger.*
 
+## R49. Rule Amendment & Number Ownership Protocol
+- **Context:** Correcting, narrowing, or superseding a rule that is already numbered and in force — as opposed to contributing a new one, which `rules/proposed/README.md` already covers.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from editing a numbered rule's text in place to change its meaning, from reusing a number that is already in force for a different mandate, and from renumbering or deleting another agent's rule. A rule number is a permanent, single-meaning identifier: every citation of a number across sessions, skills, and commit messages must resolve to one mandate.
+- **Actionable Execution:**
+  1. Write an amendment file in `rules/proposed/` named `R<number>_<slug>.md` with frontmatter `type: amendment` and `amends: R<number>`. State the defect, the concrete trigger that exposed it, and the exact replacement text.
+  2. A new rule uses frontmatter `type: new` and `proposal: R<number>`, where the number is free per this file.
+  3. The git-owning session merges the amendment into the canonical numbered file, preserving the number. Superseded text is replaced, not deleted silently — the amendment file in `rules/proposed/` (or its git history once merged) is the record.
+  4. Never renumber a rule to resolve a collision in someone else's file. Record the collision in `.githooks/rule-collisions.allow` and open an amendment against the file you own.
