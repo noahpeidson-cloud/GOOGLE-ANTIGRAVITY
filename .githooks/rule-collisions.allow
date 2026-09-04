@@ -1,0 +1,18 @@
+# Known rule-number collisions, recorded so the lint can block NEW ones.
+#
+# Read by .githooks/lint-rule-collisions. One canonical rule number per line;
+# everything after '#' is a comment. Numbers are normalized, so R2 and R02 are
+# the same entry.
+#
+# A line here is debt, not a pardon. Each of these is a number that resolves to
+# two different mandates depending on which file the reading agent loaded. They
+# are listed rather than fixed because the fix is a renumber in GEMINI.md, which
+# is outside the lane that wrote this hook -- see rules/proposed/R49_rule_amendment_protocol.md
+# for the path that resolves them.
+#
+# Do not add a line to silence a collision you just created. Renumber instead.
+
+R2   # rules/03 "Zero-Discretion Empirical Verification" vs GEMINI.md R2 "The Zero-Discretion Mandate (The Leash Protocol)" -- same intent, divergent text; the split is why CLAUDE.md cites "R02" and GEMINI.md cites "R2"
+R22  # rules/03 "Direct Tool File Modification Guardrail" vs GEMINI.md "The Markdown Data Loss Prevention Guardrail" -- same prohibition, different framing and scope
+R38  # rules/03 "VS Code Deprecation & GitKraken Swarm Lane Architecture" vs GEMINI.md "The Fail-Fast API Guardrail (Anti-Mocking)" -- UNRELATED mandates, hard conflict
+R39  # rules/03 "Git Ownership & Branch Discipline" vs GEMINI.md "The Terminal Confidence Block Guardrail" -- UNRELATED mandates, hard conflict

@@ -204,6 +204,18 @@ class BenchmarkHarness:
                 "status": "PASS" if score >= 8.0 else "WARN"
             }
 
+            # Phase 3: R2-compliant telemetry write — harness is the sole trusted executor
+            try:
+                hub = CuratedMemoryHub()
+                hub.record_skill_execution(
+                    skill_name=s_name,
+                    success=(score >= 8.0),
+                    executor="benchmark_harness",
+                    latency_ms=None  # static analysis pass; no wall-clock execution time
+                )
+            except Exception:
+                pass  # telemetry failure must never break benchmark scoring
+
         avg_score = sum(s["score"] for s in skill_details.values()) / max(len(skill_details), 1)
 
         return {

@@ -35,7 +35,7 @@ Conduct an independent, objective review and adversarial evaluation of all imple
   - media_event_bus.py event queue consumer and DLQ integration
   - omnichannel_triage_hub/local_daemon/main.py FastAPI endpoints and SQLite enqueueing
   - Full E2E Python test suite (117 tests across 5 files)
-  - Frontend production build (	sc -b && vite build)
+  - Frontend production build (tsc -b && vite build)
   - Cross-session safety and protected files
 - **Verdict**: APPROVE
 - **Unverified claims**: none; all claims empirically verified

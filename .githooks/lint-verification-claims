@@ -1,0 +1,80 @@
+#!/bin/sh
+# Verification-claim lint -- Improvement 1, from the 2026-09-03 session post-mortem.
+#
+# THE FAILURE THIS EXISTS TO CATCH
+# --------------------------------
+# Three separate agents asserted verification they had not performed:
+#
+#   * git-worktree-isolation/SKILL.md claimed its pytest "structurally guarantees
+#     that index.lock collisions are impossible, and git reset --hard in one tree
+#     will not nuke the other". The test has no concurrency and never invokes
+#     reset --hard. It proved working-tree/index separation -- documented git
+#     behaviour -- and neither of the two things it claimed.
+#
+#   * lint-escape-corruption's own CR check was tested against an LF fixture only,
+#     the single line-ending style where it worked, and declared verified. It was
+#     blind on every CRLF file in the repo.
+#
+#   * ".git is 5.8 GB" was cited as evidence history had not been rewritten. It
+#     measures disk including orphaned packs; `git count-objects -v` showed 107 MB
+#     reachable. Wrong instrument, confident conclusion.
+#
+# Common shape: test one case, state a general claim. R02 already forbids this and
+# was violated by everyone including the agent that wrote this hook.
+#
+# THE RULE
+# --------
+# A file asserting empirical verification must say what it did NOT test. Any file
+# in rules/ or .agents/ containing a verification claim needs a block like:
+#
+#   VERIFIED:
+#     tested:     CRLF file with mid-line CR; LF file with mid-line CR; clean CRLF
+#     not tested: files with mixed encodings; non-.md paths
+#
+# "not tested:" is the load-bearing line. A claim with no stated boundary is the
+# failure mode above.
+#
+# Usage:  lint-verification-claims [file ...]   # defaults to rules/ and .agents/ *.md
+# Exit 0 clean, 1 if a claim lacks a boundary.
+
+fail=0
+
+if [ "$#" -gt 0 ]; then
+  files=$*
+else
+  files=$(find rules .agents -name '*.md' -type f 2>/dev/null)
+fi
+
+# Phrases that assert verification rather than describe intent.
+CLAIMS='[Ee]mpirically [Vv]erified|structurally guarantees|[Pp]roven that|successfully proved|guarantees that .* impossible|[Vv]erified that|confirmed that .* cannot'
+
+for f in $files; do
+  [ -f "$f" ] || continue
+  case "$f" in *.md) ;; *) continue ;; esac
+
+  hits=$(grep -nE "$CLAIMS" "$f" 2>/dev/null)
+  [ -z "$hits" ] && continue
+
+  # A claim is acceptable only if the file also states its boundary.
+  if grep -qE '^[[:space:]]*not tested:' "$f" 2>/dev/null; then
+    continue
+  fi
+
+  echo "verify-lint: $f -- asserts verification without stating what was NOT tested"
+  printf '%s\n' "$hits" | head -3 | sed 's/^/    /'
+  fail=1
+done
+
+if [ "$fail" -eq 1 ]; then
+  echo ""
+  echo "verify-lint: add a boundary to the claim, or weaken the claim to what you measured."
+  echo ""
+  echo "  VERIFIED:"
+  echo "    tested:     <the cases you actually ran>"
+  echo "    not tested: <the cases you did not>"
+  echo ""
+  echo "Per R02, a claim whose limits are unstated reads as a claim with no limits."
+  exit 1
+fi
+
+exit 0

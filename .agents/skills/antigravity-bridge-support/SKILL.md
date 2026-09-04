@@ -6,7 +6,10 @@ license: Complete terms in LICENSE.txt
 
 # Antigravity Bridge & IDE Support Skill
 
-This skill provides deterministic diagnostic, operational, and remediation runbooks for the Antigravity local bridge architecture, language server sidecar, and dual-IDE workflows.
+> [!WARNING]
+> **DEPRECATED (Visual Studio IDE Integration Pivot):** Visual Studio Code and the `ag-local-bridge` (port 11435) are deprecated in this workspace. Refer to `gitkraken-swarm-review` and rule R38 for active swarm lane governance.
+
+This skill provides historical diagnostic, operational, and remediation runbooks for the Antigravity local bridge architecture, language server sidecar, and dual-IDE workflows.
 
 ---
 
