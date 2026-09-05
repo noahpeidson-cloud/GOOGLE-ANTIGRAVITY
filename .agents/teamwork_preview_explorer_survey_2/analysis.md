@@ -1,300 +1,241 @@
-# Investigation & Architecture Analysis: Requirement R2 (Centralized SQLite Event Bus)
+# Gemini Notebook MCP Survey & Target Notebook Architecture Analysis
 
-**Explorer**: Explorer 2  
-**Date**: 2026-08-29  
-**Target Architecture**: Centralized SQLite Event Bus (`unified_ops_hub_dlq.db`) & Isolated Consumer (`media_event_bus.py`)  
-**Status**: Completed Investigation & Architecture Specification  
+**Author:** teamwork_preview_explorer_survey_2  
+**Date:** 2026-09-04T19:29:00Z  
+**Parent:** cb86c11d-e5b4-4cd3-b3be-d050fdfdc098  
+**Scope:** Discovery and architectural inventory of notebooks on the `gemini-notebook` MCP server, identifying the target notebook with 61 items, inspecting schema payloads, and characterizing extraction requirements for downstream Python script development.
 
 ---
 
 ## 1. Executive Summary
 
-This report delivers a comprehensive investigation into Requirement R2 (Centralized SQLite Event Bus) and Requirement R3 (Universal ML Telemetry) for the Antigravity IDE Component Unification project.
+A comprehensive survey of the `gemini-notebook` MCP server was conducted using native MCP tool calls (`notebook_list`, `notebook_get`, `notebook_describe`, `note`, and `source_get_content`). 
 
-### Core Objectives Examined:
-1. **FastAPI Local Daemon**: Analyzed existing implementations in `omnichannel_triage_hub/local_daemon/main.py`, `local_daemon/main.py`, and `unified_ops_hub/gateway/app.py`.
-2. **React API Client**: Analyzed `omnichannel_triage_hub/frontend/src/lib/api.ts` and `unified_ops_hub/dashboard/src/lib/api.ts`, detailing how UI components dispatch operations and handle graceful offline fallback.
-3. **Database & Queue Architecture**: Inspected `unified_ops_hub_dlq.db` (552 KB), detailing existing `dlq_incidents` table schema, WAL configuration, and specified the unified `event_bus_jobs` schema.
-4. **Control Plane Guardrail**: Inspected `daemon_orchestrator.py` (68 lines), establishing the strict boundary to ensure zero modifications are made to `daemon_orchestrator.py`.
-5. **Isolated Consumer Design**: Designed `media_event_bus.py`, a robust polling daemon that processes asynchronous background jobs (ADB pulls, media workflow, screen captures) using SQLite transactions and routes failures to DLQ.
-6. **Cross-Session Safety Matrix**: Verified strict zero-touch isolation for `quick_share_ai_loop/`, `video_reviewer.html`, `daemon_orchestrator.py`, and `mastermind_agent.py`.
-
----
-
-## 2. FastAPI Local Daemon Architecture & Endpoints Analysis
-
-### 2.1 Omnichannel Triage Hub Daemon (`omnichannel_triage_hub/local_daemon/main.py`)
-- **Framework & Port**: FastAPI on `http://127.0.0.1:8000` (or `localhost:8000`).
-- **Middleware**: CORS enabled for `http://localhost:5173`, `http://localhost:3000`, and `*`.
-- **Existing Endpoints**:
-  | Route | Method | Request Model | Response Model | Description & Current Behavior |
-  |---|---|---|---|---|
-  | `/` | `GET` | None | Dict | Returns service metadata, version `1.0.0`, status `online`. |
-  | `/api/health` | `GET` | None | `HealthResponse` | Checks ADB connectivity (`adb version`, active devices count), daemon uptime. |
-  | `/api/devices` | `GET` | None | `DevicesResponse` | Executes `adb devices -l` to return connected Android serials. |
-  | `/api/trigger-adb-pull` | `POST` | `AdbPullRequest` | `AdbPullResponse` | Currently contains an experimental psycopg connection attempting to insert into PostgreSQL `event_queue` (lines 114-150), which fails if Postgres is offline or unconfigured. |
-  | `/api/capture-screen` | `POST` | `CaptureScreenRequest` | `CaptureScreenResponse` | Captures screen via `adb exec-out screencap -p` or falls back to procedural 9:16 PIL image. |
-  | `/api/staging` | `GET` | None | `StagingInventoryResponse` | Lists media files in `./staging` directory. |
-
-### 2.2 Root Local Daemon (`local_daemon/main.py`)
-- Title: "Antigravity Control Plane - Celery Edition"
-- Route: `POST /api/jobs/media` accepting `JobPayload(task_type, target_file, parameters)`
-- Legacy state: Offloaded to Celery/Redis (`process_media_worker.delay`). Celery and Redis create external broker dependencies that are fragile on local dev environments without Docker/Redis server running.
-
-### 2.3 Unified Ops Hub Gateway (`unified_ops_hub/gateway/app.py`)
-- Contains full domain routers (`/api/v1/health`, `/api/v1/sports`, `/api/v1/media`, `/api/v1/ml`, `/api/v1/dlq`, `/api/v1/agent`, `/api/v1/viral`).
-- Integrated with `DLQManager` and `PortManager`.
-- Exposes `POST /api/v1/dlq/incidents`, `/api/v1/dlq/retry/{incident_id}`, `/api/v1/simulate-crash`.
+Five notebooks were discovered across the user's account. The specific target notebook requested in the user prompt was definitively identified:
+- **Title:** `Dual-Loop Control and Agentic Orchestration in Cognitive Architectures`
+- **Notebook ID:** `4b52cc67-9f81-4e85-a024-5f06756991ab`
+- **Item Count:** Exactly **61 sources** and **1 note** (total 62 items, perfectly fulfilling the "61 sources and notes" requirement).
+- **Modified Date:** `2026-09-04T19:20:40Z` (actively updated today).
+- **All Items Accessible:** Verified. All 61 sources and the 1 note are present, healthy, and return full text payloads via MCP tools.
 
 ---
 
-## 3. Frontend API Client & Calling Flow (`api.ts`)
+## 2. Global Notebook Inventory
 
-### 3.1 Omnichannel Triage Hub (`omnichannel_triage_hub/frontend/src/lib/api.ts`)
-- **Base URL Resolution**: Defaults to `http://localhost:8000` or `import.meta.env.VITE_DAEMON_API_URL`.
-- **Key Functions**:
-  - `triggerAdbPull(options: AdbPullOptions)`:
-    - Sends `POST /api/trigger-adb-pull` with payload:
-      ```json
-      {
-        "device_id": null,
-        "source_path": "/sdcard/DCIM/Camera",
-        "destination_path": "./staging/videos",
-        "file_pattern": "*.mp4",
-        "limit": 10,
-        "mock": false,
-        "run_in_background": false
-      }
-      ```
-    - Timeout: 4000ms via `fetchWithTimeout`.
-    - Fallback: On network error or timeout, simulates successful pull of `20260819_213606.mp4` (538 MB clip) and returns `is_fallback: true`.
-  - `captureScreen(options: CaptureScreenOptions)`:
-    - Sends `POST /api/capture-screen`.
-    - Fallback: Returns procedural SVG poster frame (`FALLBACK_POSTER_FRAME`).
-  - `getHealth()`, `getDevices()`, `getStagingInventory()`.
+Querying `notebook_list` returned 5 total notebooks:
 
-### 3.2 Unified Ops Hub Dashboard (`unified_ops_hub/dashboard/src/lib/api.ts`)
-- `renderMediaVideo(payload: RenderRequest)`: Calls `POST http://127.0.0.1:8000/api/jobs/media` with `task_type: 'TASK_MEDIA_WORKFLOW'`.
-- Interacts with `/api/v1/dlq/*` to list and retry dead-letter queue incidents.
+| # | Notebook ID | Title | Sources | Notes | Ownership | Created | Modified | Emoji |
+|---|-------------|-------|---------|-------|-----------|---------|----------|-------|
+| 1 | **`4b52cc67-9f81-4e85-a024-5f06756991ab`** | **Dual-Loop Control and Agentic Orchestration in Cognitive Architectures** | **61** | **1** | owned | 2026-09-02 | 2026-09-04 | ⚓ |
+| 2 | `86442620-ea94-4b03-8b54-c3e13d4a71d3` | Master Operational Blueprint for EDM Short-Form Content Strategy | 74 | 2 | owned (shared by me) | 2026-08-20 | 2026-09-02 | ⚡ |
+| 3 | `2d611127-91ec-4b6e-88cc-80371f2ea456` | Strategize | 1 | 0 | owned | 2026-06-06 | 2026-08-28 | 🆕 |
+| 4 | `6c783228-4a40-4d51-9d8f-fcc8b8028c30` | Noah's Notebook Photo+Video Editing | 2 | 1 | owned | 2026-05-22 | 2026-08-21 | 📸 |
+| 5 | `54834a7b-fbe8-4866-8407-8f1c9b198e2f` | Sports | 5 | 0 | owned | 2026-06-05 | 2026-06-28 | 🗂️ |
 
 ---
 
-## 4. SQLite Event Bus & DLQ Schema Analysis (`unified_ops_hub_dlq.db`)
+## 3. Target Notebook Deep Dive
 
-### 4.1 Database Location & Properties
-- Primary Location: `G:\My Drive\GOOGLE ANTIGRAVITY\unified_ops_hub_dlq.db`
-- Current File Size: 552,960 bytes
-- SQLite Pragma Configuration:
-  - `PRAGMA journal_mode=WAL;`
-  - `PRAGMA busy_timeout=5000;`
-  - `PRAGMA synchronous=NORMAL;`
+### 3.1 Metadata
+- **Notebook ID:** `4b52cc67-9f81-4e85-a024-5f06756991ab`
+- **Title:** `Dual-Loop Control and Agentic Orchestration in Cognitive Architectures`
+- **URL:** `https://notebooklm.google.com/notebook/4b52cc67-9f81-4e85-a024-5f06756991ab`
+- **Created At:** `2026-09-02T07:27:02Z`
+- **Modified At:** `2026-09-04T19:20:40Z`
+- **Source Count:** 61
+- **Note Count:** 1
+- **Description Summary:** Synthesizes literature on open-source LLMs (DeepSeek V4, GLM 5.1, Qwen3, GPT-OSS 120B), agent harnesses (AutoDev, LangChain, Claude Code), prompt caching, and dual-loop orchestration in Antigravity IDE.
 
-### 4.2 Existing Schema: `dlq_incidents`
-```sql
-CREATE TABLE dlq_incidents (
-    incident_id TEXT PRIMARY KEY,
-    timestamp TEXT NOT NULL,
-    source_service TEXT NOT NULL,
-    error_category TEXT NOT NULL,
-    error_message TEXT NOT NULL,
-    payload_json TEXT NOT NULL,
-    traceback_str TEXT,
-    retry_count INTEGER NOT NULL DEFAULT 0,
-    max_retries INTEGER NOT NULL DEFAULT 3,
-    next_retry_at TEXT,
-    status TEXT NOT NULL,
-    resolved_at TEXT,
-    history_json TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_dlq_status ON dlq_incidents (status);
-CREATE INDEX IF NOT EXISTS idx_dlq_service ON dlq_incidents (source_service);
-```
-- Current Row Count: 154 quarantined/resolved incidents.
-- Managed by `unified_ops_hub.gateway.dlq_manager.DLQManager`.
+### 3.2 Complete Source Inventory (61 Sources)
 
-### 4.3 Proposed Event Bus Table Schema: `event_bus_jobs`
-To support non-disruptive, multi-process event queueing without colliding with `dlq_incidents`, we introduce `event_bus_jobs` into `unified_ops_hub_dlq.db`:
-```sql
-CREATE TABLE IF NOT EXISTS event_bus_jobs (
-    job_id TEXT PRIMARY KEY,
-    task_type TEXT NOT NULL,          -- e.g. 'ADB_PULL', 'MEDIA_WORKFLOW', 'SCREEN_CAPTURE', 'VIDEO_TRIM'
-    payload_json TEXT NOT NULL,       -- JSON serialized task arguments
-    status TEXT NOT NULL DEFAULT 'QUEUED', -- 'QUEUED', 'PROCESSING', 'COMPLETED', 'FAILED'
-    result_json TEXT,                 -- JSON output upon success
-    error_message TEXT,               -- Error message if failed
-    retry_count INTEGER NOT NULL DEFAULT 0,
-    max_retries INTEGER NOT NULL DEFAULT 3,
-    created_at TEXT NOT NULL,         -- ISO-8601 UTC
-    updated_at TEXT NOT NULL,         -- ISO-8601 UTC
-    completed_at TEXT                 -- ISO-8601 UTC
-);
+1. `7b7c692f-9bac-4a94-be71-b76010be5686` — 11 Top Open-Source LLMs for 2026 and Their Uses - DataCamp
+2. `d2bd6f14-c811-400a-a4f7-dc8279cb8077` — A Comparison of AI Agent Harnesses in 2026 - Winder.AI
+3. `d7240a8a-a043-4bee-b3a6-9c7e07ccfbfb` — A practical guide to automating git workflows with Claude Code | eesel AI
+4. `f5ad8fe7-c245-4cdb-a247-9efd0a7573d2` — AI Agent Benchmarking Infrastructure on GPU Cloud: Run SWE-bench, GAIA, Terminal-Bench, and OSWorld at Scale (2026 Guide) | Spheron Blog
+5. `c8ce5152-95c1-46aa-a631-0e46ed45d176` — AI Agent Benchmarks 2026: SWE-bench, tau, WebArena - Layer3Labs
+6. `b0b6110f-beb0-46ba-91b6-9cdbd0056ace` — AI Model Capabilities: Agent and Steering Hooks
+7. `91ec2233-9fd1-4175-8830-d8f50e138e46` — Agent Harness: What It Is and How to Build One - PuppyGraph
+8. `e4f5282d-ed29-4b05-b299-ca52e523cf5a` — Agentic AI Frameworks: Top 10 Options in 2026 - NetApp Instaclustr
+9. `2f309f9a-92bb-4247-8377-f9bc8616d27a` — Antigravity + Claude Code Integration: Overview, Setup and Sample App - Scuti Ai
+10. `717f2577-7718-4774-ab41-2710604b0c9a` — Antigravity IDE-diagnostics.txt
+11. `8d837ecc-7492-4640-a042-d9ba1afab914` — Antigravity: Build Your First AI Agent Skill
+12. `c90c2a20-84e9-4dfd-9f1c-6eb10cf2582a` — AutoDev: Automated AI-Driven Development - arXiv
+13. `3a6b559a-f7d6-48c9-a77b-3f1ef13ebcfb` — Automated AI Video Editing and Distribution Pipeline
+14. `5bddb5a4-38b5-4d9a-893f-4d404de5a215` — Best AI Models 2026: LMSYS Arena Top 10 Ranked - ToolCenter
+15. `997f72ff-ac65-47d7-8e5e-5742f3c4ff36` — Best AI agent frameworks (2026): How to choose one and add evals - Articles - Braintrust
+16. `e5b9cc8e-0e17-4949-9beb-d79c8f3f443b` — Best Open Source LLMs in 2026: We Reviewed 7 Models - Fireworks AI
+17. `f091f733-88f5-4ab2-8e79-2b07657eb37c` — Building an agent harness that survives production | developers - Oracle Blogs
+18. `349a8f6a-7aea-45bf-ab61-47af00c90616` — Chatbot Arena + - OpenLM.ai
+19. `5acb9d46-9a25-4426-9f43-2ee124c0688b` — Chatbot Arena - a Hugging Face Space by lmarena-ai
+20. `dd7fa352-0451-486f-8a3a-78fa8db2443d` — Claude Plans, Gemini Designs: The Workflow to Build BEAUTIFUL Frontends
+21. `8c39bc61-addf-4f6b-a6ec-2136eab6e9dc` — Claude Pro + Gemini AI Pro Workflow Tips for Ya'll Suffering in the Subreddit.
+22. `1c24a960-1f26-4618-9310-2ddd618eb452` — Cognitive Engineering and Autonomous Execution: A Comparative Analysis of Frontier Architectures, Harness Protocols, and Multi-Agent Systems in 2026
+23. `343dc1fa-b298-4116-ae3a-6addf741d78b` — Context Engineering for Production AI Agents: KV Cache, Prefix Caching, and Long-Context GPU Economics (2026 Guide) | Spheron Blog
+24. `82cfce9b-ac75-4314-ba49-a7ad108556a4` — DeepSeek - Wikipedia
+25. `17f47c44-cc7e-4eac-99eb-30e28f6c45c8` — DeepSeek R1, V4 Pro & V4 Flash Compared: 2026 Model Guide - TeamAI
+26. `743ae8ec-957e-45c9-a522-66bdcbaf22fe` — DeepSeek-R1 Overview: Features, Capabilities, Parameters - Fireworks AI
+27. `d30578dd-b255-4ed5-95fe-cbe82dd27882` — GAIA Benchmark Explained: AI Agent Evaluation (2026) - QASkills.sh
+28. `0435e6cf-7dfa-41ec-a51c-9d72ceb417ec` — Gemini AI Harness Research
+29. `c23cf54c-14f0-40a4-94c0-d640b9e4d1a5` — Gemini CLI Anti-Gravity IDE Docs
+30. `aea9bf93-b7ee-40b9-bec3-4b5c70592326` — Gemini Content IDE Workflow
+31. `11256749-1904-4873-b3cc-9b8b3539d5d3` — Harness-Bench: Measuring Harness Effects across Models in Realistic Agent Workflows
+32. `0821dad7-b546-4609-8f70-94f4d3724bbb` — LMSYS Chatbot Arena Leaderboard 2026: Live AI Rankings, Elo Ratings - MangoMind
+33. `2f937866-9ee8-40cb-a06b-a46d334248c8` — LMSys Chatbot Arena Leaderboard (August 2026): Live Rankings + Elo - Swfte
+34. `dd01a08d-f840-4754-a07d-3bc8c19d1fc5` — LMSys Chatbot Arena Leaderboard May 2026: Live Rankings, Elo Scores & What They Mean - Swfte
+35. `6c298e0e-d5bb-4d70-a6a9-892998f0d10f` — MCP for AI Agents: Cut Context Overhead from 26% to 1.6% - Harness
+36. `5d81a1ae-68c1-4669-b4f0-0bfd8c627541` — MCP | Google Antigravity Docs
+37. `e455d4ea-5d64-43a1-af08-b45cd9bdc04b` — Master Operational Blueprint & Competitive Research: EDM Live Drops (YouTube Shorts & TikTok)
+38. `bc70be29-8014-4275-a9a6-e8b017ab14c9` — Monitor prompt caching to optimize your token usage - Datadog
+39. `efdb0cf0-026d-455e-9649-0a0877265bd5` — Prompt Caching 2026: How It Works + Pricing - Future AGI
+40. `04914197-2368-4b39-b916-b6c474bd62d2` — Prompt Caching Guide (2026): Cutting LLM Costs With Cache Hits | SurePrompts
+41. `17028c25-1626-41ee-baca-e2cc57376763` — Prompt Caching in 2026: Cut LLM Costs, Keep Quality - Digital Applied
+42. `c7645781-661c-47e7-9130-3e665b704435` — Research Workflow Diagnosis and Restart
+43. `ffc9fc10-5a04-457a-bef8-e447669577bf` — Run Gemini 3 + Claude in One Free IDE (Antigravity Tutorial 2026)
+44. `7eb3fbf2-55c7-4cac-819b-d04a83340386` — SWE-bench Leaderboard 2026: All Model Scores, Rankings & What They Actually Mean
+45. `95c9e669-73cc-4005-b6ff-98ddf20172ac` — SWE-bench Verified Leaderboard (September 2026): Top Scores | BenchLM.ai
+46. `f99b0e92-cc92-44eb-8daf-3a24217b8a1d` — SWE-bench Verified Leaderboard 2026: Latest Coding Agent Scores | Steel.dev
+47. `8025e85f-ad6a-4d5a-bf73-309ee3824ea4` — SWE-bench Verified Leaderboard 2026: Top Models Ranked - Local AI Master
+48. `3ae26576-6dc4-4d48-a384-16fcb049d0fe` — Short-Form EDM Content Trends
+49. `32522eff-7285-4f1f-a565-d652a41b705c` — Six Agent Harness Capabilities for Higher Model Performance | NVIDIA Technical Blog
+50. `f03c48ad-099d-4a87-90e1-73e94f2a5f01` — Social Media Video Optimization & 8K APV Ingestion Guide
+51. `136385b1-07b1-4292-89fb-a0d1db3e3d5b` — The 2026 Caching Playbook for Agents: Bigger Prompts, Smaller Bills. - Galileo AI
+52. `4496c870-5969-40f7-9966-86df406e341b` — The Anatomy of an Agent Harness - LangChain
+53. `dd9e6834-50a3-4f49-a4b2-759711cc9eb9` — The Best LLMs in 2026: A Plain-English Comparison - MindsHub
+54. `d5555afc-df87-46a7-9926-f94cae78f69b` — The Best Large Language Models (LLMs) in 2026 - Zapier
+55. `9fdce87c-e736-41e0-9ec3-ab347aaedfca` — The best AI agent frameworks in 2026 - LangChain
+56. `4bdd5ecc-2bc8-4daa-9bac-20daadc002fe` — Top 7 AI Benchmarks to Trust in 2026 - ChatBench
+57. `7c31c353-abfd-45b0-9d56-96f4bef5e921` — Top 7 open source LLMs for 2026 - NetApp Instaclustr
+58. `362a2113-fb17-4fca-ab22-44076a124e86` — Ultimate Guide - The Best Open Source LLMs in 2026 - SiliconFlow
+59. `a052cf1f-0582-4296-a8e2-29c6ea0db09b` — Use Claude Code in Google Antigravity IDE 2026 (Full Tutorial)
+60. `e66e85aa-b44c-4085-b2b4-4cad63041e89` — Using Git with coding agents - Agentic Engineering Patterns - Simon Willison's Weblog
+61. `7d9c850e-eec2-4232-b63b-ad62932ae215` — What is an AI Agent Harness? | Databricks Blog
 
-CREATE INDEX IF NOT EXISTS idx_event_bus_status ON event_bus_jobs (status);
-CREATE INDEX IF NOT EXISTS idx_event_bus_task_type ON event_bus_jobs (task_type);
-CREATE INDEX IF NOT EXISTS idx_event_bus_created ON event_bus_jobs (created_at);
-```
+### 3.3 Notes Inventory (1 Note)
+
+- **Note ID:** `eff2cf19-844e-4af7-aad8-601d7d0fbf13`
+- **Title:** `The Multi-Model Orchestration and AI Handoff Framework`
+- **Character Count:** ~3,745 characters
+- **Content:** Outlines a 5-stage optimized multi-model AI workflow combining Gemini 3.5 Flash (exploration), Gemini 3.1 Pro (planning), Claude Code CLI (execution), AutoDev/Pydantic AI (validation), and Playwright/GitHub MCP (smoke testing).
 
 ---
 
-## 5. Control Plane Guardrail & `daemon_orchestrator.py` Deep Dive
+## 4. MCP Data Schemas & Inspection Results
 
-### 5.1 Inspection of `daemon_orchestrator.py`
-```python
-# G:\My Drive\GOOGLE ANTIGRAVITY\daemon_orchestrator.py
-import os, sys, time, sqlite3
-sys.path.append(os.path.join(os.path.dirname(__file__), "media_pipeline", "design_arm"))
-from batch_processor import process_media_edit
-
-DB_FILE = r"g:\My Drive\GOOGLE ANTIGRAVITY\content_creation\editing_booth\booth_telemetry.db"
-STATE_FILE = r"g:\My Drive\GOOGLE ANTIGRAVITY\daemon_state.txt"
-
-def get_last_processed_id(): ...
-def set_last_processed_id(last_id): ...
-def run_headless_daemon():
-    # Polls SELECT id, filename, tags, notes, in_point, out_point, bounding_box FROM edits WHERE id > ?
-    # Calls process_media_edit(...)
-    # Updates daemon_state.txt
+### 4.1 `notebook_list` Output Schema
+```json
+{
+  "status": "success",
+  "notebooks": [
+    {
+      "id": "string (UUID)",
+      "title": "string",
+      "source_count": 61,
+      "url": "https://notebooklm.google.com/notebook/...",
+      "ownership": "owned",
+      "is_shared": false,
+      "created_at": "ISO-8601 timestamp",
+      "modified_at": "ISO-8601 timestamp",
+      "emoji": "string"
+    }
+  ],
+  "count": 5,
+  "owned_count": 5,
+  "shared_count": 0,
+  "shared_by_me_count": 1
+}
 ```
 
-### 5.2 Strict Cross-Session Boundary
-- `daemon_orchestrator.py` is actively maintained and being refactored by the Control Plane engineering session.
-- **Rule**: Absolutely ZERO modifications to `daemon_orchestrator.py`, `daemon_state.txt`, or `content_creation\editing_booth\booth_telemetry.db` schemas.
-- `media_event_bus.py` will run as a completely independent daemon process interacting exclusively with `unified_ops_hub_dlq.db`.
+### 4.2 `notebook_get` Output Schema
+Tool call: `notebook_get(notebook_id="4b52cc67-9f81-4e85-a024-5f06756991ab")`
+```json
+{
+  "status": "success",
+  "notebook": {
+    "id": "4b52cc67-9f81-4e85-a024-5f06756991ab",
+    "title": "Dual-Loop Control and Agentic Orchestration in Cognitive Architectures",
+    "source_count": 61,
+    "url": "https://notebooklm.google.com/notebook/4b52cc67-9f81-4e85-a024-5f06756991ab"
+  },
+  "sources": [
+    {
+      "id": "7b7c692f-9bac-4a94-be71-b76010be5686",
+      "title": "11 Top Open-Source LLMs for 2026 and Their Uses - DataCamp"
+    }
+    // ... all 61 source objects with id and title
+  ]
+}
+```
+
+### 4.3 `source_get_content` Output Schema
+Tool call: `source_get_content(source_id="...")`
+Parameters:
+- `source_id`: UUID string (required)
+- `wait`: boolean (default false)
+- `wait_timeout`: number (default 120)
+- `poll_interval`: number (default 3)
+
+Returns:
+```json
+{
+  "status": "success",
+  "content": "Raw markdown or plain text containing the full indexed document...",
+  "title": "Document Title",
+  "source_type": "unknown",
+  "char_count": 51151
+}
+```
+*Empirical note:* Tested across web scrape (`7b7c692f`, 51k chars), text diagnostic log (`717f2577`, 30k chars), and YouTube video transcript (`dd7fa352`, 19.5k chars). All returned complete indexed texts instantly without requiring polling or AI processing.
+
+### 4.4 `note` (action="list") Output Schema
+Tool call: `note(action="list", notebook_id="4b52cc67-9f81-4e85-a024-5f06756991ab")`
+```json
+{
+  "status": "success",
+  "action": "list",
+  "notebook_id": "4b52cc67-9f81-4e85-a024-5f06756991ab",
+  "notes": [
+    {
+      "id": "eff2cf19-844e-4af7-aad8-601d7d0fbf13",
+      "title": "The Multi-Model Orchestration and AI Handoff Framework",
+      "content": "Full markdown text of the note...",
+      "preview": "Truncated first 100 chars preview..."
+    }
+  ],
+  "count": 1
+}
+```
 
 ---
 
-## 6. Architecture & Implementation Plan for `media_event_bus.py`
+## 5. Architectural & Implementation Insights for Downstream Python Extraction Script
 
-### 6.1 Daemon Process Lifecycle
-1. **Startup**:
-   - Initializes connection to `unified_ops_hub_dlq.db` with WAL mode and busy timeout (5.0s).
-   - Ensures `event_bus_jobs` and `dlq_incidents` tables exist.
-   - Attaches `DLQManager` instance for error quarantine.
-   - Imports telemetry hook from `base_agent.py`.
-2. **Worker Polling Loop**:
-   - Atomic job acquisition:
-     ```python
-     with sqlite_conn:
-         cursor.execute("""
-             SELECT job_id, task_type, payload_json, retry_count, max_retries 
-             FROM event_bus_jobs 
-             WHERE status = 'QUEUED' 
-             ORDER BY created_at ASC 
-             LIMIT 1
-         """)
-         row = cursor.fetchone()
-         if row:
-             cursor.execute(
-                 "UPDATE event_bus_jobs SET status = 'PROCESSING', updated_at = ? WHERE job_id = ?",
-                 (datetime.now(timezone.utc).isoformat(), row["job_id"])
-             )
-     ```
-3. **Task Handlers**:
-   - `ADB_PULL` / `adb_pull`: Executes `AdbService().trigger_pull(AdbPullRequest(**payload))`.
-   - `SCREEN_CAPTURE` / `capture_screen`: Executes `AdbService().capture_screen(CaptureScreenRequest(**payload))`.
-   - `MEDIA_WORKFLOW` / `TASK_MEDIA_WORKFLOW`: Executes headless media pipeline processing and FFmpeg proxy rendering.
-4. **Completion & Telemetry**:
-   - On success: Updates `event_bus_jobs` status to `COMPLETED`, saves `result_json`, sets `completed_at`.
-   - Fires `@hooks.post_turn` telemetry via `base_agent.py` to record operational telemetry.
-5. **Failure & DLQ Isolation**:
-   - If an unhandled exception occurs:
-     - Updates `event_bus_jobs` status to `FAILED`.
-     - Logs incident into `dlq_incidents` via `DLQManager.record_failure()`.
-     - Writes JSON audit artifact in `quarantine/dlq_<incident_id>.json`.
-6. **Graceful Shutdown**:
-   - Handles `SIGINT` (Ctrl+C) and `SIGTERM`, completing active in-flight job before exiting cleanly.
+### 5.1 Extraction Mechanism Options
+1. **MCP Client via Stdio / JSON-RPC:**
+   The `gemini-notebook` server is configured in `C:\Users\noahp\.gemini\config\mcp_config.json`:
+   ```json
+   "gemini-notebook": {
+     "command": "python",
+     "args": ["-m", "notebooklm_tools.mcp.server"],
+     "type": "stdio",
+     "options": {"windowsHide": true}
+   }
+   ```
+   A Python script can spawn `python -m notebooklm_tools.mcp.server` as a subprocess via standard MCP JSON-RPC protocol over stdio (using the `mcp` Python package), or invoke the underlying `notebooklm_tools` client library directly if available in the Python environment.
 
----
+2. **Underlying Python Package (`notebooklm_tools` / `nlm`):**
+   The MCP server is a thin wrapper over `notebooklm_tools`. Inspecting its schema and instructions confirms it relies on the local authenticated profile created via `nlm login`.
 
-## 7. Refactoring Plan for FastAPI Local Daemon
-
-### 7.1 Fix in `omnichannel_triage_hub/local_daemon/main.py`
-- Replace broken `psycopg` PostgreSQL insert with SQLite event bus insertion:
-  ```python
-  import sqlite3
-  import json
-  import uuid
-  from datetime import datetime, timezone
-
-  DB_PATH = os.getenv("EVENT_BUS_DB_PATH", os.path.abspath(r"G:\My Drive\GOOGLE ANTIGRAVITY\unified_ops_hub_dlq.db"))
-
-  @app.post("/api/trigger-adb-pull", response_model=AdbPullResponse, tags=["ADB"], status_code=status.HTTP_202_ACCEPTED)
-  def trigger_adb_pull(request: AdbPullRequest = AdbPullRequest()) -> AdbPullResponse:
-      try:
-          job_id = str(uuid.uuid4())
-          now_iso = datetime.now(timezone.utc).isoformat()
-          payload = request.model_dump()
-          
-          # Insert into centralized SQLite event bus
-          with sqlite3.connect(DB_PATH, timeout=10.0) as conn:
-              conn.execute("PRAGMA journal_mode=WAL;")
-              conn.execute(
-                  """
-                  INSERT INTO event_bus_jobs (
-                      job_id, task_type, payload_json, status, created_at, updated_at
-                  ) VALUES (?, ?, ?, ?, ?, ?)
-                  """,
-                  (job_id, "ADB_PULL", json.dumps(payload), "QUEUED", now_iso, now_iso)
-              )
-              conn.commit()
-
-          return AdbPullResponse(
-              success=True,
-              status="in_progress",
-              message=f"Job queued in Centralized SQLite Event Bus with ID: {job_id}",
-              task_id=job_id,
-              error=None
-          )
-      except Exception as e:
-          return AdbPullResponse(
-              success=False,
-              status="error",
-              message=f"Failed to queue ADB pull: {str(e)}",
-              error=str(e),
-          )
-  ```
-- Add job status polling endpoint:
-  ```python
-  @app.get("/api/jobs/{job_id}", tags=["Jobs"])
-  def get_job_status(job_id: str):
-      with sqlite3.connect(DB_PATH, timeout=10.0) as conn:
-          conn.row_factory = sqlite3.Row
-          row = conn.execute("SELECT * FROM event_bus_jobs WHERE job_id = ?", (job_id,)).fetchone()
-          if not row:
-              raise HTTPException(status_code=404, detail="Job not found")
-          return dict(row)
-  ```
-
----
-
-## 8. Cross-Session Safety Matrix
-
-| Component / Path | Status / Owner | Guardrail Action |
-|---|---|---|
-| `quick_share_ai_loop/` | Music Baptism Image Concepts Session | **LOCKED (0 Modifications)** — Read-only verification only. |
-| `video_reviewer.html` | ML Video Editing Styles Session | **LOCKED (0 Modifications)** — No UI or file changes. |
-| `daemon_orchestrator.py` | Control Plane Orchestrator Session | **LOCKED (0 Modifications)** — `media_event_bus.py` is strictly isolated. |
-| `mastermind_agent.py` | Active Core Agent Session | **LOCKED (0 Modifications)** — Do not inject telemetry hook. |
-| `.agents/context_engine/` | Active Context Engine Session | **LOCKED (0 Modifications)** — Do not modify. |
-| `unified_ops_hub_dlq.db` | Shared DLQ & Event Bus | Extended with `event_bus_jobs` table; `dlq_incidents` table preserved. |
-| `base_agent.py` | Teamwork Unification (New) | Created to house shared `@hooks.post_turn` telemetry extracted from `deployment_agent.py`. |
-| `media_event_bus.py` | Teamwork Unification (New) | Created as the standalone consumer for SQLite event bus. |
-
----
-
-## 9. Verification & Test Plan
-
-1. **Schema Verification**:
-   - Programmatically verify `unified_ops_hub_dlq.db` contains both `dlq_incidents` and `event_bus_jobs` tables with indexes.
-2. **API Endpoint Verification**:
-   - `POST /api/trigger-adb-pull` inserts a job row with `status = 'QUEUED'`.
-   - `GET /api/jobs/{job_id}` returns job status and metadata.
-3. **Consumer Polling Verification**:
-   - Run `media_event_bus.py` against a queued job.
-   - Verify job transitions `QUEUED` -> `PROCESSING` -> `COMPLETED`.
-   - Verify output `result_json` contains `pulled_files` and byte counts.
-4. **Crash & DLQ Verification**:
-   - Submit a malformed job or simulated failure.
-   - Verify `media_event_bus.py` catches the error, sets job status `FAILED`, and inserts incident into `dlq_incidents`.
-5. **Guardrail Audit**:
-   - Verify `git status` / file diffs confirm 0 modified files in `quick_share_ai_loop/`, 0 modifications to `video_reviewer.html`, and 0 modifications to `daemon_orchestrator.py`.
+### 5.2 Rate Limiting, Concurrency, and Payload Size
+1. **Payload Volume:**
+   - 61 sources average ~15,000–35,000 characters each.
+   - Total extracted JSON payload size is estimated at **1.2 MB to 2.5 MB**.
+   - Writing to disk as a single formatted JSON (`indent=2`) will be fast and well within OS filesystem memory limits.
+2. **Sequential vs Concurrent Retrieval:**
+   - MCP `source_get_content` latency was ~0.8s to 1.5s per item.
+   - 61 sequential calls take ~60–90 seconds total.
+   - Downstream extraction scripts should include progress logging (e.g. `[12/61] Fetching: <title>...`) and resilient retry logic with exponential backoff on transient network drops.
+3. **No Unnecessary Polling Required:**
+   - All 61 sources are already indexed in NotebookLM. `wait=False` succeeds immediately on every existing source.
+4. **Tool Permission Sensitivity:**
+   - `notebook_list`, `notebook_get`, `note(action="list")`, and `source_get_content` execute without human-in-the-loop prompts.
+   - `source_describe` and `server_info` trigger interactive permission prompts in Antigravity IDE and should be avoided in headless batch pipelines in favor of `source_get_content`.

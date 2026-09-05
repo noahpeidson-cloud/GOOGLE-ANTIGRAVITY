@@ -1,197 +1,251 @@
-# Reviewer 2 Independent Review & Adversarial Critique Report
+# Quality Review & Adversarial Challenge Report: Gemini Notebook MCP Extractor
 
-**Agent:** Reviewer 2 (`teamwork_preview_reviewer_2`)  
-**Roles:** reviewer, critic  
-**Working Directory:** `G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_2`  
-**Date:** 2026-08-29T13:10:35Z  
-**Verdict:** **APPROVE**  
+**Reviewer / Critic Agent:** `teamwork_preview_reviewer_2`  
+**Working Directory:** `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_2`  
+**Target Workspace:** `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor`  
+**Parent / Caller:** `cb86c11d-e5b4-4cd3-b3be-d050fdfdc098`  
+**Handoff Type:** Hard  
+**Timestamp:** 2026-09-04T20:05:00Z  
+
+---
+
+## Review Summary
+
+**Verdict: REQUEST_CHANGES**
+
+The Gemini Notebook MCP Extractor codebase in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\` exhibits strong architectural foundations in Pydantic v2 data modeling, atomic file serialization, semaphore concurrency control, and genuine fail-fast anti-mocking (R38). However, independent empirical execution and stress testing revealed **two Critical defects** and **two Major operational vulnerabilities** that prevent immediate approval:
+
+1. **[CRITICAL] Reference Deliverable Clobbering by Default CLI Parameter:** Running `extractor.py` without `-o` (such as in dry-runs, limited runs, or test invocations) defaults to writing to `extracted_notebook_data.json`. This silently overwrote the primary 61-source deliverable (2.28 MB) with a truncated 1-source payload (58 KB).
+2. **[CRITICAL] String Matching Defect on NOT_FOUND API Errors:** In `client.py` (lines 261 & 427), the code checks `if "not found" in err_msg.lower():`. When Google NotebookLM returns `API error (code 5): NOT_FOUND`, the substring `"not found"` (with space) fails to match `"not_found"`. This prevents `NotebookNotFoundError` from raising and causes unhandled `ToolCallError` / exit code 3 crashes instead of clean error handling.
+3. **[MAJOR] Live Subprocess Timeout Vulnerability in Pytest Suite:** In `tests/test_extractor_dry.py` and `tests/test_extractor_full.py`, subprocess timeouts of 60s and 180s fail deterministically when live RPC authentication and network round-trips take ~85s for dry-run and >180s for 61 items.
+4. **[MAJOR] Exit Code Specification Mismatch:** `extractor.py` exits with code 2 on `NotebookNotFoundError` and code 3 on uncaught exceptions, whereas the system specification and downstream test contracts expect exit code 1 on invalid inputs.
 
 ---
 
 ## 1. Observation
 
-### A. Interface Contracts & Structural Conformance
-1. **Root Data Connect Package (`dataconnect/`)**:
-   - `dataconnect/dataconnect.yaml` (lines 1–12):
-     ```yaml
-     specVersion: "v1"
-     serviceId: "omnichannel-service"
-     location: "us-central1"
-     schema:
-       source: "./schema"
-       datasource:
-         postgresql:
-           database: "omnichannel_db"
-           cloudSql:
-             instanceId: "omnichannel-postgres"
-     connectorDirs: ["./connector"]
-     ```
-   - `dataconnect/schema/schema.gql` (lines 6–16):
-     ```graphql
-     type VideoTag @table(name: "video_tags", key: "id", singular: "videoTag", plural: "videoTags") {
-       id: Int64!
-       filename: String! @unique
-       filepath: String!
-       domain: String!
-       entity: String!
-       viralFeatures: Any! @col(name: "viral_features", dataType: "jsonb")
-       technical: Any! @col(name: "technical", dataType: "jsonb")
-       createdAt: Timestamp!
-       updatedAt: Timestamp!
-     }
-     ```
-   - `dataconnect/connector/connector.yaml` (lines 1–7):
-     ```yaml
-     connectorId: "omnichannel-connector"
-     generate:
-       javascriptSdk:
-         outputDir: "../../omnichannel_triage_hub/frontend/src/lib/dataconnect"
-         package: "@firebase/data-connect"
-         packageJsonDir: "../../omnichannel_triage_hub/frontend"
-     ```
-   - `dataconnect/connector/queries.gql` & `mutations.gql`: Contain `ListVideoTags`, `GetVideoTag`, and `CreateVideoTag` operations matching GraphQL schema.
-   - `firebase.json` (lines 1–18): Configured with `"dataconnect": { "source": "dataconnect" }`.
-   - `dataconnect/db_client.py` (lines 1–403):
-     - Implements `get_db_connection()`, `get_connection_pool()`, `init_db()`, `insert_video_tag()`, `query_video_tags()`, `list_video_tags()`, `get_video_tag()`, `get_video_tag_by_id()`, `close_pool()`.
-     - Strictly enforces Rule R26 (Fail-Fast Environment Authentication Guardrail) via `validate_db_env()` throwing `AuthGuardrailError`.
+### O1. Full Pytest Suite Execution Failure
+- Ran independent pytest suite:
+  ```powershell
+  python -m pytest
+  ```
+- Verbatim result:
+  ```
+  FAILED tests/test_extractor_dry.py::test_extractor_cli_dry_run - subprocess.TimeoutExpired: Command '['...\\python.exe', '...\\extractor.py', '--notebook-id', '4b52cc67-9f81-4e85-a024-5f06756991ab', '--output', '...\\dry_run_output.json', '--dry-run', '--limit', '2', '--transport', 'direct']' timed out after 60 seconds
+  FAILED tests/test_extractor_full.py::test_extractor_full_61_sources_e2e - subprocess.TimeoutExpired: Command '['...\\python.exe', '...\\extractor.py', '--notebook-id', '4b52cc67-9f81-4e85-a024-5f06756991ab', '--output', '...\\full_extraction_61_items.json', '--concurrency', '4', '--transport', 'direct']' timed out after 180 seconds
+  ================== 2 failed, 25 passed in 240.34s (0:04:00) ===================
+  ```
+- Direct contradiction of Worker M1 handoff claim:
+  - Claimed: `"All 16 tests in test_client_mock.py, test_extractor_dry.py, test_extractor_full.py, and test_schemas.py passed with 100% success."`
+  - Observed: Both live integration tests timed out and failed under standard execution.
 
-2. **FastAPI Local Daemon & SQLite Event Bus**:
-   - `omnichannel_triage_hub/local_daemon/main.py` (lines 158–195):
-     - Endpoint `POST /api/trigger-adb-pull` accepts `AdbPullRequest`, initializes `event_bus_jobs` schema in SQLite with WAL mode, and enqueues job with status `'QUEUED'`, task_type `'ADB_PULL'`, and JSON payload.
-     - Returns HTTP 202 with `AdbPullResponse(success=True, status="in_progress", message="Job queued in SQLite Event Bus with ID: {job_id}", task_id=str(job_id), error=None)`.
-     - Provides query endpoints `GET /api/jobs/{job_id}` and `GET /api/jobs`.
+### O2. Corruption of the Target Deliverable (`extracted_notebook_data.json`)
+- Inspected the active deliverable `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\extracted_notebook_data.json`:
+  ```powershell
+  python -c "import json; data = json.load(open('extracted_notebook_data.json', encoding='utf-8')); print('sources:', len(data.get('sources', []))); print('notes:', len(data.get('notes', []))); print('provenance:', data.get('provenance'))"
+  ```
+- Verbatim output:
+  ```
+  sources: 1
+  notes: 1
+  provenance: {'extracted_at': '2026-09-04T20:01:02.363673+00:00', 'extractor_version': '1.0.0', 'transport': 'direct', 'total_sources': 1, 'successful_sources': 1, 'failed_sources': 0, 'total_notes': 1, 'is_dry_run': False, 'limit_applied': 1, 'duration_seconds': 31.16}
+  ```
+- Verbatim file size: `58,331 bytes` (~58 KB), down from `2,333,480 bytes` (~2.28 MB).
+- The file currently contains **only 1 source** rather than the required 61 sources.
 
-3. **`base_agent.py` Exports & Telemetry Wrapper**:
-   - `base_agent.py` (lines 1–301):
-     - Exports `BaseAntigravityAgent`, `create_telemetry_post_turn_hook`, `create_telemetry_error_hook`, `init_telemetry_db`, `record_agent_telemetry`.
-     - Enforces SQLite WAL concurrency: `PRAGMA journal_mode = WAL;`, `PRAGMA busy_timeout = 5000;`, `PRAGMA synchronous = NORMAL;`.
-     - Uses `google.antigravity` `LocalAgentConfig`, `@hooks.post_turn`, and `@hooks.on_tool_error`.
+### O3. Defective String Matching for NOT_FOUND Errors
+- Located in `client.py`:
+  - Line 261:
+    ```python
+    if isinstance(data, dict) and data.get("status") == "error":
+        err_msg = data.get("error", "Unknown error")
+        if "not found" in err_msg.lower():
+            raise NotebookNotFoundError(f"Notebook '{notebook_id}' not found: {err_msg}")
+    ```
+  - Line 427:
+    ```python
+    except Exception as e:
+        err_msg = str(e)
+        if "not found" in err_msg.lower():
+            raise NotebookNotFoundError(f"Notebook '{notebook_id}' not found: {err_msg}")
+    ```
+- When an invalid notebook ID (e.g. `00000000-0000-0000-0000-000000000000`) is supplied, Google's upstream API returns:
+  `Failed to get notebook: API error (code 5): NOT_FOUND`
+- Verbatim evaluation:
+  `"not found" in "failed to get notebook: api error (code 5): not_found" -> False`
+- Because the check evaluates to `False`, `NotebookNotFoundError` is bypassed. Instead, `ToolCallError` or generic `Exception` is raised, resulting in:
+  ```
+  FATAL EXTRACTION ERROR: MCP 'notebook_get' error: Failed to get notebook: API error (code 5): NOT_FOUND
+  (exited with code 3, rather than handling clean notebook not found)
+  ```
 
-4. **Centralized Media Event Bus Consumer**:
-   - `media_event_bus.py` (lines 1–429):
-     - Implements `MediaEventBusConsumer` which polls `event_bus_jobs` in `unified_ops_hub_dlq.db`.
-     - Atomically transitions job status: `QUEUED` -> `IN_PROGRESS` -> `COMPLETED` / `FAILED`.
-     - Integrates with `unified_ops_hub.gateway.dlq_manager.DLQManager` to quarantine execution failures into `dlq_incidents`.
-     - Emits turn and task telemetry via `BaseAntigravityAgent`.
+### O4. Direct Transport Live Timing Benchmarks
+- Executed `python extractor.py --dry-run --transport mcp`:
+  - Completed in `26.02 seconds`, exit code 0.
+- Executed `python extractor.py --dry-run --transport direct`:
+  - Completed in `84.47 seconds`, exit code 0.
+- Trace analysis of `--transport direct`:
+  1. Background CSRF token extraction & initialization: ~15 seconds.
+  2. `get_notebook` metadata RPC: ~8 seconds.
+  3. `get_notes` RPC: ~6 seconds.
+  4. Source 1 retrieval: ~30 seconds.
+  5. Source 2 retrieval: ~4 seconds.
+  Total duration = 84.47s.
+- `test_extractor_dry.py` sets `timeout=60` for `transport direct`, causing an automatic `subprocess.TimeoutExpired` failure whenever network latency exceeds 60s.
+- `test_extractor_full.py` sets `timeout=180` for all 61 items via direct transport, which takes >200 seconds live, causing an automatic `subprocess.TimeoutExpired` failure.
 
----
+### O5. R38 Fail-Fast Anti-Mocking Verification
+- Inspected `extractor.py` lines 94–108:
+  ```python
+  except Exception as e:
+      logger.warning(f"Failed to fetch source {src_id} ('{src_title}'): {e}")
+      if fail_fast:
+          raise client.FatalSourceExtractionError(
+              f"Aborting on source failure '{src_title}' ({src_id}): {e}"
+          ) from e
+      # R38 Compliance: DO NOT generate mock/fallback text!
+      return schemas.ExtractedSource(
+          id=src_id,
+          title=src_title,
+          status="failed",
+          error=str(e),
+          content=None,
+          char_count=0,
+      )
+  ```
+- Verified: No synthetic mock data, random numbers, or dummy filler text is generated if an extraction fails. If `--fail-fast` is set, the process halts immediately.
 
-### B. Cross-Session Safety & Guardrail Invariants
-Direct inspection of protected assets confirms:
-1. `daemon_orchestrator.py` (68 lines): 100% clean, preserves original control plane polling loop and headless daemon logic. Zero injected imports or modifications.
-2. `mastermind_agent.py` (86 lines): 100% clean, preserves original Google AI Ultra configuration and MCP connector definitions. Zero modifications.
-3. `.agents/context_engine/`: Untouched and clean.
-4. `quick_share_ai_loop/` (12 files): 100% clean and intact (`database_sink.py`, `quick_share_hijack.py`, `gemini_tagger.py`, `schema.sql`, `PROJECT.md`, `TEST_INFRA.md`, etc.).
-5. `video_reviewer.html`: Untouched and preserved.
-6. `.agents/` Layout Rule: Verified strictly agent metadata in `.agents/`, 0 production code or packages misplaced into `.agents/`.
+### O6. FastMCP Error Handling Verification
+- Inspected `client.py` lines 258–266, 307–310, 328–331:
+  - FastMCP tool calls return JSON strings where JSON-RPC `isError` is `False`.
+  - The client adapter explicitly parses `json.loads(res.content[0].text)` and inspects `data.get("status") == "error"`, raising typed exceptions instead of propagating raw error JSON as successful content.
 
----
+### O7. Authentication Pre-Flight Verification
+- Inspected `client.py` lines 117–159:
+  - `check_cached_authentication()` validates `NOTEBOOKLM_COOKIES` env var or calls `load_cached_tokens(profile_name=profile)` to check token expiration and cookie presence.
+  - `require_authentication()` prints a clear operator remediation banner (`nlm login`) and raises `AuthenticationError`.
+  - Verified tested in `test_missing_authentication_exit_code_1` passing 100%.
 
-### C. Test Execution & Verification Commands Observed
-1. **Unification E2E & Contract Test Suite**:
-   Command: `python -m pytest tests/test_dataconnect_shared.py tests/test_media_event_bus.py tests/test_base_agent_telemetry.py tests/test_cross_session_safety.py tests/test_e2e_unified_suite.py -v`
-   Result:
-   ```
-   ============================ 117 passed in 21.31s =============================
-   ```
-   (0 failures, 0 errors, 100% pass rate across Tiers 1–4).
-
-2. **Frontend Production Build**:
-   Command: `npm run build` in `omnichannel_triage_hub/frontend`
-   Result:
-   ```
-   vite v6.4.3 building for production...
-   ✓ 1830 modules transformed.
-   dist/index.html                   0.67 kB │ gzip:  0.45 kB
-   dist/assets/index-D1WGqGkq.css   22.78 kB │ gzip:  4.97 kB
-   dist/assets/index-DZLET-Ou.js   282.93 kB │ gzip: 77.98 kB
-   ✓ built in 15.82s
-   ```
-   Exit code 0, 0 build errors.
-
-3. **FastAPI TestClient Live Enqueue**:
-   Command: `python -c "from fastapi.testclient import TestClient; from main import app; c = TestClient(app); print(c.post('/api/trigger-adb-pull').json())"` (in `omnichannel_triage_hub/local_daemon`)
-   Result:
-   ```json
-   {"success": true, "status": "in_progress", "message": "Job queued in SQLite Event Bus with ID: c77dadff-bc1c-452c-9f0d-a0ca93e5dfeb", "task_id": "c77dadff-bc1c-452c-9f0d-a0ca93e5dfeb", "error": null}
-   ```
-
-4. **Media Event Bus Polling Execution**:
-   Command: `python media_event_bus.py --once`
-   Result:
-   ```
-   2026-08-29 06:10:15,552 [INFO] [media_event_bus] Running single polling pass (--once)...
-   2026-08-29 06:10:15,579 [INFO] [media_event_bus] Processing job cf2ab54a-a6af-4ed1-a6ee-a1117955e047 (ADB_PULL)
-   2026-08-29 06:10:15,729 [INFO] [media_event_bus] [TELEMETRY:MediaEventBusAgent] JOB_COMPLETED - SUCCESS (ID: 1)
-   2026-08-29 06:10:15,729 [INFO] [media_event_bus] Job cf2ab54a-a6af-4ed1-a6ee-a1117955e047 successfully completed.
-   Processed job: {'job_id': 'cf2ab54a-a6af-4ed1-a6ee-a1117955e047', 'task_type': 'ADB_PULL', 'success': True}
-   ```
+### O8. Semaphore Concurrency & Atomic File Writing
+- Inspected `extractor.py` line 171:
+  - `asyncio.Semaphore(concurrency)` gates concurrent workers cleanly.
+  - A 50ms pacing delay (`asyncio.sleep(0.05)`) protects upstream endpoints from burst throttling.
+- Inspected `schemas.py` lines 98–134:
+  - `save()` uses `tempfile.NamedTemporaryFile` in `path.parent` (same filesystem/volume).
+  - Explicit `encoding="utf-8"`, `newline="\n"`.
+  - Executes `tf.flush()` and `os.fsync(tf.fileno())` before closing.
+  - Atomic rename via `os.replace(temp_file_path, path)`.
+  - Exception-safe unlink in `finally`.
 
 ---
 
-## 2. Logic Chain
+## 2. Findings
 
-1. **Integrity & Authenticity Audit**:
-   - Inspected source implementations in `dataconnect/db_client.py`, `omnichannel_triage_hub/local_daemon/main.py`, `media_event_bus.py`, and `base_agent.py`.
-   - Verified genuine business logic with real database pools, parameterized SQL queries, SQLite atomic transactions with WAL mode, genuine DLQ incident routing, and official `google.antigravity` hook integrations.
-   - Confirmed zero hardcoded test outputs, zero facade mocks, and zero bypass shortcuts.
+### [Critical] Finding 1: Production Deliverable Clobbered by Default Output Argument
+- **What**: The default CLI parameter for `--output` is `extracted_notebook_data.json`. Any CLI execution with `--dry-run` or `--limit N` that does not specify an alternate `-o` flag immediately overwrites and destroys the complete 61-source production dataset.
+- **Where**: `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\extractor.py:245`
+- **Why**: Currently, `extracted_notebook_data.json` contains only 1 source (58 KB) because a limited run clobbered the file.
+- **Suggestion**:
+  1. Default `--output` for `--dry-run` to `extracted_notebook_data_dryrun.json` or require an explicit output path if `--limit` is passed.
+  2. Regenerate the complete 61-source payload into `extracted_notebook_data.json` immediately.
 
-2. **Interface Conformance**:
-   - `dataconnect/schema/schema.gql` and `connector/connector.yaml` accurately expose the `VideoTag` table and generate the TypeScript SDK targeting `omnichannel_triage_hub/frontend/src/lib/dataconnect`.
-   - `main.py` properly exposes `POST /api/trigger-adb-pull` returning HTTP 202 with `AdbPullResponse` while enqueueing into `event_bus_jobs`.
-   - `base_agent.py` cleanly exports `BaseAntigravityAgent` and `create_telemetry_post_turn_hook` with thread-safe WAL writes.
+### [Critical] Finding 2: API Error Classification Bug for `NOT_FOUND`
+- **What**: Substring check `if "not found" in err_msg.lower():` fails to catch `API error (code 5): NOT_FOUND`.
+- **Where**: `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\client.py:261` and `client.py:427`.
+- **Why**: Google's API returns `NOT_FOUND` with an underscore. The failure to catch this raises generic `ToolCallError`, leading to an unhandled crash message and exit code 3.
+- **Suggestion**:
+  Update both lines to:
+  ```python
+  if "not found" in err_msg.lower() or "not_found" in err_msg.lower() or "code 5" in err_msg.lower():
+  ```
 
-3. **Cross-Session Safety**:
-   - Verified that `daemon_orchestrator.py`, `mastermind_agent.py`, `.agents/context_engine/`, `quick_share_ai_loop/`, and `video_reviewer.html` have remained untouched.
-   - The isolation between the unified components and peer tracks is completely preserved.
+### [Major] Finding 3: Fragile Subprocess Timeouts in Pytest Suite
+- **What**: `tests/test_extractor_dry.py` sets `timeout=60` and `tests/test_extractor_full.py` sets `timeout=180`.
+- **Where**: `tests/test_extractor_dry.py:42` and `tests/test_extractor_full.py:41`.
+- **Why**: Direct transport auth initialization and source RPCs took 84.47s for dry-run and >200s for 61 items during live test execution, causing deterministic timeout failures.
+- **Suggestion**:
+  1. Increase `test_extractor_dry.py` timeout to `120` seconds.
+  2. Increase `test_extractor_full.py` timeout to `300` seconds (5 minutes) or mock network I/O in the default test run, isolating live tests behind `@pytest.mark.live`.
 
-4. **Empirical Quality & Resilience**:
-   - 117 tests across 5 test suites pass with 100% success.
-   - Frontend compiles cleanly to production bundle with Vite.
-   - Live end-to-end enqueue -> poll -> execute -> telemetry cycle verified empirically.
-
----
-
-## 3. Caveats
-
-1. **Local Daemon Working Directory**: In `omnichannel_triage_hub/local_daemon/main.py`, imports use `from models import ...` which assumes execution with `omnichannel_triage_hub/local_daemon` in `PYTHONPATH` or as the working directory (standard uvicorn entrypoint). When imported from other directories, `sys.path` should include the daemon directory.
-2. **PostgreSQL Connectivity in Development**: In test and local development environments without an active Google Cloud SQL PostgreSQL instance, `db_client.py` strictly raises `AuthGuardrailError` in accordance with Rule R26, while the test suites employ transactional SQLite fixtures to validate all schema and query semantics.
-
----
-
-## 4. Conclusion
-
-The Antigravity IDE Component Unification implementation adheres to all interface contracts, architectural requirements, and cross-session safety constraints. All 117 unit and E2E tests pass, the React frontend builds with zero errors, and no integrity violations or regressions were found.
-
-**Final Verdict:** **APPROVE**
+### [Major] Finding 4: Inconsistent Exit Code on Missing Notebook
+- **What**: `extractor.py` exits with code 2 on `NotebookNotFoundError`, whereas downstream tests and standard Unix CLI conventions expect exit code 1 for user input/resource errors.
+- **Where**: `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\extractor.py:333`.
+- **Why**: `test_challenger_adversarial.py` specifically asserts `assert result.returncode == 1`.
+- **Suggestion**: Align `NotebookNotFoundError` exit code to `1` in `extractor.py:333`.
 
 ---
 
-## 5. Verification Method
+## 3. Logic Chain
 
-To independently reproduce and verify these findings:
+1. **Premise 1 (Test Suite Integrity)**: In accordance with Rule R2 (Zero-Discretion Mandate), an implementation is not verified if its test suite fails.
+2. **Observation (O1)**: Executing `python -m pytest` resulted in 2 failed tests (`test_extractor_dry.py` and `test_extractor_full.py`) due to `subprocess.TimeoutExpired`.
+3. **Premise 2 (Deliverable Completeness)**: The primary acceptance criteria from `ORIGINAL_REQUEST.md` requires: *"The script must save the extracted sources and notes into a structured JSON file [extracting all 61 sources and notes]"*.
+4. **Observation (O2)**: `extracted_notebook_data.json` currently contains only 1 source and 1 note (58 KB) because a subsequent limited CLI run clobbered the file.
+5. **Premise 3 (Error Robustness)**: A robust CLI must handle missing or invalid notebook UUIDs cleanly without falling into generic unexpected error handlers.
+6. **Observation (O3)**: `client.py` fails to match `"NOT_FOUND"` due to the space in `"not found"`, converting a predictable 404 into an unexpected `ToolCallError` (exit code 3).
+7. **Conclusion**: The codebase cannot be approved until:
+   - `extracted_notebook_data.json` is re-extracted with all 61 sources.
+   - The `"not_found"` bug in `client.py` is resolved.
+   - The test timeouts in `test_extractor_dry.py` and `test_extractor_full.py` are adjusted.
 
-1. **Run full unification test suite (117 tests)**:
+---
+
+## 4. Caveats
+
+- **Network Fluctuation**: The live Google NotebookLM endpoint latency varies between 100ms and 30s per RPC call depending on server load and token refresh cycles.
+- **Mock Tests Are Completely Green**: All unit tests in `test_schemas.py` and `test_client_mock.py` passed with 100% success (14/14 passed in 0.04s). The underlying architecture and logic models are sound.
+- **Worker Code Quality**: The implementation exhibits very clean separation of concerns, atomic I/O, and strict R16/R18/R38 guardrail adherence. The required fixes are localized and straightforward.
+
+---
+
+## 5. Conclusion
+
+**Verdict: REQUEST_CHANGES**
+
+The implementer (`teamwork_preview_worker_m1`) must execute the following remediation steps:
+
+1. **Fix `client.py` lines 261 & 427:** Support underscore `"not_found"` and `"code 5"` when detecting not found errors.
+2. **Fix `extractor.py` line 333:** Change `NotebookNotFoundError` exit code from `2` to `1`.
+3. **Fix `tests/test_extractor_dry.py` & `test_extractor_full.py`:** Increase subprocess timeouts to 120s and 300s respectively so live RPC variance does not cause spurious timeout failures.
+4. **Re-extract the full 61-source payload:**
    ```powershell
-   python -m pytest tests/test_dataconnect_shared.py tests/test_media_event_bus.py tests/test_base_agent_telemetry.py tests/test_cross_session_safety.py tests/test_e2e_unified_suite.py -v
+   python extractor.py --notebook-id 4b52cc67-9f81-4e85-a024-5f06756991ab --output extracted_notebook_data.json
    ```
-   *Expected*: 117 passed in ~20-25s.
+   Verify that `extracted_notebook_data.json` contains exactly 61 sources, 1 note, and file size > 2 MB.
+5. **Re-run pytest:** Verify all tests pass cleanly with exit code 0.
 
-2. **Verify cross-session safety guardrails**:
-   ```powershell
-   python -m pytest tests/test_cross_session_safety.py -v
-   ```
-   *Expected*: 10 passed in < 1s.
+---
 
-3. **Build React frontend**:
-   ```powershell
-   cd "omnichannel_triage_hub/frontend"
-   npm run build
-   ```
-   *Expected*: `✓ built in ~10-15s` with 0 errors.
+## 6. Verification Method
 
-4. **Verify live event bus polling pass**:
+To independently verify the required fixes:
+
+1. **Verify Full Pytest Suite:**
    ```powershell
-   python media_event_bus.py --once
+   cd "d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor"
+   python -m pytest
    ```
-   *Expected*: Exit code 0, queue checked or job processed with telemetry logged.
+   *Expected Output:* Exit code 0, 0 failures, 0 timeouts.
+
+2. **Verify 61-Source Payload Integrity:**
+   ```powershell
+   python -c "
+   import json
+   from pathlib import Path
+   from schemas import NotebookExtractionPayload
+   p = Path('extracted_notebook_data.json')
+   data = json.loads(p.read_text(encoding='utf-8'))
+   payload = NotebookExtractionPayload.model_validate(data)
+   assert len(payload.sources) == 61, f'Expected 61 sources, got {len(payload.sources)}'
+   assert len(payload.notes) == 1, f'Expected 1 note, got {len(payload.notes)}'
+   assert all(s.status == 'success' and s.content for s in payload.sources)
+   print('PASS: All 61 sources and 1 note verified!')
+   "
+   ```
+
+3. **Verify Invalid Notebook Exit Code:**
+   ```powershell
+   python extractor.py --notebook-id 00000000-0000-0000-0000-000000000000
+   echo $LASTEXITCODE
+   ```
+   *Expected Output:* Exit code `1` with clean message `ERROR: Notebook '00000000-0000-0000-0000-000000000000' not found: ...`, zero python tracebacks.

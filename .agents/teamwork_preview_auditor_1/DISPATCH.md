@@ -1,25 +1,42 @@
-## 2026-08-29T13:07:30Z
-You are the Forensic Auditor for the Antigravity IDE Component Unification project.
-Your assigned working directory is: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_auditor_1
+# DISPATCH — teamwork_preview_auditor_1
 
-Please read:
-- ORIGINAL_REQUEST.md at: G:\My Drive\GOOGLE ANTIGRAVITY\ORIGINAL_REQUEST.md
-- PROJECT.md at: G:\My Drive\GOOGLE ANTIGRAVITY\PROJECT.md
-- TEST_READY.md at: G:\My Drive\GOOGLE ANTIGRAVITY\TEST_READY.md
+## Identity
+- Archetype: teamwork_preview_auditor
+- Working Directory: d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_auditor_1
+- Target Workspace: d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor
+- Parent: d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4
 
-Your Task:
-Perform forensic integrity and anti-cheating verification:
-1. Static analysis of `dataconnect/`, `dataconnect/db_client.py`, `base_agent.py`, `media_event_bus.py`, `omnichannel_triage_hub/local_daemon/main.py`, and `tests/`:
-   - Check for hardcoded test outputs, return-spoofing, fake/mock facades in production code, or circumventions.
-   - Verify genuine implementation of SQLite WAL pragma configurations, atomic CAS status transitions, `@hooks.post_turn` telemetry extraction, and Data Connect schema.
-2. Dynamic / runtime execution validation:
-   - Verify that tests actually execute real code paths.
-   - Check that `unified_ops_hub_dlq.db` receives genuine SQLite insertions and updates.
-   - Check that telemetry database logs genuine records with valid timestamps and payloads.
-3. Cross-session safety audit:
-   - Verify that NO protected files (`daemon_orchestrator.py`, `mastermind_agent.py`, `.agents/context_engine/`, `quick_share_ai_loop/`, `video_reviewer.html`) were modified or compromised.
-4. Deliver an explicit audit verdict: CLEAN or INTEGRITY VIOLATION.
+## Objective
+Conduct an exhaustive forensic integrity audit of the Gemini Notebook MCP Extractor implementation in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\`.
 
-Deliverables:
-- Write your forensic audit report to: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_auditor_1\handoff.md
-- Send a message back to orchestrator (caller) with summary and explicit verdict when done.
+## Inputs & Context
+1. Read `d:\GOOGLE ANTIGRAVITY\.agents\ORIGINAL_REQUEST.md` under `## Follow-up — 2026-09-04T19:09:20Z`.
+2. Read `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4\PROJECT.md`.
+3. Inspect all files in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\`.
+
+## Forensic Audit Checks
+Perform exhaustive checks for integrity violations:
+1. **Hardcoding & Facades**: Check if `extracted_notebook_data.json` or source code contains pre-baked static answers, stub dictionaries, or synthetic mock data. Verify that data comes from live Google NotebookLM RPCs.
+2. **Anti-Mocking (R38)**: Search for `mock`, `unittest.mock`, `random`, or fake fallback returns in `extractor.py`, `client.py`, and `schemas.py`. Mocks are permitted ONLY inside `tests/test_client_mock.py`.
+3. **Workspace Confinement (R37)**: Verify all generated code, tests, and extracted data remain strictly within `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\`.
+4. **Markdown & Code Safety (R22)**: Verify code is clean without PowerShell escaping bugs.
+5. **Absolute Imports (R16)**: Verify no relative imports (`from . import ...`).
+6. **Execution Proof**: Verify that `extractor.py` and `pytest` genuinely execute on the local interpreter.
+
+## Audit Verdict
+Deliver a binary audit verdict:
+- `CLEAN` (No integrity violations detected)
+- `INTEGRITY VIOLATION` (Cheating, hardcoded fake data, or facade detected)
+
+## Deliverable
+Write your full forensic audit report to `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_auditor_1\handoff.md` and send completion message to parent.
+
+## 2026-09-04T19:47:56Z
+Conduct an exhaustive forensic integrity audit of the Gemini Notebook MCP Extractor implementation in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\`:
+1. Hardcoding & Facades: Check if `extracted_notebook_data.json` or source code contains pre-baked static answers, stub dictionaries, or synthetic mock data. Verify that data comes from live Google NotebookLM RPCs.
+2. Anti-Mocking (R38): Search for `mock`, `unittest.mock`, `random`, or fake fallback returns in `extractor.py`, `client.py`, and `schemas.py`. Mocks are permitted ONLY inside `tests/test_client_mock.py`.
+3. Workspace Confinement (R37): Verify all generated code, tests, and extracted data remain strictly within `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\`.
+4. Markdown & Code Safety (R22): Verify code is clean without PowerShell escaping bugs.
+5. Absolute Imports (R16): Verify no relative imports (`from . import ...`).
+6. Execution Proof: Verify that `extractor.py` and `pytest` genuinely execute on the local interpreter.
+
