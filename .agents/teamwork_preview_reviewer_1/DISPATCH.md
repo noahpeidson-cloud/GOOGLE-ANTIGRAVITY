@@ -1,25 +1,50 @@
-﻿## 2026-08-29T13:07:30Z
-You are Reviewer 1 for the Antigravity IDE Component Unification project.
-Your assigned working directory is: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1
+# DISPATCH — teamwork_preview_reviewer_1
 
-Please read:
-- ORIGINAL_REQUEST.md at: G:\My Drive\GOOGLE ANTIGRAVITY\ORIGINAL_REQUEST.md
-- PROJECT.md at: G:\My Drive\GOOGLE ANTIGRAVITY\PROJECT.md
-- TEST_READY.md at: G:\My Drive\GOOGLE ANTIGRAVITY\TEST_READY.md
-- Worker M1 Handoff at: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_worker_m1\handoff.md
-- Worker M2/M3 Handoff at: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_worker_m2_m3\handoff.md
+## Identity
+- Archetype: teamwork_preview_reviewer
+- Working Directory: d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1
+- Target Workspace: d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor
+- Parent: d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4
 
-Your Task:
-Conduct an independent, objective review and verification of all implementation changes:
-1. Examine dataconnect/ root directory, dataconnect.yaml, schema/schema.gql, connector/connector.yaml, firebase.json, and dataconnect/db_client.py.
-2. Examine base_agent.py, media_event_bus.py, and omnichannel_triage_hub/local_daemon/main.py.
-3. Run the full E2E test suite:
-   python -m pytest tests/test_dataconnect_shared.py tests/test_media_event_bus.py tests/test_base_agent_telemetry.py tests/test_cross_session_safety.py tests/test_e2e_unified_suite.py -v
-4. Run frontend production build:
-   cd omnichannel_triage_hub/frontend; npm run build
-5. Verify correctness, robustness, error handling, and performance.
-6. Deliver a clear, explicit verdict: APPROVE or REQUEST_CHANGES.
+## Objective
+Independently review the Gemini Notebook MCP Extractor implementation in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\` for code quality, architectural integrity, and requirement conformance.
 
-Deliverables:
-- Write your review to: G:\My Drive\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1\handoff.md
-- Send a message back to orchestrator (caller) with summary and explicit verdict when done.
+## Inputs & Context
+1. Read `d:\GOOGLE ANTIGRAVITY\.agents\ORIGINAL_REQUEST.md` under `## Follow-up — 2026-09-04T19:09:20Z`.
+2. Read `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4\PROJECT.md`.
+3. Read `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4\TEST_INFRA.md`.
+4. Read Worker handoff: `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_worker_m1\handoff.md`.
+5. Inspect source code: `schemas.py`, `client.py`, `extractor.py`, `requirements.txt`, `README.md`.
+
+## Review Mandates
+- Verify Python absolute imports (R16).
+- Verify pre-flight dependency guardrail (R18).
+- Verify Pydantic v2 data models and atomic serialization.
+- Run tests (`python -m pytest`) and dry-run execution (`python extractor.py --dry-run`).
+- Deliver a clear verdict: `APPROVE` or `REQUEST_CHANGES`.
+
+## Deliverable
+Write your review report to `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1\handoff.md` and send completion message to parent.
+
+## 2026-09-04T19:47:56Z
+You are teamwork_preview_reviewer operating in:
+Working directory: d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1
+Target Workspace: d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor
+
+MANDATORY FIRST STEP:
+Read d:\GOOGLE ANTIGRAVITY\.agents\ORIGINAL_REQUEST.md under header `## Follow-up — 2026-09-04T19:09:20Z` and read your task description in d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1\DISPATCH.md.
+Also read `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_orchestrator_4\PROJECT.md`.
+Read Worker handoff: `d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_worker_m1\handoff.md`.
+
+YOUR MISSION:
+Independently review the Gemini Notebook MCP Extractor implementation in `d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor\` for code quality, architectural correctness, and requirement conformance:
+- Verify Python absolute imports (R16).
+- Verify pre-flight dependency guardrail (R18).
+- Verify Pydantic v2 data models and serialization.
+- Run tests (`python -m pytest`) and live dry-run (`python extractor.py --dry-run`).
+- Deliver a clear verdict: `APPROVE` or `REQUEST_CHANGES`.
+
+DELIVERABLE:
+Write your full review report to:
+`d:\GOOGLE ANTIGRAVITY\.agents\teamwork_preview_reviewer_1\handoff.md`
+Follow the Handoff Protocol. Send message to parent (cb86c11d-e5b4-4cd3-b3be-d050fdfdc098) when done.

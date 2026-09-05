@@ -60,6 +60,7 @@ skills to load.
 - **Context:** Whenever the agent delegates work to a background subagent orchestrator (e.g., `teamwork_preview_swe`) that maintains an internal `progress.md` or checklist.
 - **Mandate:** The agent MUST NOT leave the user in a "black box" holding pattern.
 - **Actionable Execution:** Before dropping into holding mode, the agent MUST deploy a lightweight Python `watchdog` daemon. This script must monitor the subagent's internal state file and mirror its contents to the active `task.md` Artifact in the user's brain directory (`<conv_id>`), implementing a 1.0s debounce. This enables the Antigravity frontend to live-refresh the checkboxes on the user's screen in real-time.
+- **Exception (Teamwork System):** When invoking the `teamwork_preview` subagent specifically, the parent agent MUST NOT deploy a watchdog. The teamwork sentinel natively handles artifact mirroring and will deploy its own official watchdog. Do not duplicate this effort.
 
 ### R16. Executable Python Import Guardrail
 - **Context:** When generating Python scripts that act as entrypoints, daemons, or CLI tools intended to be executed directly via `python script.py`.
@@ -116,10 +117,10 @@ skills to load.
 - **Mandate:** Agents are STRICTLY FORBIDDEN from assuming the script will inherit the IDE's proxy auth.
 - **Actionable Execution:** The agent MUST install `python-dotenv`, import `load_dotenv`, and explicitly require/generate a local `.env` file containing the raw `GEMINI_API_KEY` to prevent immediate runtime auth crashes.
 
-### R27. The Zero-Friction Fallback Mandate
-- **Context:** When using the `google-genai` Python SDK or handling `429/503` API limits.
-- **Mandate:** Agents are STRICTLY FORBIDDEN from using `time.sleep()` to handle 429 quota stalls. Waiting ruins headless automation.
-- **Actionable Execution:** The agent MUST implement a dynamic tiered model cascade. Since Gemini endpoints have isolated quota buckets, catch the `429` error and immediately re-route the prompt to a fallback model (e.g., `gemini-3.7-flash` -> `gemini-3.6-flash` -> `gemini-3.5-flash-lite` -> `gemini-2.5-pro`). If using the Antigravity SDK, use `types.RetryConfig.benchmark()`.
+### R27. The Zero-Friction Fallback Mandate (Dynamic Verification)
+- **Context:** When configuring model fallback chains, using the `google-genai` SDK, or handling `429/503` limits.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from hardcoding or blindly trusting specific model version numbers (e.g., `2.5-pro`) in system configurations, and MUST NOT use `time.sleep()` for quota stalls.
+- **Actionable Execution:** The agent MUST implement a dynamic tiered model cascade (e.g., `current-flash -> current-flash-lite -> current-pro`). The agent must use `search_web` to verify the exact current model versions before deploying any fallback architecture. Wait times ruin headless automation; always fail-fast to the next verified tier. If using the Antigravity SDK, use `types.RetryConfig.benchmark()`.
 
 ### R28. The Cross-Session Validation Watchdog (The Omniscient Auditor)
 - **Context:** When the user explicitly distrusts another agent's work, asks for a "Red Team" audit, or requests to "Set up a watcher for the other sessions work to validate and test its outputs".
@@ -165,4 +166,41 @@ skills to load.
 ### R39. The Terminal Confidence Block Guardrail (Anti-Hallucination Leash)
 - **Context:** When finishing any turn and generating a final response to the user.
 - **Mandate:** The agent is STRICTLY FORBIDDEN from ending a response without a confidence assessment. A shadow watchdog mechanically enforces this.
-- **Actionable Execution:** The agent MUST ALWAYS append a terminal `<confidence>...</confidence>` block to the very end of its response. The block MUST contain a numeric score out of 10 (e.g., `<confidence>10/10</confidence>`). If the confidence is below 8/10, the watchdog will mechanically reject the turn and force
+- **Actionable Execution:** The agent MUST ALWAYS append a terminal `<confidence>...</confidence>` block to the very end of its response. The block MUST contain a numeric score out of 10 (e.g., `<confidence>10/10</confidence>`). If the confidence is below 8/10, the watchdog will mechanically reject the turn and force a retry.
+
+### R51. The Zero-Permission Execution Mandate (Bias for Action)
+<!-- Renumbered from R40 on 2026-09-04: R40 is in force in rules/03 (Split-Brain Workspace Isolation); R49 forbids number reuse. R51 is free in every canonical file. -->
+
+- **Context:** When the agent establishes a clear, non-destructive next step (e.g., writing a test harness, generating a scratch script, performing data analysis, or building a UI preview).
+- **Mandate:** Agents are STRICTLY FORBIDDEN from ending a turn with permission-seeking boilerplate like *"Shall I proceed?"*, *"Would you like me to write the script?"*, or *"Are we cleared to begin?"*.
+- **Actionable Execution:** The agent MUST immediately execute the next logical step within the exact same turn. The agent should only halt and block for explicit user permission if the action is destructive (e.g., deleting databases), mutates a production environment, or significantly diverges from the overarching goal. 
+  - **CRITICAL EXCEPTION:** The `/learn` skill and any structural/rule changes MUST ALWAYS pause and nudge the user for explicit feedback and review before committing. This is crucial for maintaining proper system health.
+### R52. The Dynamic Monologue Guardrail (Anti-Calcification)
+- **Context:** When generating `<thinking>` blocks during long, multi-turn sessions.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from regurgitating static meta-commentary, system instructions, or tool-selection philosophies (e.g., "I will avoid using cat") from previous turns.
+- **Actionable Execution:** The agent's internal monologue MUST be strictly grounded in the *novel* data, specific variables, and immediate task of the current step. Copy-pasting generic thought patterns across multiple turns indicates context rot, wastes tokens, and degrades decision-making. Thinking blocks must remain dynamic, concise, and forward-looking.
+
+### R53. System-Injected Trailing Reminders (Context Freshness)
+- **Context:** When enforcing critical structural or formatting constraints (like `<confidence>` blocks or JSON schemas).
+- **Mandate:** The system MUST prioritize injecting these constraints at the tail-end of the user prompt rather than burying them in a massive top-level system prompt.
+- **Actionable Execution:** By automatically injecting `[System: Conclude your response with <confidence>X/10</confidence>]` at the end of the user's latest message, the LLM's attention mechanism natively prioritizes it, bypassing context-window rot.
+
+### R54. Pre-Response State Validation (Zero-Discretion Output)
+- **Context:** When generating structured output or adhering to strict formatting guardrails.
+- **Mandate:** Agents MUST computationally validate their own output before yielding text to the user.
+- **Actionable Execution:** Enforce the Zero-Discretion mandate on the agent's own responses by introducing a `verify_turn_state` tool that tests output structure against a regex manifest rather than relying on raw context memory.
+
+### R55. Anti-Drift Data Analysis Mandate
+- **Context:** When a user explicitly requests data analysis on logs, transcripts, or datasets.
+- **Mandate:** Agents MUST NOT drift into reverse-engineering or debugging the underlying system code (e.g., watchdogs) or configuration files.
+- **Actionable Execution:** The agent must immediately target the requested data layer. Do not launch source code investigations unless the log analysis explicitly points to a code bug that the user subsequently authorizes you to fix.
+
+### R56. The JSON Tool Argument Guardrail
+- **Context:** When formatting arguments for tool calls.
+- **Mandate:** Agents are STRICTLY FORBIDDEN from double-quoting string arguments and hallucinating types in JSON payloads.
+- **Actionable Execution:** Do not wrap string values in literal quotes inside the JSON payload (e.g., pass `"value"`, never `"\"value\""`). Always pass true boolean types (`true`/`false`), not strings (`"true"`).
+
+### R57. Structured Log Parsing Guardrail
+- **Context:** When writing scripts to parse internal agent logs (like `transcript.jsonl`).
+- **Mandate:** Agents MUST NOT use naive regex text parsing to extract fields from JSON Lines files.
+- **Actionable Execution:** The agent MUST use native `json.loads()` to parse the structured data. This prevents silent data corruption and parsing errors from injected system prompts, metadata blocks, and `<USER_SETTINGS_CHANGE>` tags present in the raw text.

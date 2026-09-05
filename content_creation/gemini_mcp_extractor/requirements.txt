@@ -1,0 +1,7 @@
+mcp>=1.29.0
+notebooklm-mcp-cli>=0.10.0
+pydantic>=2.10.0
+httpx>=0.28.0
+pytest>=9.0.0
+pytest-asyncio>=1.4.0
+pytest-mock>=3.15.0

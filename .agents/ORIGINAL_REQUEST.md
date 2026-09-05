@@ -135,3 +135,92 @@ Extract the `@hooks.post_turn` telemetry function from `deployment_agent.py` int
 ---
 *Next: when approved → delegate via invoke_subagent (see Delegation Protocol)*
 </USER_REQUEST>
+
+## Follow-up — 2026-09-04T19:09:20Z
+
+<USER_REQUEST>
+# Teamwork Project Prompt — Draft
+
+> Status: Ready for launch
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: [none — teamwork routes from the description]
+
+Write a robust, reusable Python script that connects to the `gemini-notebook` MCP server (or its underlying APIs) to extract all 61 sources and notes. The script should output the extracted data into a structured JSON file for further programmatic processing.
+
+Working directory: d:\GOOGLE ANTIGRAVITY\content_creation\gemini_mcp_extractor
+Integrity mode: development
+
+## Requirements
+
+### R1. Python Extraction Script
+Create a reusable Python script that leverages the Gemini Notebook MCP to fetch all sources and notes.
+
+### R2. Structured Output
+The script must save the extracted sources and notes into a structured JSON file.
+
+### R3. Execution Environment
+The script must be executable locally and should handle any necessary authentication or setup required to communicate with the MCP or its underlying APIs.
+
+## Acceptance Criteria
+
+### Script Verification
+- [ ] The script connects successfully to the MCP server (or its API).
+- [ ] A dry-run test confirms the script can fetch a subset of items.
+- [ ] The script successfully parses the fetched data and writes it to a valid JSON file.
+- [ ] The code is fully self-contained in the designated working directory.
+</USER_REQUEST>
+
+## Follow-up — 2026-09-04T23:34:50Z
+
+<USER_REQUEST>
+# Teamwork Project Prompt
+
+> Status: Launched via Auto-Approval
+> Requested team: full team
+
+Evaluate all legacy media pipeline scripts and dashboards, extract any high-value, research-validated logic or tools, and compile them into an isolated archive with frontmatter instructions for long-term storage. 
+
+Working directory: d:\GOOGLE ANTIGRAVITY\content_creation\_archive_vault
+Integrity mode: development
+
+## Requirements
+
+### R1. Evaluate and Extract
+The agent team must systematically review the following targets in `d:\GOOGLE ANTIGRAVITY\content_creation`:
+- The `/quick_share_ai_loop` directory
+- Orchestrators (`polyglot_orchestrator.py`, `orchestrator.py`, `remote_trigger.py`)
+- Ingestion scripts (`/ingestion_pipeline`, `/media_pipeline`, `samsung_ingest.py`, `ingest_assets.py`)
+- Dashboards (`index.html`, `dashboard_v2.html`, `council_ui.html`, `review_dashboard.html`)
+
+Extract any complex algorithms, validated FFmpeg commands, DaVinci Resolve API logic, or reusable helper functions. Discard boilerplate, UI spaghetti, and flawed concepts.
+
+### R2. Front-Mattered Storage & Context Mapping
+Save the extracted tools/concepts into isolated Markdown (`.md`) or Python (`.py`) files inside the `_archive_vault` directory. Every file MUST begin with YAML frontmatter (or a formatted docstring) containing:
+- **Name**: The tool or concept name.
+- **Context Mapping**: The point of reference tying this concept back to its original use case or pipeline.
+- **Strengths**: Why this specific concept was deemed valuable and research-validated.
+- **Weaknesses**: The flaws, limitations, or reasons why the original surrounding architecture failed.
+- **Implementation Instructions**: How to safely use this logic in future builds.
+
+### R3. Read-Only Scope
+The team must ONLY read the legacy files and write to the `_archive_vault`. Do NOT delete or modify the original source files. We will perform the mechanical deletion after the extraction is verified.
+
+## Acceptance Criteria
+
+### Extraction Verification
+- [ ] The `_archive_vault` directory is created.
+- [ ] Valuable logic is properly isolated into independent files within the vault.
+- [ ] Every extracted file contains the required Context Mapping, Strengths, and Weaknesses in its frontmatter.
+- [ ] Zero original files were deleted or modified by the agent team.
+</USER_REQUEST>
+
+## Follow-up — 2026-09-04T23:37:27Z
+
+EMERGENCY SCOPE EXPANSION: A broad system scan has revealed massive duplicate / legacy directories containing media pipelines, orchestrators, and DaVinci scripts. 
+
+You MUST immediately expand your R1 Extraction targets to include the following directories:
+1. `D:\clean_rewrite_temp\content_creation`
+2. `D:\GOOGLE ANTIGRAVITY\Antigravity_Media\content_creation`
+3. `D:\GOOGLE ANTIGRAVITY\archive\c_drive_legacy\teamwork_projects\baptism_of_music_brain`
+
+Do not miss these folders. Extract the high-value logic from them into the `_archive_vault` alongside your current targets.
