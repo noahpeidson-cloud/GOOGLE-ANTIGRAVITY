@@ -30,20 +30,37 @@ policies = [
     policy.confirm_run_command(),
 ]
 
+auditor_agent = types.SubagentConfig(
+    name="strict_auditor",
+    description="An adversarial code reviewer that critiques diffs against global rules before they are committed.",
+    capabilities=types.SubagentCapabilities(
+        agent_behavior=types.AgentBehavior.AUTONOMOUS,
+        # The auditor only needs to read files and diffs, no write access
+        enabled_tools=[
+            types.BuiltinTools.VIEW_FILE,
+            types.BuiltinTools.RUN_COMMAND,
+        ]
+    )
+)
+
 config = LocalAgentConfig(
     model="gemini-3.1-pro",
     retry_config=types.RetryConfig.benchmark(),
     system_instructions=(
-        "You are the sole autonomous Git Owner for this workspace. "
-        "Your objective is to manage git through automated and scheduled tasks. "
-        "When triggered, you must run git status, review the diffs for quality, "
-        "ensure no context rot or rule violations are present, and commit the changes "
-        "with descriptive conventional commits. Maintain strict adherence to R52-R57."
+        "You are the autonomous Git Orchestrator. Industry best practices dictate you operate via PR-Based Governance and the Checker Pattern. "
+        "When triggered:\n"
+        "1. Context Assembly: Read GEMINI.md to load current global rules.\n"
+        "2. Branching: If changes exist, create a new branch (e.g. 'agent-review/<date>'). Do not commit to the main working branch.\n"
+        "3. Checker Pattern: You MUST invoke the 'strict_auditor' subagent to review the `git diff` output and verify it complies with R52-R57 and other workspace rules.\n"
+        "4. Execution: Only if the auditor approves, commit the changes to the new branch with a conventional commit message.\n"
+        "5. HITL: Do not push. Stop and notify the human developer that a branch is ready for Pull Request review."
     ),
     capabilities=types.CapabilitiesConfig(
         agent_behavior=types.AgentBehavior.AUTONOMOUS,
         enable_subagents=True,
+        allowed_subagents=["strict_auditor"],
     ),
+    subagents=[auditor_agent],
     policies=policies,
     triggers=[git_schedule_trigger],
 )
