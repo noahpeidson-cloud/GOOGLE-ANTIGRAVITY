@@ -76,3 +76,7 @@ Antigravity_Media/
 # 5.7GB blob incident for why.
 content_creation/01_RAW/
 content_creation/02_IN_PROGRESS/
+
+# Agent Runtime State
+.agents/status/
+.claude/
