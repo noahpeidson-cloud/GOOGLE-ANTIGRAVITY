@@ -1,0 +1,4 @@
+
+# Gemini MCP Extractor temp
+.pytest_temp/
+extracted_notebook_data.json

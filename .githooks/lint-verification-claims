@@ -42,7 +42,12 @@ fail=0
 if [ "$#" -gt 0 ]; then
   files=$*
 else
-  files=$(find rules .agents -name '*.md' -type f 2>/dev/null)
+  # Default scope mirrors .githooks/pre-commit step 6: orchestration-state run logs written
+  # by the Antigravity swarm are excluded (R02 amendment, 2026-09-04); skills, commands,
+  # status/README.md and rules/ are linted.
+  files=$(find rules .agents -name '*.md' -type f 2>/dev/null \
+    | grep -vE '^\.agents/(teamwork_preview_[^/]+|victory_auditor_[^/]+|spec_miner_[^/]+|explorer_[^/]+|auditor_[^/]+|challenger_[^/]+|reviewer_[^/]+|worker_[^/]+|sentinel)/' \
+    | grep -vE '^\.agents/ORIGINAL_REQUEST\.md$')
 fi
 
 # Phrases that assert verification rather than describe intent.
